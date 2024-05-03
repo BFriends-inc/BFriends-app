@@ -1,16 +1,15 @@
-# bfriends_app
+# Welcome to, BFriends
 
-A new Flutter project.
+An app for finding people with common interests.
+---
+## Technical Specifications
+### Languages:
+[![Languages](https://skillicons.dev/icons?i=dart)]()
+### Libraries, SDKs & Framework:
+[![Languages](https://skillicons.dev/icons?i=flutter)]()
+### Database:
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Designs:
+[![Designs](https://skillicons.dev/icons?i=figma)]()
+---
+## Our Team
