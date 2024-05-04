@@ -1,4 +1,4 @@
-# Welcome to, BFriends
+# Welcome to, BFriends app
 An app for finding people with common interests.
 
 ## Technical Specifications
@@ -6,5 +6,3 @@ Our app is developed using Dart with Flutter SDK, with our prototype being desig
 
 ### Our Stacks:
 [![Stack](https://skillicons.dev/icons?i=dart,flutter,figma)]()
-
-## Our Team
