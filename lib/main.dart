@@ -1,12 +1,20 @@
-import 'package:bfriends_app/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/pages/homepage.dart';
-import 'package:bfriends_app/services/navigation.dart';
+import 'package:provider/provider.dart';
 
-final themeData = lightMode;
+import 'package:bfriends_app/services/navigation.dart';
+import 'package:bfriends_app/theme/theme_provider.dart';
 
 void main() {
-  runApp(const App());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (context) => ThemeProvider(),
+        ),
+      ],
+      child: const App(),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
@@ -17,7 +25,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'BFriends app',
-      theme: themeData,
+      theme: Provider.of<ThemeProvider>(context).themeData,
       routerConfig: routerConfig,
       restorationScopeId: 'app',
     );
