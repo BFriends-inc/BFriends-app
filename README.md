@@ -2,7 +2,7 @@
 An app for finding people with common interests.
 
 ## Technical Specifications
-Our app is developed using Dart with Flutter SDK, with our prototype being designed on Figma.
+Prototype designed with Figma. Developed using Dart and Flutter SDK.
 
 ### Our Stacks:
 [![Stack](https://skillicons.dev/icons?i=dart,flutter,figma)]()
