@@ -14,7 +14,7 @@ final routerConfig = GoRouter(
     GoRoute(
       path: '/homepage',
       pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(title: 'Temp Homepage'),
+        child: HomePage(),
       ),
     ),
   ],

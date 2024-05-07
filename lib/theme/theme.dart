@@ -7,6 +7,8 @@ ThemeData lightMode = ThemeData(
     background: Color(0xFFFFFFFF),
     primary: Color(0xFF6582AA),
     secondary: Color(0xFFA3C5F1),
+    tertiary: Color(0xFFB2B7BF),
   ),
+  primaryTextTheme: GoogleFonts.comfortaaTextTheme(),
   textTheme: GoogleFonts.poppinsTextTheme(),
 );
