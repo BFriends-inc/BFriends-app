@@ -5,9 +5,9 @@ ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
   colorScheme: const ColorScheme.light(
     background: Color(0xFFFFFFFF),
-    primary: Color(0xFF6582AA),
-    secondary: Color(0xFFA3C5F1),
-    tertiary: Color(0xFFB2B7BF),
+    primary: Color.fromARGB(255, 103, 6, 164),
+    secondary: Color.fromARGB(255, 57, 26, 120),
+    tertiary: Color.fromARGB(255, 137, 79, 190),
   ),
   primaryTextTheme: GoogleFonts.comfortaaTextTheme(),
   textTheme: GoogleFonts.poppinsTextTheme(),
