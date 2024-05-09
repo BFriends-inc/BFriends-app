@@ -11,6 +11,7 @@ void main() {
         ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
         ),
+        Provider<NavigationService>(create: (_) => NavigationService()),
       ],
       child: const App(),
     ),
