@@ -36,11 +36,14 @@ class _HomePageState extends State<HomePage> {
           style: theme.primaryTextTheme.headlineMedium,
         ),
       ),
+      endDrawer: Drawer(
+        backgroundColor: theme.colorScheme.background,
+      ),
       body: Center(
         child: Text(
           'This is the homepage.',
           style: TextStyle(
-              color: Colors.pink,
+              color: theme.colorScheme.onBackground,
               fontSize: theme.textTheme.bodyMedium?.fontSize),
         ),
       ),
