@@ -2,11 +2,11 @@ import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomePage2 extends StatelessWidget{
-  const HomePage2({super.key});
+class MapPage extends StatelessWidget {
+  const MapPage({super.key});
 
   @override
-  Widget build(BuildContext context){
-    return const Text('HOME PAGE');
+  Widget build(BuildContext context) {
+    return const Text('MAP PAGE');
   }
 }
