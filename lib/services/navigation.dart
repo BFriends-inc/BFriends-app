@@ -39,7 +39,7 @@ final routerConfig = GoRouter(
   debugLogDiagnostics: true,
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    if (currentPath == '/home') {
+    if (currentPath == '/home' || currentPath == '/') {
       return '/home_page';
     } else if (currentPath == '/friends') {
       return '/friends_page';

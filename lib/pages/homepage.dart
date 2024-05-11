@@ -57,18 +57,7 @@ class HomePage extends StatelessWidget {
           style: theme.primaryTextTheme.headlineMedium,
         ),
       ),
-      endDrawer: Drawer(
-        backgroundColor: theme.colorScheme.background,
-      ),
       body: tabs[selectedTabs.index]['page'],
-      // body: Center(
-      //   child: Text(
-      //     'This is the homepage.',
-      //     style: TextStyle(
-      //         color: theme.colorScheme.onBackground,
-      //         fontSize: theme.textTheme.bodyMedium?.fontSize),
-      //   ),
-      // ),
       bottomNavigationBar: BottomNavigationBar(
         elevation: 5.0,
         showSelectedLabels: true,
