@@ -2,7 +2,6 @@
 ////////////////////////////////////////
 // According to Flutter.dev using go_router seems more beneficial for our app in the long-term.
 // ref: https://docs.flutter.dev/ui/navigation
-//
 ////////////////////////////////////////
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:flutter/material.dart';

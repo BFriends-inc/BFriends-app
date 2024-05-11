@@ -47,10 +47,11 @@ class _MapPageState extends State<MapPage> {
               child: Text('Fetching map...'),
             )
           : GoogleMap(
+              //zoomGesturesEnabled: true,
               onMapCreated: ((GoogleMapController controller) =>
                   _mapController.complete(controller)),
               initialCameraPosition:
-                  const CameraPosition(target: _nthuUniversity, zoom: 13),
+                  CameraPosition(target: _currentPosition!, zoom: 13),
               markers: {
                 const Marker(
                     markerId: MarkerId("_randomLocation"),

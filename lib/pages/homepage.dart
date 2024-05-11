@@ -54,8 +54,21 @@ class HomePage extends StatelessWidget {
         backgroundColor: theme.colorScheme.primary,
         title: Text(
           'BFriends',
-          style: theme.primaryTextTheme.headlineMedium,
+          style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+              color: theme.colorScheme.onPrimary),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: theme.colorScheme.onPrimary,
+              semanticLabel: 'Notifications',
+            ),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: tabs[selectedTabs.index]['page'],
       bottomNavigationBar: BottomNavigationBar(
