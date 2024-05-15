@@ -12,17 +12,41 @@ import 'package:go_router/go_router.dart';
 final routerConfig = GoRouter(
   routes: [
     GoRoute(
-      path: '/homepage',
+      path: '/home_page',
       pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(),
+        child: HomePage(
+          selectedTabs: NavigationTabs.home,
+        ),
       ),
     ),
+    GoRoute(
+        path: '/friends_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.friends),
+            )),
+    GoRoute(
+        path: '/events_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.events),
+            )),
+    GoRoute(
+        path: '/profile_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.profile),
+            ))
   ],
-  initialLocation: '/homepage',
+  initialLocation: '/home_page',
+  debugLogDiagnostics: true,
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    if (currentPath == '/') {
-      return '/homepage';
+    if (currentPath == '/home' || currentPath == '/') {
+      return '/home_page';
+    } else if (currentPath == '/friends') {
+      return '/friends_page';
+    } else if (currentPath == '/events') {
+      return '/events_page';
+    } else if (currentPath == '/profile') {
+      return '/profile_page';
     }
     // No redirection needed for other routes
     return null;
@@ -39,5 +63,13 @@ class NavigationService {
 
   NavigationService() {
     _router = routerConfig;
+  }
+
+  String _currentPath(BuildContext context) {
+    return GoRouterState.of(context).uri.path;
+  }
+
+  void goHome({required NavigationTabs tab}) {
+    _router.go('/${tab.name}');
   }
 }
