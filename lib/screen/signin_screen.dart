@@ -1,3 +1,4 @@
+import 'package:bfriends_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/screen/signup_screen.dart';
 import 'package:bfriends_app/theme/theme.dart';
@@ -149,7 +150,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
                             },
                             child: Text(
-                              'Forget password?',
+                              'Forgot password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: lightColorScheme.primary,
@@ -167,9 +168,15 @@ class _SignInScreenState extends State<SignInScreen> {
                           onPressed: () {
                             if (_formSignInKey.currentState!.validate() &&
                                 rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //     content: Text('Processing Data'),
+                              //   ),
+                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomePage(),
                                 ),
                               );
                             } else if (!rememberPassword) {

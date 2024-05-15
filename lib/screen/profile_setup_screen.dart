@@ -1,3 +1,4 @@
+import 'package:bfriends_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/theme/theme.dart';
 
@@ -109,10 +110,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           const SnackBar(content: Text('Please select at least one hobby')),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Processing Data')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Processing Data')),
+        // );
         // Proceed with form submission logic here
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ),
+        );
       }
     }
   }

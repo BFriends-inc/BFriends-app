@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
+import 'package:bfriends_app/screen/signin_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({Key? key}) : super(key: key);
@@ -11,6 +12,8 @@ class ResetPasswordScreen extends StatefulWidget {
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _formResetPasswordkey = GlobalKey<FormState>();
+  final TextEditingController _newPassword = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +55,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 20.0),
                       TextFormField(
+                        controller: _newPassword,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -86,6 +90,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 25.0),
                       TextFormField(
+                        controller: _confirmPassword,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -115,6 +120,46 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           suffixIcon: Icon(
                             Icons.lock,
                             color: lightColorScheme.secondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formResetPasswordkey.currentState!
+                                .validate()) {
+                              if (_newPassword.text != _confirmPassword.text) {
+                                // Show snackbar if email is empty
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Passwords do not match.'),
+                                  ),
+                                );
+                              } else {
+                                // Navigate to EmailVerificationScreen
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SignInScreen(),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(15.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                          ),
+                          child: const Text(
+                            'Recover Password',
+                            style: TextStyle(
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.w200,
+                            ),
                           ),
                         ),
                       ),
