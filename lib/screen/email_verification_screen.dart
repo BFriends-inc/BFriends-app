@@ -98,6 +98,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               onChanged: (value) {
                                 if (value.length == 1 && index < 3) {
                                   FocusScope.of(context).nextFocus();
+                                } else if (value.isEmpty && index > 0) {
+                                  FocusScope.of(context).previousFocus();
                                 }
                                 setState(
                                     () {}); // Update state when text changes

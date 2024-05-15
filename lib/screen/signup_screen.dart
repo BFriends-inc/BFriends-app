@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/screen/signin_screen.dart';
 import 'package:bfriends_app/theme/theme.dart';
@@ -18,6 +19,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size; //get screen width + height
+    final padding = MediaQuery.of(context).viewPadding;
+    double screenW = size.width - padding.left - padding.right;
+    double screenH = size.height;
+
     return CustomScaffold(
       child: Column(
         children: [
@@ -165,7 +171,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             activeColor: lightColorScheme.primary,
                           ),
                           const Text(
-                            'I agree to the share my personal data to process information.',
+                            'I agree to share my personal data to process information.',
                             style: TextStyle(
                               color: Colors.black45,
                             ),
