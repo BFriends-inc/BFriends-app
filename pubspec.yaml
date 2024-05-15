@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  icons_plus: ^4.0.0
 
 
   cupertino_icons: ^1.0.6
