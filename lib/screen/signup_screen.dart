@@ -3,6 +3,7 @@ import 'package:bfriends_app/screen/signin_screen.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:bfriends_app/screen/profile_setup_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,6 +15,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
   bool agreePersonalData = true;
+
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
@@ -168,13 +170,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               color: Colors.black45,
                             ),
                           ),
-                          // Text(
-                          //   'Personal data',
-                          //   style: TextStyle(
-                          //     fontWeight: FontWeight.bold,
-                          //     color: lightColorScheme.primary,
-                          //   ),
-                          // ),
                         ],
                       ),
                       const SizedBox(
@@ -187,16 +182,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
+                              // Navigate to ProfileSetupScreen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ProfileSetupScreen(),
                                 ),
                               );
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
+                                  content: Text(
+                                      'Please agree to the processing of personal data'),
+                                ),
                               );
                             }
                           },
@@ -243,8 +242,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // Logo(Logos.facebook_f),
-                          // Logo(Logos.twitter),
                           Logo(Logos.google),
                           Logo(Logos.apple),
                         ],

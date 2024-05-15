@@ -3,9 +3,10 @@ import 'package:bfriends_app/screen/signup_screen.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:bfriends_app/screen/forget_passsword_screen.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({super.key}); // fix super key
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -138,6 +139,15 @@ class _SignInScreenState extends State<SignInScreen> {
                             ],
                           ),
                           GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ForgetPasswordScreen(),
+                                ),
+                              );
+                            },
                             child: Text(
                               'Forget password?',
                               style: TextStyle(
@@ -165,8 +175,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
+                                  content: Text(
+                                      'Please agree to the processing of personal data'),
+                                ),
                               );
                             }
                           },
