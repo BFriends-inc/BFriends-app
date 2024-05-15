@@ -48,6 +48,8 @@ class _MapPageState extends State<MapPage> {
             )
           : GoogleMap(
               //zoomGesturesEnabled: true,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
               onMapCreated: ((GoogleMapController controller) =>
                   _mapController.complete(controller)),
               initialCameraPosition:
@@ -81,12 +83,12 @@ class _MapPageState extends State<MapPage> {
   Future<void> getLocationUpdates() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
+    const double minChangeDistance = 0.01;
 
     _serviceEnabled = await _locationController.serviceEnabled();
-    if (_serviceEnabled) {
+    if (!_serviceEnabled) {
       _serviceEnabled = await _locationController.requestService();
-    } else {
-      return;
+      if (!_serviceEnabled) return;
     }
 
     _permissionGranted = await _locationController.hasPermission();
@@ -99,15 +101,20 @@ class _MapPageState extends State<MapPage> {
 
     mapSubscription = _locationController.onLocationChanged
         .listen((LocationData currentLocation) {
-      //our logic.
       if (currentLocation.latitude != null &&
           currentLocation.longitude != null) {
-        setState(() {
-          _currentPosition =
-              LatLng(currentLocation.latitude!, currentLocation.longitude!);
-          _cameraPosition(_currentPosition!);
-          //print(_currentPosition);
-        });
+        LatLng newPosition =
+            LatLng(currentLocation.latitude!, currentLocation.longitude!);
+        if (_currentPosition == null ||
+            (newPosition.latitude - _currentPosition!.latitude).abs() >
+                minChangeDistance ||
+            (newPosition.longitude - _currentPosition!.longitude).abs() >
+                minChangeDistance) {
+          setState(() {
+            _currentPosition = newPosition;
+            _cameraPosition(_currentPosition!);
+          });
+        }
       }
     });
   }
