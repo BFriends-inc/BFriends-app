@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class MapControllerService extends ChangeNotifier {
-  static final MapControllerService _instance = MapControllerService._internal();
-  
-  final Completer<GoogleMapController> _mapController = Completer<GoogleMapController>();
+  static final MapControllerService _instance =
+      MapControllerService._internal();
+
+  final Completer<GoogleMapController> _mapController =
+      Completer<GoogleMapController>();
   final Location _locationController = Location();
   LatLng? currentPosition;
   StreamSubscription<LocationData>? locationSubscription;
@@ -36,8 +39,10 @@ class MapControllerService extends ChangeNotifier {
       }
     }
 
-    locationSubscription = _locationController.onLocationChanged.listen((LocationData currentLocation) {
-      updateLocation(LatLng(currentLocation.latitude!, currentLocation.longitude!));
+    locationSubscription = _locationController.onLocationChanged
+        .listen((LocationData currentLocation) {
+      updateLocation(
+          LatLng(currentLocation.latitude!, currentLocation.longitude!));
     });
   }
 
@@ -52,15 +57,20 @@ class MapControllerService extends ChangeNotifier {
   Future<void> animateToCurrentLocation() async {
     final GoogleMapController controller = await _mapController.future;
     if (currentPosition != null) {
-      final CameraPosition position = CameraPosition(target: currentPosition!, zoom: 18); // Adjust zoom level as needed.
+      final CameraPosition position = CameraPosition(
+        target: currentPosition!,
+        zoom: 15, // Adjust zoom level as needed
+      );
       controller.animateCamera(CameraUpdate.newCameraPosition(position));
+    } else {
+      debugPrint("it's null");
     }
   }
 
   void setMapController(GoogleMapController controller) {
-      if (!_mapController.isCompleted) {
-          _mapController.complete(controller);
-      }
+    if (!_mapController.isCompleted) {
+      _mapController.complete(controller);
+    }
   }
 
   @override

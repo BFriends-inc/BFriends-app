@@ -25,12 +25,13 @@ class MapPage extends StatelessWidget {
               ),
             ),
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
+        child: const Icon(Icons.location_on),
         onPressed: () {
           if (mapControllerService.currentPosition != null) {
             mapControllerService.animateToCurrentLocation();
           }
         },
-        child: const Icon(Icons.location_on),
       ),
     );
   }

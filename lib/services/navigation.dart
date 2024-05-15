@@ -4,6 +4,7 @@
 // ref: https://docs.flutter.dev/ui/navigation
 ////////////////////////////////////////
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,13 +12,18 @@ import 'package:go_router/go_router.dart';
 final routerConfig = GoRouter(
   routes: [
     GoRoute(
-      path: '/home_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(
-          selectedTabs: NavigationTabs.home,
-        ),
-      ),
-    ),
+        path: '/home_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(
+                selectedTabs: NavigationTabs.home,
+              ),
+            ),
+        routes: [
+          GoRoute(
+            path: 'notification',
+            builder: (context, state) => const NotificationPage(),
+          )
+        ]),
     GoRoute(
         path: '/friends_page',
         pageBuilder: (context, state) => const NoTransitionPage<void>(
@@ -70,5 +76,15 @@ class NavigationService {
 
   void goHome({required NavigationTabs tab}) {
     _router.go('/${tab.name}');
+  }
+
+  void goNotification({required BuildContext context}) {
+    var path = _currentPath(context);
+    switch (path) {
+      case '/home_page':
+        _router.go('/home_page/notification');
+        return;
+    }
+    throw Exception('Cannot push notification on the path: $path');
   }
 }

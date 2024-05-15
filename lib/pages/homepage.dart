@@ -4,6 +4,7 @@ import 'package:bfriends_app/pages/home_page.dart';
 import 'package:bfriends_app/pages/profile_page.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 enum NavigationTabs {
@@ -27,7 +28,6 @@ class HomePage extends StatelessWidget {
                 : (index == 2
                     ? NavigationTabs.events
                     : NavigationTabs.profile)));
-    //FIXME: add navigation & tab change functionality.
   }
 
   @override
@@ -66,7 +66,12 @@ class HomePage extends StatelessWidget {
               color: theme.colorScheme.onPrimary,
               semanticLabel: 'Notifications',
             ),
-            onPressed: () {},
+            onPressed: () {
+              //context.pop();
+              final nav =
+                  Provider.of<NavigationService>(context, listen: false);
+              nav.goNotification(context: context);
+            },
           ),
         ],
       ),
