@@ -117,7 +117,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(),
+            builder: (context) => const HomePage(
+              selectedTabs: NavigationTabs.home,
+            ),
           ),
         );
       }

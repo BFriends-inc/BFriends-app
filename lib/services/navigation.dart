@@ -4,7 +4,10 @@
 // ref: https://docs.flutter.dev/ui/navigation
 //
 ////////////////////////////////////////
+//import 'dart:js';
+
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,44 +15,47 @@ import 'package:go_router/go_router.dart';
 final routerConfig = GoRouter(
   routes: [
     GoRoute(
+      path: '/welcome_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: WelcomeScreen(),
+      ),
+      routes: const [],
+    ),
+    GoRoute(
       path: '/home_page',
       pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(selectedTabs: NavigationTabs.home,),
+        child: HomePage(
+          selectedTabs: NavigationTabs.home,
+        ),
       ),
     ),
     GoRoute(
-      path: '/friends_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(selectedTabs: NavigationTabs.friends),
-      )
-    ),
+        path: '/friends_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.friends),
+            )),
     GoRoute(
-      path: '/events_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(selectedTabs: NavigationTabs.events),
-      )
-    ),
+        path: '/events_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.events),
+            )),
     GoRoute(
-      path: '/profile_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(selectedTabs: NavigationTabs.profile),
-      )
-    )
+        path: '/profile_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+              child: HomePage(selectedTabs: NavigationTabs.profile),
+            ))
   ],
-  initialLocation: '/home_page',
+  initialLocation: '/welcome_page',
   debugLogDiagnostics: true,
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    if (currentPath == '/home'  ) {
+    if (currentPath == '/home') {
       return '/home_page';
-    }
-    else if(currentPath == '/friends'){
+    } else if (currentPath == '/friends') {
       return '/friends_page';
-    }
-    else if(currentPath == '/events'){
+    } else if (currentPath == '/events') {
       return '/events_page';
-    }
-    else if(currentPath == '/profile'){
+    } else if (currentPath == '/profile') {
       return '/profile_page';
     }
     // No redirection needed for other routes
@@ -76,5 +82,4 @@ class NavigationService {
   void goHome({required NavigationTabs tab}) {
     _router.go('/${tab.name}');
   }
-
 }

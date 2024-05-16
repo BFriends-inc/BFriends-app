@@ -17,6 +17,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return CustomScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,9 +33,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             flex: 7,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40.0),
                   topRight: Radius.circular(40.0),
                 ),
@@ -50,7 +52,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       const SizedBox(height: 20.0),
@@ -67,24 +69,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         decoration: InputDecoration(
                           labelText: 'New Password',
                           hintText: 'Enter New Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           suffixIcon: Icon(
                             Icons.lock,
-                            color: lightColorScheme.secondary,
+                            color: theme.colorScheme.secondary,
                           ),
                         ),
                       ),
@@ -102,24 +106,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
                           hintText: 'Confirm New Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           suffixIcon: Icon(
                             Icons.lock,
-                            color: lightColorScheme.secondary,
+                            color: theme.colorScheme.secondary,
                           ),
                         ),
                       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MultiSelect extends StatefulWidget {
   final List<String> items;
-  const MultiSelect({Key? key, required this.items}) : super(key: key);
+  const MultiSelect({super.key, required this.items});
 
   @override
   State<StatefulWidget> createState() => _MultiSelectState();

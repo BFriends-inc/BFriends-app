@@ -18,6 +18,8 @@ class _SignInScreenState extends State<SignInScreen> {
   bool rememberPassword = true;
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return CustomScaffold(
       child: Column(
         children: [
@@ -31,9 +33,9 @@ class _SignInScreenState extends State<SignInScreen> {
             flex: 7,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40.0),
                   topRight: Radius.circular(40.0),
                 ),
@@ -49,7 +51,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       const SizedBox(
@@ -65,18 +67,20 @@ class _SignInScreenState extends State<SignInScreen> {
                         decoration: InputDecoration(
                           label: const Text('Email'),
                           hintText: 'Enter Email',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -97,18 +101,20 @@ class _SignInScreenState extends State<SignInScreen> {
                         decoration: InputDecoration(
                           label: const Text('Password'),
                           hintText: 'Enter Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -129,7 +135,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     rememberPassword = value!;
                                   });
                                 },
-                                activeColor: lightColorScheme.primary,
+                                activeColor: theme.colorScheme.primary,
                               ),
                               const Text(
                                 'Remember me',
@@ -153,7 +159,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Forgot password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
+                                color: theme.colorScheme.primary,
                               ),
                             ),
                           ),
@@ -176,7 +182,9 @@ class _SignInScreenState extends State<SignInScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HomePage(),
+                                  builder: (context) => const HomePage(
+                                    selectedTabs: NavigationTabs.home,
+                                  ),
                                 ),
                               );
                             } else if (!rememberPassword) {
@@ -200,7 +208,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           Expanded(
                             child: Divider(
                               thickness: 0.7,
-                              color: Colors.grey.withOpacity(0.5),
+                              color: theme.colorScheme.outlineVariant
+                                  .withOpacity(0.5),
                             ),
                           ),
                           const Padding(
@@ -218,7 +227,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           Expanded(
                             child: Divider(
                               thickness: 0.7,
-                              color: Colors.grey.withOpacity(0.5),
+                              color: theme.colorScheme.outlineVariant
+                                  .withOpacity(0.5),
                             ),
                           ),
                         ],
@@ -261,7 +271,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Sign up',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
+                                color: theme.colorScheme.primary,
                               ),
                             ),
                           ),

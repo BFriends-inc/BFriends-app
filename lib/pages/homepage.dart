@@ -15,13 +15,18 @@ enum NavigationTabs {
 
 class HomePage extends StatelessWidget {
   final NavigationTabs selectedTabs;
-  const HomePage({
-    super.key, required this.selectedTabs
-  });
+  const HomePage({super.key, required this.selectedTabs});
 
   void _tapBottomNavigationBarItem(BuildContext context, index) {
     final nav = Provider.of<NavigationService>(context, listen: false);
-    nav.goHome(tab: index == 0 ? NavigationTabs.home : (index == 1 ? NavigationTabs.friends : (index == 2 ? NavigationTabs.events : NavigationTabs.profile)));
+    nav.goHome(
+        tab: index == 0
+            ? NavigationTabs.home
+            : (index == 1
+                ? NavigationTabs.friends
+                : (index == 2
+                    ? NavigationTabs.events
+                    : NavigationTabs.profile)));
     //FIXME: add navigation & tab change functionality.
   }
 

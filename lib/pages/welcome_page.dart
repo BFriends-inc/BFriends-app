@@ -9,6 +9,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -40,21 +41,21 @@ class WelcomeScreen extends StatelessWidget {
                     child: Center(
                       child: RichText(
                         textAlign: TextAlign.center,
-                        text: const TextSpan(
+                        text: TextSpan(
                           children: [
                             TextSpan(
                               text: 'Welcome to BeFriends!\n',
                               style: TextStyle(
                                 fontSize: 35.0,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: theme.colorScheme.onPrimary,
                               ),
                             ),
                             TextSpan(
                               text: '\nA place to connect with people',
                               style: TextStyle(
                                 fontSize: 17,
-                                color: Colors.white,
+                                color: theme.colorScheme.onPrimary,
                               ),
                             ),
                           ],
@@ -82,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                             buttonText: 'Sign up',
                             onTap: const SignUpScreen(),
                             color: Colors.white,
-                            textColor: lightColorScheme.primary,
+                            textColor: theme.colorScheme.primary,
                           ),
                         ),
                       ],
