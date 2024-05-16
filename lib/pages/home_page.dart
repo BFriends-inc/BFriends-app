@@ -8,9 +8,21 @@ class MapPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final mapControllerService = Provider.of<MapControllerService>(context);
 
     return Scaffold(
+      /*
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: Text(
+          'BFriends',
+          style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+              color: theme.colorScheme.onPrimary),
+        ),
+      ),*/
       body: mapControllerService.currentPosition == null
           ? const Center(child: Text('Fetching map...'))
           : GoogleMap(

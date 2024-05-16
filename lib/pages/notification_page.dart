@@ -17,13 +17,15 @@ class _NotificationPageState extends State<NotificationPage> {
       appBar: AppBar(
         elevation: 5.0,
         backgroundColor: theme.colorScheme.background,
+        foregroundColor: theme.colorScheme.onBackground,
+        surfaceTintColor: theme.colorScheme.background,
+        shadowColor: Colors.black26, //Need shadow color
         leading: IconButton(
           onPressed: () {
             context.pop();
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: theme.colorScheme.onBackground,
           ),
         ),
         title: Text(
@@ -31,7 +33,6 @@ class _NotificationPageState extends State<NotificationPage> {
           style: TextStyle(
             fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
             fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-            color: theme.colorScheme.onBackground,
           ),
         ),
       ),

@@ -59,6 +59,7 @@ class HomePage extends StatelessWidget {
               fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
               color: theme.colorScheme.onPrimary),
         ),
+        centerTitle: true,
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -77,7 +78,9 @@ class HomePage extends StatelessWidget {
       ),
       body: tabs[selectedTabs.index]['page'],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         elevation: 5.0,
+        selectedFontSize: 12.0,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedItemColor: theme.colorScheme.secondary,
