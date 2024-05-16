@@ -7,7 +7,7 @@ class MapControllerService extends ChangeNotifier {
   static final MapControllerService _instance =
       MapControllerService._internal();
 
-  final Completer<GoogleMapController> _mapController =
+  Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
   final Location _locationController = Location();
   LatLng? currentPosition;
@@ -53,17 +53,16 @@ class MapControllerService extends ChangeNotifier {
     }
   }
 
+  bool _isAnimating = false;
+
   Future<void> animateToCurrentLocation() async {
-    final GoogleMapController controller = await _mapController.future;
-    if (currentPosition != null) {
-      final CameraPosition position = CameraPosition(
-        target: currentPosition!,
-        zoom: 15, // Adjust zoom level as needed
-      );
-      controller.animateCamera(CameraUpdate.newCameraPosition(position));
-      //debugPrint("yeet");
-    } else {
-      debugPrint("current pos. is null!");
+    if (!_isAnimating && currentPosition != null) {
+      _isAnimating = true;
+      final GoogleMapController controller = await _mapController.future;
+      final CameraPosition position =
+          CameraPosition(target: currentPosition!, zoom: 18);
+      await controller.animateCamera(CameraUpdate.newCameraPosition(position));
+      _isAnimating = false;
     }
   }
 
@@ -72,6 +71,8 @@ class MapControllerService extends ChangeNotifier {
     if (!_mapController.isCompleted) {
       debugPrint("completed controller");
       _mapController.complete(controller);
+    } else {
+      _mapController = Completer()..complete(controller);
     }
   }
 

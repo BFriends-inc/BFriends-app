@@ -3,12 +3,22 @@ import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   const MapPage({super.key});
+
+  @override
+  _MapPageState createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    super.build(context);
+
     final mapControllerService = Provider.of<MapControllerService>(context);
 
     return Scaffold(
@@ -33,7 +43,7 @@ class MapPage extends StatelessWidget {
               onMapCreated: mapControllerService.setMapController,
               initialCameraPosition: CameraPosition(
                 target: mapControllerService.currentPosition!,
-                zoom: 15,
+                zoom: 18,
               ),
             ),
       floatingActionButton: FloatingActionButton(
