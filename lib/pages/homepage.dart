@@ -1,3 +1,7 @@
+import 'package:bfriends_app/pages/events_page.dart';
+import 'package:bfriends_app/pages/friends_page.dart';
+import 'package:bfriends_app/pages/home_page.dart';
+import 'package:bfriends_app/pages/profile_page.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,24 +13,36 @@ enum NavigationTabs {
   profile,
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
+  final NavigationTabs selectedTabs;
   const HomePage({
-    super.key,
+    super.key, required this.selectedTabs
   });
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   void _tapBottomNavigationBarItem(BuildContext context, index) {
     final nav = Provider.of<NavigationService>(context, listen: false);
+    nav.goHome(tab: index == 0 ? NavigationTabs.home : (index == 1 ? NavigationTabs.friends : (index == 2 ? NavigationTabs.events : NavigationTabs.profile)));
     //FIXME: add navigation & tab change functionality.
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final List<Map<String, dynamic>> tabs = [
+      {
+        'page': const HomePage2(),
+      },
+      {
+        'page': const FriendsPage(),
+      },
+      {
+        'page': const EventsPage(),
+      },
+      {
+        'page': const ProfilePage(),
+      },
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -39,14 +55,15 @@ class _HomePageState extends State<HomePage> {
       endDrawer: Drawer(
         backgroundColor: theme.colorScheme.background,
       ),
-      body: Center(
-        child: Text(
-          'This is the homepage.',
-          style: TextStyle(
-              color: theme.colorScheme.onBackground,
-              fontSize: theme.textTheme.bodyMedium?.fontSize),
-        ),
-      ),
+      body: tabs[selectedTabs.index]['page'],
+      // body: Center(
+      //   child: Text(
+      //     'This is the homepage.',
+      //     style: TextStyle(
+      //         color: theme.colorScheme.onBackground,
+      //         fontSize: theme.textTheme.bodyMedium?.fontSize),
+      //   ),
+      // ),
       bottomNavigationBar: BottomNavigationBar(
         elevation: 5.0,
         showSelectedLabels: true,
@@ -54,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: theme.colorScheme.secondary,
         unselectedItemColor: theme.colorScheme.tertiary,
         onTap: (index) => _tapBottomNavigationBarItem(context, index),
-        currentIndex: 0,
+        currentIndex: selectedTabs.index,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(
