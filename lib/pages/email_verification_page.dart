@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
-import 'package:bfriends_app/screen/reset_password_screen.dart';
+import 'package:bfriends_app/pages/reset_password_page.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({Key? key}) : super(key: key);

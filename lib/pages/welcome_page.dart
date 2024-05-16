@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/welcome_button.dart';
-import 'package:bfriends_app/screen/signin_screen.dart';
-import 'package:bfriends_app/screen/signup_screen.dart';
+import 'package:bfriends_app/pages/signin_page.dart';
+import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 
 class WelcomeScreen extends StatelessWidget {

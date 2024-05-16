@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
   primary: Color.fromARGB(255, 103, 6, 164),
-  onPrimary: Color.fromARGB(255, 103, 6, 164),
+  onPrimary: Color.fromARGB(255, 255, 255, 255),
   secondary: Color.fromARGB(255, 57, 26, 120),
-  onSecondary: Color.fromARGB(255, 57, 26, 120),
+  onSecondary: Color.fromARGB(255, 255, 255, 255),
   tertiary: Color.fromARGB(255, 137, 79, 190),
   error: Color(0xFFBA1A1A),
   onError: Color(0xFFFFFFFF),
@@ -38,4 +39,6 @@ ThemeData lightMode = ThemeData(
       ),
     ),
   ),
+  textTheme: GoogleFonts.poppinsTextTheme(),
+  primaryTextTheme: GoogleFonts.comfortaaTextTheme(),
 );

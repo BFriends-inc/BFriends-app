@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
-import 'package:bfriends_app/screen/email_verification_screen.dart';
+import 'package:bfriends_app/pages/signin_page.dart';
 
-class ForgetPasswordScreen extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
-  const ForgetPasswordScreen({Key? key});
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({super.key});
 
   @override
-  State<ForgetPasswordScreen> createState() => _ForgetPasswordScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
-  final _formForgetPasswordKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final _formResetPasswordkey = GlobalKey<FormState>();
+  final TextEditingController _newPassword = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Expanded(
             flex: 1,
@@ -39,40 +40,33 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               ),
               child: SingleChildScrollView(
                 child: Form(
-                  key: _formForgetPasswordKey,
+                  key: _formResetPasswordkey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 20.0),
                       Text(
-                        'Forgot Your Password?',
+                        'Reset Password',
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
                           color: lightColorScheme.primary,
                         ),
                       ),
-                      const Text(
-                        'Enter the email associated with your account',
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black26,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40.0,
-                      ),
+                      const SizedBox(height: 20.0),
                       TextFormField(
-                        controller: _emailController,
+                        controller: _newPassword,
+                        obscureText: true,
+                        obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter Email';
+                            return 'Please enter New Password';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Email'),
-                          hintText: 'Enter Email',
+                          labelText: 'New Password',
+                          hintText: 'Enter New Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
@@ -88,22 +82,59 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          suffixIcon: Icon(
+                            Icons.lock,
+                            color: lightColorScheme.secondary,
+                          ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 25.0,
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        controller: _confirmPassword,
+                        obscureText: true,
+                        obscuringCharacter: '*',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Confirm your Password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          hintText: 'Confirm New Password',
+                          hintStyle: const TextStyle(
+                            color: Colors.black26,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.lock,
+                            color: lightColorScheme.secondary,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: 25.0),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formForgetPasswordKey.currentState!
+                            if (_formResetPasswordkey.currentState!
                                 .validate()) {
-                              if (_emailController.text.isEmpty) {
+                              if (_newPassword.text != _confirmPassword.text) {
                                 // Show snackbar if email is empty
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Please fill in Email'),
+                                    content: Text('Passwords do not match.'),
                                   ),
                                 );
                               } else {
@@ -111,8 +142,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        EmailVerificationScreen(),
+                                    builder: (context) => const SignInScreen(),
                                   ),
                                 );
                               }
@@ -132,9 +162,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 25.0,
                       ),
                     ],
                   ),

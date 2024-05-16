@@ -1,10 +1,10 @@
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/screen/signup_screen.dart';
+import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:bfriends_app/screen/forget_passsword_screen.dart';
+import 'package:bfriends_app/pages/forget_passsword_page.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key}); // fix super key

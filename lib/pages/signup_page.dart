@@ -1,10 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/screen/signin_screen.dart';
+import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:bfriends_app/screen/profile_setup_screen.dart';
+import 'package:bfriends_app/pages/profile_setup_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
