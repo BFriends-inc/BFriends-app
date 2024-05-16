@@ -69,7 +69,7 @@ class MapControllerService extends ChangeNotifier {
   void setMapController(GoogleMapController controller) {
     debugPrint("Entering setup");
     if (!_mapController.isCompleted) {
-      debugPrint("completed controller");
+      debugPrint("Completed controller");
       _mapController.complete(controller);
     } else {
       _mapController = Completer()..complete(controller);

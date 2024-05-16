@@ -1,3 +1,4 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,7 +11,8 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
+class _MapPageState extends State<MapPage>
+    with AutomaticKeepAliveClientMixin<MapPage> {
   @override
   bool get wantKeepAlive => true;
 
@@ -22,7 +24,6 @@ class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
     final mapControllerService = Provider.of<MapControllerService>(context);
 
     return Scaffold(
-      /*
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         title: Text(
@@ -32,7 +33,23 @@ class _MapPageState extends State<MapPage> with AutomaticKeepAliveClientMixin {
               fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
               color: theme.colorScheme.onPrimary),
         ),
-      ),*/
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.notifications_outlined,
+              color: theme.colorScheme.onPrimary,
+              semanticLabel: 'Notifications',
+            ),
+            onPressed: () {
+              //context.pop();
+              final nav =
+                  Provider.of<NavigationService>(context, listen: false);
+              nav.goNotification(context: context);
+            },
+          ),
+        ],
+      ),
       body: mapControllerService.currentPosition == null
           ? const Center(child: Text('Fetching map...'))
           : GoogleMap(

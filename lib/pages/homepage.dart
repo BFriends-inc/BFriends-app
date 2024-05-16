@@ -50,32 +50,6 @@ class HomePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: TextStyle(
-              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-              color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: theme.colorScheme.onPrimary,
-              semanticLabel: 'Notifications',
-            ),
-            onPressed: () {
-              //context.pop();
-              final nav =
-                  Provider.of<NavigationService>(context, listen: false);
-              nav.goNotification(context: context);
-            },
-          ),
-        ],
-      ),
       body: tabs[selectedTabs.index]['page'],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
