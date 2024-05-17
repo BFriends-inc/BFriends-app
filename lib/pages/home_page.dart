@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
@@ -13,8 +16,29 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage>
     with AutomaticKeepAliveClientMixin<MapPage> {
+
+  BitmapDescriptor? customIcon;
+
+  @override
+    void initState() {
+      super.initState();
+      _loadCustomMarker();
+  }
   @override
   bool get wantKeepAlive => true;
+
+  Future<void> _loadCustomMarker() async {
+    final markerIcon = await getBytesFromAsset('assets/images/sports_marker.png', 150);
+    customIcon = BitmapDescriptor.fromBytes(markerIcon);
+    setState(() {});
+  }
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
+    FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +86,14 @@ class _MapPageState extends State<MapPage>
                 target: mapControllerService.currentPosition!,
                 zoom: 18,
               ),
+              markers: {
+                if (customIcon != null && mapControllerService.currentPosition != null)
+                  Marker(
+                    markerId: const MarkerId('custom_marker'),
+                    position: mapControllerService.currentPosition!,
+                    icon: customIcon!,
+                  ),
+              },
             ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
