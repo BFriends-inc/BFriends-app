@@ -128,19 +128,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: lightColorScheme.secondary,
+        backgroundColor: theme.colorScheme.secondary,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'SETUP YOUR PROFILE',
           style: TextStyle(
             fontSize: 25.0,
             fontWeight: FontWeight.w700,
-            color: Color(0xFFF9FAF3),
+            color: theme.colorScheme.onSecondary,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSecondary),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -166,18 +167,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   decoration: InputDecoration(
                     label: const Text('Username'),
                     hintText: 'Input Username',
-                    hintStyle: const TextStyle(
-                      color: Colors.black26,
+                    hintStyle: TextStyle(
+                      color: theme.colorScheme.onTertiaryContainer,
                     ),
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: Colors.black12,
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiaryContainer,
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: Colors.black12,
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiaryContainer,
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -199,8 +200,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           decoration: InputDecoration(
                             labelText: 'Gender',
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Colors.black12,
+                              borderSide: BorderSide(
+                                color: theme.colorScheme.tertiaryContainer,
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -224,7 +225,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Colors.black12,
+                                color: theme.colorScheme.tertiaryContainer,
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -239,15 +240,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   _selectedDate == null
                                       ? 'Date of Birth'
                                       : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
-                                  style: const TextStyle(
-                                    color: Colors.black54,
-                                  ),
                                 ),
                                 IconButton(
                                   onPressed: _presentDatePicker,
                                   icon: Icon(
                                     Icons.calendar_today,
-                                    color: lightColorScheme.tertiary,
+                                    color: theme.colorScheme.tertiary,
                                   ),
                                 ),
                               ],
@@ -270,7 +268,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.black12,
+                                  color: theme.colorScheme.tertiaryContainer,
                                   width: 1.0,
                                 ),
                                 borderRadius: BorderRadius.circular(10),
@@ -288,19 +286,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                     vertical: 16.0,
                                     horizontal: 0,
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Select Your Preferred Languages',
                                         style: TextStyle(
-                                          color: Colors.black87,
+                                          color: theme.colorScheme.onPrimary,
                                           fontSize: 16,
                                         ),
                                       ),
-                                      SizedBox(width: 20),
-                                      Icon(Icons.language),
+                                      const SizedBox(width: 20),
+                                      const Icon(Icons.language),
                                     ],
                                   ),
                                 ),
@@ -332,7 +330,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.black12,
+                                  color: theme.colorScheme.tertiaryContainer,
                                   width: 1.0,
                                 ),
                                 borderRadius: BorderRadius.circular(10),
@@ -350,19 +348,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                     vertical: 16.0,
                                     horizontal: 0,
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Select Your Preferred Hobbies',
                                         style: TextStyle(
-                                          color: Colors.black87,
+                                          color: theme.colorScheme.onPrimary,
                                           fontSize: 16,
                                         ),
                                       ),
-                                      SizedBox(width: 20),
-                                      Icon(Icons.sports_tennis),
+                                      const SizedBox(width: 20),
+                                      const Icon(Icons.sports_tennis),
                                     ],
                                   ),
                                 ),

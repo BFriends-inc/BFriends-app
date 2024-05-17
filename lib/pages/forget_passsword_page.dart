@@ -17,6 +17,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return CustomScaffold(
       child: Column(
         children: [
@@ -30,9 +32,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
             flex: 7,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40.0),
                   topRight: Radius.circular(40.0),
                 ),
@@ -48,15 +50,15 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Enter the email associated with your account',
                         style: TextStyle(
                           fontSize: 15.0,
                           fontWeight: FontWeight.w900,
-                          color: Colors.black26,
+                          color: theme.colorScheme.onTertiaryContainer,
                         ),
                       ),
                       const SizedBox(
@@ -73,18 +75,20 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         decoration: InputDecoration(
                           label: const Text('Email'),
                           hintText: 'Enter Email',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -112,7 +116,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        EmailVerificationScreen(),
+                                        const EmailVerificationScreen(),
                                   ),
                                 );
                               }

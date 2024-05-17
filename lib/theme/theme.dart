@@ -8,7 +8,7 @@ const lightColorScheme = ColorScheme(
   secondary: Color.fromARGB(255, 57, 26, 120),
   onSecondary: Color.fromARGB(255, 255, 255, 255),
   tertiary: Color.fromARGB(255, 137, 79, 190),
-  tertiaryContainer: Colors.black12,
+  tertiaryContainer: Colors.black12, //for text box
   onTertiaryContainer: Colors.black26,
   error: Color(0xFFBA1A1A),
   onError: Color(0xFFFFFFFF),

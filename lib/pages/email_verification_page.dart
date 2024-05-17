@@ -4,7 +4,7 @@ import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
-  const EmailVerificationScreen({Key? key}) : super(key: key);
+  const EmailVerificationScreen({super.key});
 
   @override
   State<EmailVerificationScreen> createState() =>
@@ -18,7 +18,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   void dispose() {
-    _controllers.forEach((controller) => controller.dispose());
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -35,6 +37,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return CustomScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,9 +53,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             flex: 7,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.background,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(40.0),
                   topRight: Radius.circular(40.0),
                 ),
@@ -67,15 +71,15 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Enter the 4-digit code sent to your Email',
                         style: TextStyle(
                           fontSize: 15.0,
                           fontWeight: FontWeight.w900,
-                          color: Colors.black26,
+                          color: theme.colorScheme.onTertiaryContainer,
                         ),
                       ),
                       const SizedBox(
@@ -91,9 +95,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               keyboardType: TextInputType.number,
                               maxLength: 1,
                               textAlign: TextAlign.center,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 counterText: '',
-                                border: OutlineInputBorder(),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: theme.colorScheme.tertiaryContainer,
+                                  ),
+                                ),
                               ),
                               onChanged: (value) {
                                 if (value.length == 1 && index < 3) {
@@ -126,7 +134,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ResetPasswordScreen(),
+                                  builder: (context) =>
+                                      const ResetPasswordScreen(),
                                 ),
                               );
                             } else {
