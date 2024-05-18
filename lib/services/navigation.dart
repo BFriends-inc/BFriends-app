@@ -7,8 +7,13 @@
 //import 'dart:js';
 
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/pages/signin_page.dart';
+import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
+import 'package:bfriends_app/services/navigation_path.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 //DO: setup routes
@@ -19,7 +24,18 @@ final routerConfig = GoRouter(
       pageBuilder: (context, state) => const NoTransitionPage<void>(
         child: WelcomeScreen(),
       ),
-      routes: const [],
+      routes: [
+        GoRoute(
+          path: 'signin',
+          builder: (context, state) => const SignInScreen(),
+          routes: signInRoute,
+        ),
+        GoRoute(
+          path: 'signup',
+          builder: (context, state) => const SignUpScreen(),
+          routes: signUpRoute,
+        )
+      ],
     ),
     GoRoute(
       path: '/home_page',
@@ -49,7 +65,9 @@ final routerConfig = GoRouter(
   debugLogDiagnostics: true,
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    if (currentPath == '/home') {
+    if (currentPath == '/') {
+      return '/welcome_page';
+    } else if (currentPath == '/home') {
       return '/home_page';
     } else if (currentPath == '/friends') {
       return '/friends_page';
@@ -80,6 +98,36 @@ class NavigationService {
   }
 
   void goHome({required NavigationTabs tab}) {
+    /// navigate bottom bar ///
     _router.go('/${tab.name}');
+  }
+
+  void pushAuthOnPage(
+      {required BuildContext context, required String destination}) {
+    /// push account authentication process pages ///
+    var path = _currentPath(context);
+    try {
+      _router.go('$path/$destination');
+    } on Exception catch (e) {
+      debugPrint('Cannot push $destination on the path: $path');
+      debugPrint(e.toString());
+    }
+  }
+
+  void popAuthStack({required BuildContext context}) {
+    /// pop authentication process stack ///
+    var path = _currentPath(context);
+    switch (path) {
+      case '/welcome_page/signin/recov_email/verify_email/reset_pass':
+        _router.go('/welcome_page/signin');
+        return;
+      case '/welcome_page/signin':
+        _router.go('/welcome_page/signup');
+        return;
+      case '/welcome_page/signup':
+        _router.go('/welcome_page/signin');
+        return;
+    }
+    throw Exception('Failed to pop stack from path: $path');
   }
 }

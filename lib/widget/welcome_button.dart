@@ -1,10 +1,16 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class WelcomeButton extends StatelessWidget {
   const WelcomeButton(
-      {super.key, this.buttonText, this.onTap, this.color, this.textColor});
+      {super.key,
+      this.buttonText,
+      this.tapDestination,
+      this.color,
+      this.textColor});
   final String? buttonText;
-  final Widget? onTap;
+  final String? tapDestination;
   final Color? color;
   final Color? textColor;
 
@@ -12,12 +18,8 @@ class WelcomeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (e) => onTap!,
-          ),
-        );
+        final nav = Provider.of<NavigationService>(context, listen: false);
+        nav.pushAuthOnPage(context: context, destination: tapDestination!);
       },
       child: Padding(
         padding: const EdgeInsets.fromLTRB(

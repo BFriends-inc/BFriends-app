@@ -1,7 +1,9 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/pages/email_verification_page.dart';
+import 'package:provider/provider.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -18,6 +20,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nav = Provider.of<NavigationService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -112,13 +115,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                 );
                               } else {
                                 // Navigate to EmailVerificationScreen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const EmailVerificationScreen(),
-                                  ),
-                                );
+                                nav.pushAuthOnPage(
+                                    context: context,
+                                    destination: 'verify_email');
                               }
                             }
                           },

@@ -1,7 +1,9 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
+import 'package:provider/provider.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -38,6 +40,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nav = Provider.of<NavigationService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -131,13 +134,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               // For now, just print the verification code
                               // print('Verification code: $_verificationCode');
                               // Navigate to the next screen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ResetPasswordScreen(),
-                                ),
-                              );
+                              nav.pushAuthOnPage(
+                                  context: context, destination: 'reset_pass');
                             } else {
                               // Show snack bar if verification code is not filled
                               ScaffoldMessenger.of(context).showSnackBar(

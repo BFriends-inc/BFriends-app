@@ -1,7 +1,9 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
+import 'package:provider/provider.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -18,6 +20,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nav = Provider.of<NavigationService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -145,12 +148,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 );
                               } else {
                                 // Navigate to EmailVerificationScreen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SignInScreen(),
-                                  ),
-                                );
+                                nav.popAuthStack(context: context);
                               }
                             }
                           },

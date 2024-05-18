@@ -1,6 +1,8 @@
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/theme/theme.dart';
+import 'package:provider/provider.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -114,14 +116,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         //   const SnackBar(content: Text('Processing Data')),
         // );
         // Proceed with form submission logic here
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(
-              selectedTabs: NavigationTabs.home,
-            ),
-          ),
-        );
+        final nav = Provider.of<NavigationService>(context, listen: false);
+        nav.goHome(tab: NavigationTabs.home);
       }
     }
   }
@@ -129,6 +125,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.secondary,

@@ -24,6 +24,24 @@ ThemeData lightMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   colorScheme: lightColorScheme,
+  // textButtonTheme: TextButtonThemeData(
+  //   style: ButtonStyle(
+  //     backgroundColor: MaterialStateProperty.all<Color>(
+  //       lightColorScheme.background,
+  //     ),
+  //     padding: MaterialStateProperty.all<EdgeInsets>(
+  //       const EdgeInsets.all(0),
+  //     ),
+  //     shape: MaterialStateProperty.all(
+  //       RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(17.0),
+  //       ),
+  //     ),
+  //     minimumSize: MaterialStateProperty.all(
+  //       const Size(double.infinity, 120.0),
+  //     ),
+  //   ),
+  // ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.all<Color>(

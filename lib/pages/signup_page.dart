@@ -1,10 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -20,10 +22,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Size size = MediaQuery.of(context).size; //get screen width + height
-    final padding = MediaQuery.of(context).viewPadding;
-    double screenW = size.width - padding.left - padding.right;
-    double screenH = size.height;
+    final nav = Provider.of<NavigationService>(context, listen: false);
+    //get screen width + height
 
     return CustomScaffold(
       child: Column(
@@ -196,13 +196,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
                               // Navigate to ProfileSetupScreen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ProfileSetupScreen(),
-                                ),
-                              );
+                              nav.pushAuthOnPage(
+                                  context: context, destination: 'set_profile');
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -276,12 +271,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (e) => const SignInScreen(),
-                                ),
-                              );
+                              nav.popAuthStack(context: context);
                             },
                             child: Text(
                               'Sign in',

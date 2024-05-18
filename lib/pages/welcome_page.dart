@@ -1,8 +1,10 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/welcome_button.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
+import 'package:provider/provider.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -73,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                         const Expanded(
                           child: WelcomeButton(
                             buttonText: 'Sign in',
-                            onTap: SignInScreen(),
+                            tapDestination: 'signin',
                             color: Colors.transparent,
                             textColor: Colors.white,
                           ),
@@ -81,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                         Expanded(
                           child: WelcomeButton(
                             buttonText: 'Sign up',
-                            onTap: const SignUpScreen(),
+                            tapDestination: 'signup',
                             color: Colors.white,
                             textColor: theme.colorScheme.primary,
                           ),

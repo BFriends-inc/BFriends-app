@@ -7,6 +7,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        Provider<NavigationService>(create: (_) => NavigationService()),
         ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
         ),

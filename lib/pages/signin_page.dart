@@ -1,10 +1,12 @@
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:bfriends_app/pages/forget_passsword_page.dart';
+import 'package:bfriends_app/pages/forget_password_page.dart';
+import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key}); // fix super key
@@ -16,9 +18,11 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
   bool rememberPassword = true;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nav = Provider.of<NavigationService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -147,13 +151,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgetPasswordScreen(),
-                                ),
-                              );
+                              nav.pushAuthOnPage(
+                                  context: context, destination: 'recov_email');
                             },
                             child: Text(
                               'Forgot password?',
@@ -174,19 +173,10 @@ class _SignInScreenState extends State<SignInScreen> {
                           onPressed: () {
                             if (_formSignInKey.currentState!.validate() &&
                                 rememberPassword) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(
-                              //     content: Text('Processing Data'),
-                              //   ),
-                              // );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomePage(
-                                    selectedTabs: NavigationTabs.home,
-                                  ),
-                                ),
-                              );
+                              final nav = Provider.of<NavigationService>(
+                                  context,
+                                  listen: false);
+                              nav.goHome(tab: NavigationTabs.home);
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -260,12 +250,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (e) => const SignUpScreen(),
-                                ),
-                              );
+                              nav.popAuthStack(context: context);
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (e) => const SignUpScreen(),
+                              //   ),
+                              // );
                             },
                             child: Text(
                               'Sign up',
