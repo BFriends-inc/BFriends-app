@@ -18,84 +18,92 @@ class WelcomeScreen extends StatelessWidget {
         elevation: 0,
       ),
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          Image.asset(
-            //cover the whole page with the pic
-            'assets/images/bg1.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [theme.colorScheme.secondary, theme.colorScheme.primary],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 270),
-                Flexible(
-                  flex: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 40.0,
-                    ),
-                    child: Center(
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Welcome to BeFriends!\n',
-                              style: TextStyle(
-                                fontSize: 35.0,
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.onPrimary,
-                              ),
+        ),
+        child: Align(
+          alignment: Alignment.center,
+          child: Column(
+            children: [
+              const SizedBox(height: 50),
+              SizedBox(
+                height: 200,
+                child: Center(
+                  child: Image.asset(
+                    //cover the whole box with the pic
+                    'assets/images/whitelogo.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Flexible(
+                flex: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 40.0,
+                  ),
+                  child: Center(
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Welcome to BeFriends!\n',
+                            style: TextStyle(
+                              fontSize: 35.0,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onPrimary,
                             ),
-                            TextSpan(
-                              text: '\nA place to connect with people',
-                              style: TextStyle(
-                                fontSize: 17,
-                                color: theme.colorScheme.onPrimary,
-                              ),
+                          ),
+                          TextSpan(
+                            text: '\nA place to connect with people',
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: theme.colorScheme.onPrimary,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: WelcomeButton(
-                            buttonText: 'Sign in',
-                            tapDestination: 'signin',
-                            color: Colors.transparent,
-                            textColor: Colors.white,
-                          ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: WelcomeButton(
+                          buttonText: 'Sign in',
+                          tapDestination: 'signin',
+                          color: Colors.transparent,
+                          textColor: Colors.white,
                         ),
-                        Expanded(
-                          child: WelcomeButton(
-                            buttonText: 'Sign up',
-                            tapDestination: 'signup',
-                            color: Colors.white,
-                            textColor: theme.colorScheme.primary,
-                          ),
+                      ),
+                      Expanded(
+                        child: WelcomeButton(
+                          buttonText: 'Sign up',
+                          tapDestination: 'signup',
+                          color: Colors.white,
+                          textColor: theme.colorScheme.primary,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
