@@ -176,12 +176,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             },
                             activeColor: theme.colorScheme.primary,
                           ),
-                          const Text(
-                            'I agree to share my personal data to process information.',
-                            style: TextStyle(
-                              color: Colors.black45,
+                          const Flexible(
+                              child: Text(
+                                'I agree to share my personal data to process information.',
+                                style: TextStyle(
+                                  color: Colors.black45,
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       const SizedBox(
