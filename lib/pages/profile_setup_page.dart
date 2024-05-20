@@ -1,11 +1,13 @@
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/theme/theme.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  final Map<String, String> userInfo;
+  const ProfileSetupScreen({super.key, required this.userInfo});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -14,6 +16,7 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
+  TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
   List<String> _selectedItems = [];
@@ -38,7 +41,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void _languageSelect() async {
     final List<String>? results = await showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext context){
         return const MultiSelect(
           items: [
             'English',
@@ -116,9 +119,33 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         //   const SnackBar(content: Text('Processing Data')),
         // );
         // Proceed with form submission logic here
-        final nav = Provider.of<NavigationService>(context, listen: false);
-        nav.goHome(tab: NavigationTabs.home);
+        _registerUser();
       }
+    }
+  }
+
+  void _registerUser() async {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: widget.userInfo['email']!,
+      password: widget.userInfo['password']!
+    );
+
+    User? user = userCredential.user;
+    await _storeAdditionalUserData(user);
+
+    final nav = Provider.of<NavigationService>(context, listen: false);
+    nav.goHome(tab: NavigationTabs.home);
+  }
+
+  Future<void> _storeAdditionalUserData(User? user) async {
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'username': usernameController.text,
+        'dateOfBirth': _selectedDate?.toIso8601String(),
+        'gender': _selectedGender,
+        'languages': _selectedItems,
+        'hobbies': _selectedHobbies
+      });
     }
   }
 
@@ -154,6 +181,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
                 const SizedBox(height: 33.0),
                 TextFormField(
+                  controller: usernameController,
                   onChanged: (value) {},
                   validator: (value) {
                     if (value == null || value.isEmpty) {

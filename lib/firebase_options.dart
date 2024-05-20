@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'bfriend-dev.appspot.com',
     measurementId: 'G-2429R4VM69',
   );
+
 }

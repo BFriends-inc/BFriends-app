@@ -39,6 +39,8 @@ dependencies:
   go_router: ^13.2.1 #Navigation service
   auto_size_text: ^3.0.0
   firebase_core: ^2.31.0
+  firebase_auth: ^4.19.5
+  cloud_firestore: ^4.17.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

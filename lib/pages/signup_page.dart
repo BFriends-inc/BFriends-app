@@ -23,6 +23,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     //get screen width + height
+    final TextEditingController _fullNameController = TextEditingController();
+    final TextEditingController _emailController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
 
     return CustomScaffold(
       child: Column(
@@ -65,6 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // full name
                       TextFormField(
+                        controller: _fullNameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Full name';
@@ -98,6 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // email
                       TextFormField(
+                        controller: _emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -131,6 +136,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // password
                       TextFormField(
+                        controller: _passwordController,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -197,9 +203,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
+                                  Map<String, String> userInfo = {
+                                    'fullName': _fullNameController.text,
+                                    'email': _emailController.text,
+                                    'password': _passwordController.text,
+                                  };
                               // Navigate to ProfileSetupScreen
                               nav.pushAuthOnPage(
-                                  context: context, destination: 'set_profile');
+                                context: context,
+                                destination: 'set_profile',
+                                extra: userInfo
+                              );
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
