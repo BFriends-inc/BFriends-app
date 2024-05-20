@@ -148,7 +148,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 );
                               } else {
                                 // Navigate to EmailVerificationScreen
-                                nav.popAuthStack(context: context);
+                                nav.popAuthOnPage(context: context);
                               }
                             }
                           },

@@ -1,4 +1,5 @@
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
@@ -41,7 +43,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   void _languageSelect() async {
     final List<String>? results = await showDialog(
       context: context,
-      builder: (BuildContext context){
+      builder: (BuildContext context) {
         return const MultiSelect(
           items: [
             'English',
@@ -115,9 +117,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           const SnackBar(content: Text('Please select at least one hobby')),
         );
       } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Processing Data')),
-        // );
         // Proceed with form submission logic here
         _registerUser();
       }
@@ -125,12 +124,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: widget.userInfo['email']!,
-      password: widget.userInfo['password']!
-    );
+    // UserCredential userCredential = await FirebaseAuth.instance
+    //     .createUserWithEmailAndPassword(
+    //         email: widget.userInfo['email']!,
+    //         password: widget.userInfo['password']!);
 
-    User? user = userCredential.user;
+    User? user = await _authService.signUp(
+        widget.userInfo['email']!, widget.userInfo['password']!);
     await _storeAdditionalUserData(user);
 
     final nav = Provider.of<NavigationService>(context, listen: false);

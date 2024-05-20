@@ -103,7 +103,9 @@ class NavigationService {
   }
 
   void pushAuthOnPage(
-      {required BuildContext context, required String destination, Object? extra}) {
+      {required BuildContext context,
+      required String destination,
+      Object? extra}) {
     /// push account authentication process pages ///
     var path = _currentPath(context);
     try {
@@ -114,7 +116,7 @@ class NavigationService {
     }
   }
 
-  void popAuthStack({required BuildContext context}) {
+  void popAuthOnPage({required BuildContext context}) {
     /// pop authentication process stack ///
     var path = _currentPath(context);
     switch (path) {

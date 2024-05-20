@@ -23,9 +23,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     //get screen width + height
-    final TextEditingController _fullNameController = TextEditingController();
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController fullNameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
 
     return CustomScaffold(
       child: Column(
@@ -68,7 +68,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // full name
                       TextFormField(
-                        controller: _fullNameController,
+                        controller: fullNameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Full name';
@@ -102,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // email
                       TextFormField(
-                        controller: _emailController,
+                        controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -136,8 +136,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // password
                       TextFormField(
-                        controller: _passwordController,
+                        controller: passwordController,
                         obscureText: true,
+                        autocorrect: false,
                         obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -183,14 +184,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             activeColor: theme.colorScheme.primary,
                           ),
                           const Flexible(
-                              child: Text(
-                                'I agree to share my personal data to process information.',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                ),
-                                overflow: TextOverflow.clip,
+                            child: Text(
+                              'I agree to share my personal data to process information.',
+                              style: TextStyle(
+                                color: Colors.black45,
                               ),
+                              overflow: TextOverflow.clip,
                             ),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -203,17 +204,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
-                                  Map<String, String> userInfo = {
-                                    'fullName': _fullNameController.text,
-                                    'email': _emailController.text,
-                                    'password': _passwordController.text,
-                                  };
+                              Map<String, String> userInfo = {
+                                'fullName': fullNameController.text,
+                                'email': emailController.text
+                                    .trim(), //trim email to avoid white spaces.
+                                'password': passwordController.text,
+                              };
                               // Navigate to ProfileSetupScreen
                               nav.pushAuthOnPage(
-                                context: context,
-                                destination: 'set_profile',
-                                extra: userInfo
-                              );
+                                  context: context,
+                                  destination: 'set_profile',
+                                  extra: userInfo);
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -287,7 +288,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              nav.popAuthStack(context: context);
+                              nav.popAuthOnPage(context: context);
                             },
                             child: Text(
                               'Sign in',

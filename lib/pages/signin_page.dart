@@ -1,11 +1,10 @@
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/pages/signup_page.dart';
-import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:bfriends_app/pages/forget_password_page.dart';
 import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -17,7 +16,26 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
+  final _authService = AuthService();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool rememberPassword = true;
+
+  void _signInUser(BuildContext context) async {
+    User? user = await _authService.signIn(
+        _usernameController.text.trim(), _passwordController.text);
+    if (user != null) {
+      if (!context.mounted) return;
+      final nav = Provider.of<NavigationService>(context, listen: false);
+      nav.goHome(tab: NavigationTabs.home);
+    } else {
+      //error message...
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wrong email or password.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +80,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        controller: _usernameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -94,7 +113,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 25.0,
                       ),
                       TextFormField(
+                        controller: _passwordController,
                         obscureText: true,
+                        autocorrect: false,
                         obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -173,10 +194,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           onPressed: () {
                             if (_formSignInKey.currentState!.validate() &&
                                 rememberPassword) {
-                              final nav = Provider.of<NavigationService>(
-                                  context,
-                                  listen: false);
-                              nav.goHome(tab: NavigationTabs.home);
+                              _signInUser(context);
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -250,7 +268,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              nav.popAuthStack(context: context);
+                              nav.popAuthOnPage(context: context);
                               // Navigator.push(
                               //   context,
                               //   MaterialPageRoute(
