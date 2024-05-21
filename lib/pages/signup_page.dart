@@ -26,7 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
-
+    
     return CustomScaffold(
       child: Column(
         children: [
@@ -171,6 +171,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       const SizedBox(
                         height: 25.0,
                       ),
+                      // confirm password
+                      TextFormField(
+                        obscureText: true,
+                        obscuringCharacter: '*',
+                        validator: (value) {
+                          if (value == null || value.isEmpty || value != passwordController.text) {
+                            return 'Confirm your Password';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          hintText: 'Confirm Your Password',
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 25.0,
+                      ),
                       // i agree to the processing
                       Row(
                         children: [
@@ -204,6 +239,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
+
                               Map<String, String> userInfo = {
                                 'fullName': fullNameController.text,
                                 'email': emailController.text
