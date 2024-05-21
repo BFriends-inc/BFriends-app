@@ -124,28 +124,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    // UserCredential userCredential = await FirebaseAuth.instance
-    //     .createUserWithEmailAndPassword(
-    //         email: widget.userInfo['email']!,
-    //         password: widget.userInfo['password']!);
-
     User? user = await _authService.signUp(
         widget.userInfo['email']!, widget.userInfo['password']!);
-    await _storeAdditionalUserData(user);
-
-    final nav = Provider.of<NavigationService>(context, listen: false);
-    nav.goHome(tab: NavigationTabs.home);
-  }
-
-  Future<void> _storeAdditionalUserData(User? user) async {
     if (user != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      await _authService.storeAdditionalUserData(user, {
         'username': usernameController.text,
         'dateOfBirth': _selectedDate?.toIso8601String(),
         'gender': _selectedGender,
         'languages': _selectedItems,
         'hobbies': _selectedHobbies
       });
+
+      final nav = Provider.of<NavigationService>(context, listen: false);
+      nav.goHome(tab: NavigationTabs.home);
     }
   }
 

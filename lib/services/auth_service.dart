@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<User?> signIn(String email, String password) async {
     try {
@@ -39,5 +41,11 @@ class AuthService {
       debugPrint(e.toString());
     }
     return null;
+  }
+
+  Future<void> storeAdditionalUserData(User? user, Map<String, dynamic> additionalData) async {
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).set(additionalData);
+    }
   }
 }
