@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+//import 'dart:typed_data';
 import 'dart:ui';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/widgets/event_pill.dart';
@@ -12,12 +12,13 @@ class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
   @override
-  _MapPageState createState() => _MapPageState();
+  MapPageState createState() => MapPageState();
 }
 
-class _MapPageState extends State<MapPage>
+class MapPageState extends State<MapPage>
     with AutomaticKeepAliveClientMixin<MapPage> {
   BitmapDescriptor? customIcon;
+  Marker? _selectedMarker;
 
   @override
   void initState() {
@@ -31,7 +32,9 @@ class _MapPageState extends State<MapPage>
   Future<void> _loadCustomMarker() async {
     final markerIcon =
         await getBytesFromAsset('assets/images/sports_marker.png', 150);
-    customIcon = BitmapDescriptor.fromBytes(markerIcon);
+    customIcon = BitmapDescriptor.fromBytes(
+      markerIcon, /*size: const Size(515, 590)*/
+    );
     setState(() {});
   }
 
@@ -43,6 +46,19 @@ class _MapPageState extends State<MapPage>
     return (await fi.image.toByteData(format: ImageByteFormat.png))!
         .buffer
         .asUint8List();
+  }
+
+  void _onMarkerTapped(Marker marker) {
+    setState(() {
+      debugPrint('got tapped');
+      if (_selectedMarker != marker) _selectedMarker = marker;
+    });
+  }
+
+  void _onMapTapped() {
+    setState(() {
+      _selectedMarker = null;
+    });
   }
 
   @override
@@ -81,35 +97,47 @@ class _MapPageState extends State<MapPage>
       ),
       body: mapControllerService.currentPosition == null
           ? const Center(child: Text('Fetching map...'))
-          : GoogleMap(
-              zoomControlsEnabled: false,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              compassEnabled: false,
-              padding: const EdgeInsets.only(bottom: 65.0, right: 5.0),
-              onMapCreated: mapControllerService.setMapController,
-              initialCameraPosition: CameraPosition(
-                target: mapControllerService.currentPosition!,
-                zoom: 18,
-              ),
-              markers: {
-                if (customIcon != null &&
-                    mapControllerService.currentPosition != null)
-                  Marker(
-                    markerId: const MarkerId('custom_marker'),
-                    position: mapControllerService.currentPosition!,
-                    icon: customIcon!,
-                    onTap: () {
-                      debugPrint('create pill');
-                      EventPill(
-                          title: 'gengar',
-                          date: DateTime.now(),
-                          imageURL: 'null',
-                          maxPpl: 10,
-                          ppl: 10);
-                    },
+          : Stack(
+              children: [
+                GoogleMap(
+                  zoomControlsEnabled: false,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  compassEnabled: false,
+                  padding: const EdgeInsets.only(bottom: 65.0, right: 5.0),
+                  onMapCreated: mapControllerService.setMapController,
+                  initialCameraPosition: CameraPosition(
+                    target: mapControllerService.currentPosition!,
+                    zoom: 18,
                   ),
-              },
+                  markers: {
+                    if (customIcon != null &&
+                        mapControllerService.currentPosition != null)
+                      Marker(
+                        markerId: const MarkerId('custom_marker'),
+                        position: mapControllerService.currentPosition!,
+                        icon: customIcon!,
+                        onTap: () {
+                          debugPrint('create pill');
+                          _onMarkerTapped(
+                              const Marker(markerId: MarkerId('oompa')));
+                        },
+                      ),
+                  },
+                  onTap: (argument) {
+                    _onMapTapped();
+                  },
+                ),
+                if (_selectedMarker != null)
+                  EventPill(
+                    pillPosition: 200,
+                    title: 'gengar',
+                    date: DateTime.now(),
+                    imageURL: '111',
+                    maxPpl: 1,
+                    ppl: 1,
+                  ),
+              ],
             ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
