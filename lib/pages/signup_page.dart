@@ -1,8 +1,10 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +28,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    final TextEditingController passwordConfirmationController = TextEditingController();
+
+    final _authService = AuthService();
+    bool emailExists = false;
 
     return CustomScaffold(
       child: Column(
@@ -106,6 +112,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
+                          } else if (!emailExists) {
+                            return 'Email is already taken. Please try another one.';
                           }
                           return null;
                         },
@@ -173,7 +181,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // confirm password
                       TextFormField(
+                        controller: passwordConfirmationController,
                         obscureText: true,
+                        autocorrect: false,
                         obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null ||
@@ -238,7 +248,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            emailExists = await _authService.checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
                               Map<String, String> userInfo = {

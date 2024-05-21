@@ -30,6 +30,13 @@ class AuthService {
         email: email,
         password: password,
       );
+      if (userCredential.user != null) {
+        Map<String, dynamic> userData = {
+          'email': email,
+          'created_at': FieldValue.serverTimestamp(),
+        };
+        await _firestore.collection('email_collection').doc(userCredential.user!.uid).set(userData);
+      }
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -49,4 +56,14 @@ class AuthService {
       await _firestore.collection('users').doc(user.uid).set(additionalData);
     }
   }
+
+  Future<bool> checkEmailExists(String email) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('email_collection');
+
+    var result = await users.where('email', isEqualTo: email).limit(1).get();
+    print(result.docs.isEmpty);
+    return result.docs.isEmpty;
+  }
 }
+
+
