@@ -43,7 +43,8 @@ class AuthService {
     return null;
   }
 
-  Future<void> storeAdditionalUserData(User? user, Map<String, dynamic> additionalData) async {
+  Future<void> storeAdditionalUserData(
+      User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
       await _firestore.collection('users').doc(user.uid).set(additionalData);
     }

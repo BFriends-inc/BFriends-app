@@ -26,7 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
-    
+
     return CustomScaffold(
       child: Column(
         children: [
@@ -176,14 +176,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
-                          if (value == null || value.isEmpty || value != passwordController.text) {
-                            return 'Confirm your Password';
+                          if (value == null ||
+                              value.isEmpty ||
+                              value != passwordController.text) {
+                            return 'Password does not match. Please try again.';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
-                          hintText: 'Confirm Your Password',
+                          hintText: 'Confirm your Password',
                           hintStyle: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
@@ -239,7 +241,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
-
                               Map<String, String> userInfo = {
                                 'fullName': fullNameController.text,
                                 'email': emailController.text
