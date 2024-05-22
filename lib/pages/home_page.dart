@@ -1,7 +1,7 @@
 //import 'dart:typed_data';
 import 'dart:ui';
 import 'package:bfriends_app/services/navigation.dart';
-import 'package:bfriends_app/widgets/event_pill.dart';
+import 'package:bfriends_app/widget/event_pill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

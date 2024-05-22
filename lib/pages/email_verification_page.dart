@@ -1,8 +1,6 @@
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
-import 'package:bfriends_app/theme/theme.dart';
-import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:provider/provider.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
