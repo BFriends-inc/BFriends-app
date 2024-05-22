@@ -35,7 +35,10 @@ class AuthService {
           'email': email,
           'created_at': FieldValue.serverTimestamp(),
         };
-        await _firestore.collection('email_collection').doc(userCredential.user!.uid).set(userData);
+        await _firestore
+            .collection('email_collection')
+            .doc(userCredential.user!.uid)
+            .set(userData);
       }
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
@@ -58,12 +61,22 @@ class AuthService {
   }
 
   Future<bool> checkEmailExists(String email) async {
-    CollectionReference users = FirebaseFirestore.instance.collection('email_collection');
+    CollectionReference users =
+        FirebaseFirestore.instance.collection('email_collection');
 
     var result = await users.where('email', isEqualTo: email).limit(1).get();
     print(result.docs.isEmpty);
     return result.docs.isEmpty;
   }
+
+  String? passwordChecker(String password) {
+    //custom function check password strength & formats
+    RegExp regExp = RegExp(r'^[a-zA-Z0-9!-/:-@]+$');
+    if (password.length < 8) return "Password too short. Minimum 8 characters.";
+    if (!password.contains(regExp)) {
+      return "Password contain invalid characters.";
+    }
+
+    return null;
+  }
 }
-
-

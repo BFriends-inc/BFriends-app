@@ -18,6 +18,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   bool agreePersonalData = true;
 
   @override
@@ -28,9 +29,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
-    final TextEditingController passwordConfirmationController = TextEditingController();
+    final TextEditingController passwordConfirmationController =
+        TextEditingController();
 
-    final _authService = AuthService();
     bool emailExists = false;
 
     return CustomScaffold(
@@ -152,7 +153,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return null;
+                          return _authService
+                              .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
                           label: const Text('Password'),
@@ -249,7 +251,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            emailExists = await _authService.checkEmailExists(emailController.text.trim());
+                            emailExists = await _authService
+                                .checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
                               Map<String, String> userInfo = {
