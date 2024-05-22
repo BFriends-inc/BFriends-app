@@ -27,7 +27,6 @@ class HomePage extends StatelessWidget {
                 : (index == 2
                     ? NavigationTabs.events
                     : NavigationTabs.profile)));
-    //FIXME: add navigation & tab change functionality.
   }
 
   @override
@@ -50,16 +49,11 @@ class HomePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: theme.primaryTextTheme.headlineMedium,
-        ),
-      ),
       body: tabs[selectedTabs.index]['page'],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         elevation: 5.0,
+        selectedFontSize: 12.0,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedItemColor: theme.colorScheme.secondary,
