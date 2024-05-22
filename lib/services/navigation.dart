@@ -2,7 +2,6 @@
 ////////////////////////////////////////
 // According to Flutter.dev using go_router seems more beneficial for our app in the long-term.
 // ref: https://docs.flutter.dev/ui/navigation
-//
 ////////////////////////////////////////
 //import 'dart:js';
 
@@ -12,79 +11,85 @@ import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 //DO: setup routes
 final routerConfig = GoRouter(
-  routes: [
-    GoRoute(
-      path: '/welcome_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: WelcomeScreen(),
-      ),
-      routes: [
-        GoRoute(
-          path: 'signin',
-          builder: (context, state) => const SignInScreen(),
-          routes: signInRoute,
+    routes: [
+      GoRoute(
+        path: '/welcome_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+          child: WelcomeScreen(),
         ),
-        GoRoute(
-          path: 'signup',
-          builder: (context, state) => const SignUpScreen(),
-          routes: signUpRoute,
-        )
-      ],
-    ),
-    GoRoute(
-      path: '/home_page',
-      pageBuilder: (context, state) => const NoTransitionPage<void>(
-        child: HomePage(
-          selectedTabs: NavigationTabs.home,
-        ),
+        routes: [
+          GoRoute(
+            path: 'signin',
+            builder: (context, state) => const SignInScreen(),
+            routes: signInRoute,
+          ),
+          GoRoute(
+            path: 'signup',
+            builder: (context, state) => const SignUpScreen(),
+            routes: signUpRoute,
+          )
+        ],
       ),
-    ),
-    GoRoute(
-        path: '/friends_page',
+      GoRoute(
+        path: '/home_page',
         pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: HomePage(selectedTabs: NavigationTabs.friends),
-            )),
-    GoRoute(
-        path: '/events_page',
-        pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: HomePage(selectedTabs: NavigationTabs.events),
-            )),
-    GoRoute(
-        path: '/profile_page',
-        pageBuilder: (context, state) => const NoTransitionPage<void>(
-              child: HomePage(selectedTabs: NavigationTabs.profile),
-            ))
-  ],
-  initialLocation: '/welcome_page',
-  debugLogDiagnostics: true,
-  redirect: (context, state) {
-    final currentPath = state.uri.path;
-    if (currentPath == '/') {
-      return '/welcome_page';
-    } else if (currentPath == '/home') {
-      return '/home_page';
-    } else if (currentPath == '/friends') {
-      return '/friends_page';
-    } else if (currentPath == '/events') {
-      return '/events_page';
-    } else if (currentPath == '/profile') {
-      return '/profile_page';
-    }
-    // No redirection needed for other routes
-    return null;
-  },
-  errorBuilder: (context, state) => Scaffold(
-    body: Center(
-      child: Text('Page not found: ${state.uri.path}'),
-    ),
-  ),
-);
+          child: HomePage(
+            selectedTabs: NavigationTabs.home,
+          ),
+        ),
+        routes: [
+          GoRoute(
+            path: 'notification',
+            builder: (context, state) => const NotificationPage(),
+          ),
+        ],
+      ),
+      GoRoute(
+          path: '/friends_page',
+          pageBuilder: (context, state) => const NoTransitionPage<void>(
+                child: HomePage(selectedTabs: NavigationTabs.friends),
+              )),
+      GoRoute(
+          path: '/events_page',
+          pageBuilder: (context, state) => const NoTransitionPage<void>(
+                child: HomePage(selectedTabs: NavigationTabs.events),
+              )),
+      GoRoute(
+          path: '/profile_page',
+          pageBuilder: (context, state) => const NoTransitionPage<void>(
+                child: HomePage(selectedTabs: NavigationTabs.profile),
+              ))
+    ],
+    initialLocation: '/welcome_page',
+    debugLogDiagnostics: true,
+    redirect: (context, state) {
+      final currentPath = state.uri.path;
+      if (currentPath == '/') {
+        return '/welcome_page';
+      } else if (currentPath == '/home') {
+        return '/home_page';
+      } else if (currentPath == '/friends') {
+        return '/friends_page';
+      } else if (currentPath == '/events') {
+        return '/events_page';
+      } else if (currentPath == '/profile') {
+        return '/profile_page';
+      }
+      // No redirection needed for other routes
+      return null;
+    },
+    errorBuilder: (context, state) => Scaffold(
+          body: Center(
+            child: Text('Page not found: ${state.uri.path}'),
+          ),
+        ));
 
 class NavigationService {
   late final GoRouter _router;
@@ -131,5 +136,15 @@ class NavigationService {
         return;
     }
     throw Exception('Failed to pop stack from path: $path');
+  }
+
+  void goNotification({required BuildContext context}) {
+    var path = _currentPath(context);
+    switch (path) {
+      case '/home_page':
+        _router.go('/home_page/notification');
+        return;
+    }
+    throw Exception('Cannot push notification on the path: $path');
   }
 }

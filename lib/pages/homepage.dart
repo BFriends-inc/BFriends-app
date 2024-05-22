@@ -4,6 +4,7 @@ import 'package:bfriends_app/pages/home_page.dart';
 import 'package:bfriends_app/pages/profile_page.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 enum NavigationTabs {
@@ -27,7 +28,6 @@ class HomePage extends StatelessWidget {
                 : (index == 2
                     ? NavigationTabs.events
                     : NavigationTabs.profile)));
-    //FIXME: add navigation & tab change functionality.
   }
 
   @override
@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
 
     final List<Map<String, dynamic>> tabs = [
       {
-        'page': const HomePage2(),
+        'page': const MapPage(),
       },
       {
         'page': const FriendsPage(),
@@ -50,27 +50,11 @@ class HomePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: theme.primaryTextTheme.headlineMedium,
-        ),
-      ),
-      endDrawer: Drawer(
-        backgroundColor: theme.colorScheme.background,
-      ),
       body: tabs[selectedTabs.index]['page'],
-      // body: Center(
-      //   child: Text(
-      //     'This is the homepage.',
-      //     style: TextStyle(
-      //         color: theme.colorScheme.onBackground,
-      //         fontSize: theme.textTheme.bodyMedium?.fontSize),
-      //   ),
-      // ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         elevation: 5.0,
+        selectedFontSize: 12.0,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedItemColor: theme.colorScheme.secondary,
