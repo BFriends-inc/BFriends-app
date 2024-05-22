@@ -1,11 +1,14 @@
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/theme/theme.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  final Map<String, String> userInfo;
+  const ProfileSetupScreen({super.key, required this.userInfo});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -14,6 +17,8 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
+  final _authService = AuthService();
+  TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
   List<String> _selectedItems = [];
@@ -112,13 +117,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           const SnackBar(content: Text('Please select at least one hobby')),
         );
       } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Processing Data')),
-        // );
         // Proceed with form submission logic here
-        final nav = Provider.of<NavigationService>(context, listen: false);
-        nav.goHome(tab: NavigationTabs.home);
+        _registerUser();
       }
+    }
+  }
+
+  void _registerUser() async {
+    User? user = await _authService.signUp(
+        widget.userInfo['email']!, widget.userInfo['password']!);
+    if (user != null) {
+      await _authService.storeAdditionalUserData(user, {
+        'username': usernameController.text,
+        'dateOfBirth': _selectedDate?.toIso8601String(),
+        'gender': _selectedGender,
+        'languages': _selectedItems,
+        'hobbies': _selectedHobbies
+      });
+
+      final nav = Provider.of<NavigationService>(context, listen: false);
+      nav.goHome(tab: NavigationTabs.home);
     }
   }
 
@@ -154,6 +172,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
                 const SizedBox(height: 33.0),
                 TextFormField(
+                  controller: usernameController,
                   onChanged: (value) {},
                   validator: (value) {
                     if (value == null || value.isEmpty) {

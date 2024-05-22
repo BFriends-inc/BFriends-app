@@ -103,18 +103,20 @@ class NavigationService {
   }
 
   void pushAuthOnPage(
-      {required BuildContext context, required String destination}) {
+      {required BuildContext context,
+      required String destination,
+      Object? extra}) {
     /// push account authentication process pages ///
     var path = _currentPath(context);
     try {
-      _router.go('$path/$destination');
+      _router.go('$path/$destination', extra: extra);
     } on Exception catch (e) {
       debugPrint('Cannot push $destination on the path: $path');
       debugPrint(e.toString());
     }
   }
 
-  void popAuthStack({required BuildContext context}) {
+  void popAuthOnPage({required BuildContext context}) {
     /// pop authentication process stack ///
     var path = _currentPath(context);
     switch (path) {

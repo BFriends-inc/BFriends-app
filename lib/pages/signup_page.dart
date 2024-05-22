@@ -1,8 +1,10 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   bool agreePersonalData = true;
 
   @override
@@ -23,6 +26,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     //get screen width + height
+    final TextEditingController fullNameController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController passwordConfirmationController =
+        TextEditingController();
+
+    bool emailExists = false;
 
     return CustomScaffold(
       child: Column(
@@ -65,6 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // full name
                       TextFormField(
+                        controller: fullNameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Full name';
@@ -98,9 +109,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // email
                       TextFormField(
+                        controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
+                          } else if (!emailExists) {
+                            return 'Email is already taken. Please try another one.';
                           }
                           return null;
                         },
@@ -131,17 +145,59 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // password
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
+                        autocorrect: false,
                         obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return null;
+                          return _authService
+                              .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
                           label: const Text('Password'),
                           hintText: 'Enter Password',
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: theme.colorScheme
+                                  .tertiaryContainer, // Default border color
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 25.0,
+                      ),
+                      // confirm password
+                      TextFormField(
+                        controller: passwordConfirmationController,
+                        obscureText: true,
+                        autocorrect: false,
+                        obscuringCharacter: '*',
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value != passwordController.text) {
+                            return 'Password does not match. Please try again.';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          hintText: 'Confirm your Password',
                           hintStyle: TextStyle(
                             color: theme.colorScheme.onTertiaryContainer,
                           ),
@@ -177,14 +233,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             activeColor: theme.colorScheme.primary,
                           ),
                           const Flexible(
-                              child: Text(
-                                'I agree to share my personal data to process information.',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                ),
-                                overflow: TextOverflow.clip,
+                            child: Text(
+                              'I agree to share my personal data to process information.',
+                              style: TextStyle(
+                                color: Colors.black45,
                               ),
+                              overflow: TextOverflow.clip,
                             ),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -194,12 +250,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            emailExists = await _authService
+                                .checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
+                              Map<String, String> userInfo = {
+                                'fullName': fullNameController.text,
+                                'email': emailController.text
+                                    .trim(), //trim email to avoid white spaces.
+                                'password': passwordController.text,
+                              };
                               // Navigate to ProfileSetupScreen
                               nav.pushAuthOnPage(
-                                  context: context, destination: 'set_profile');
+                                  context: context,
+                                  destination: 'set_profile',
+                                  extra: userInfo);
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -273,7 +339,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              nav.popAuthStack(context: context);
+                              nav.popAuthOnPage(context: context);
                             },
                             child: Text(
                               'Sign in',

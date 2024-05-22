@@ -26,6 +26,9 @@ List<RouteBase> signInRoute = [
 List<RouteBase> signUpRoute = [
   GoRoute(
     path: 'set_profile',
-    builder: (context, state) => const ProfileSetupScreen(),
+    builder: (context, state) {
+      final userInfo = state.extra as Map<String, String>?;
+      return ProfileSetupScreen(userInfo: userInfo ?? {});
+    },
   ),
 ];
