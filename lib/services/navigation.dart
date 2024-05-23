@@ -11,6 +11,7 @@ import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -65,8 +66,16 @@ final routerConfig = GoRouter(
   debugLogDiagnostics: true,
   redirect: (context, state) {
     final currentPath = state.uri.path;
+
+    final user = FirebaseAuth.instance.currentUser;
+    final loggedIn = user != null;
+
     if (currentPath == '/') {
       return '/welcome_page';
+    } else if (currentPath == '/welcome_page' && !loggedIn) {
+      return '/welcome_page/signin';
+    } else if (currentPath == '/welcome_page' && loggedIn) {
+      return '/home_page';
     } else if (currentPath == '/home') {
       return '/home_page';
     } else if (currentPath == '/friends') {
