@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert'; 
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -63,9 +66,8 @@ class AuthService {
   Future<bool> checkEmailExists(String email) async {
     CollectionReference users =
         FirebaseFirestore.instance.collection('email_collection');
-
     var result = await users.where('email', isEqualTo: email).limit(1).get();
-    print(result.docs.isEmpty);
+
     return result.docs.isEmpty;
   }
 
@@ -78,5 +80,33 @@ class AuthService {
     }
 
     return null;
+  }
+
+  Future<bool> sendVerificationCode(String email) async {
+    final url = Uri.parse('http://10.0.2.2:3000/send-code');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+        }),
+      );
+
+      print('Response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        debugPrint('Verification code sent to $email');
+        return true;
+      } else {
+        throw Exception('Failed to send verification code. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+        debugPrint('Error sending verification code: $e');
+        return false;
+    }
   }
 }

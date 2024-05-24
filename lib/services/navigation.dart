@@ -72,10 +72,6 @@ final routerConfig = GoRouter(
 
     if (currentPath == '/') {
       return '/welcome_page';
-    } else if (currentPath == '/welcome_page' && !loggedIn) {
-      return '/welcome_page/signin';
-    } else if (currentPath == '/welcome_page' && loggedIn) {
-      return '/home_page';
     } else if (currentPath == '/home') {
       return '/home_page';
     } else if (currentPath == '/friends') {
