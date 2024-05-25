@@ -82,7 +82,7 @@ class AuthService {
     return null;
   }
 
-  Future<bool> sendVerificationCode(String email) async {
+  Future<int> sendVerificationCode(String email) async {
     final url = Uri.parse('http://10.0.2.2:3000/send-code');
 
     try {
@@ -96,17 +96,43 @@ class AuthService {
         }),
       );
 
-      print('Response: ${response.statusCode}');
+      debugPrint('Response: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         debugPrint('Verification code sent to $email');
-        return true;
+        return 200;
+      } else if (response.statusCode == 404) {
+        debugPrint('Email not found');
+        return 404;
       } else {
-        throw Exception('Failed to send verification code. Status code: ${response.statusCode}');
+        throw Exception('Failed to send verification code');
       }
     } catch (e) {
         debugPrint('Error sending verification code: $e');
-        return false;
+        return 500;
     }
   }
+
+  Future<int> verifyCode(String verificationCode, email) async {
+    final url = Uri.parse('http://10.0.2.2:3000/verify-code');
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'code': verificationCode,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint('Verification successful');
+      return 200;
+    } else {
+      return 500;
+    }
+  }
+
 }

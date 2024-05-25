@@ -5,6 +5,8 @@ import 'package:bfriends_app/theme/theme.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:provider/provider.dart';
 
+import 'package:bfriends_app/services/auth_service.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
@@ -21,7 +23,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-
+    final authService = AuthService();
+    
     return CustomScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

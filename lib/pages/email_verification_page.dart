@@ -1,3 +1,4 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
@@ -6,7 +7,9 @@ import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:provider/provider.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
-  const EmailVerificationScreen({super.key});
+  final String email;
+
+  const EmailVerificationScreen({super.key, required this.email});
 
   @override
   State<EmailVerificationScreen> createState() =>
@@ -41,7 +44,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-
+    final authService = AuthService();
+    
     return CustomScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -125,17 +129,23 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_isVerificationCodeFilled()) {
                               // Proceed with verification
                               _formVerificationkey.currentState!.save();
-                              // Concatenate the entered digits
-                              // You can add your verification logic here
-                              // For now, just print the verification code
-                              // print('Verification code: $_verificationCode');
-                              // Navigate to the next screen
-                              nav.pushAuthOnPage(
+                              String verificationCode = _controllers.map((c) => c.text).join();
+                              int isCorrect = await authService.verifyCode(verificationCode, widget.email);
+                              
+                              if (isCorrect == 200) {
+                                nav.pushAuthOnPage(
                                   context: context, destination: 'reset_pass');
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Incorrect or expired verification code'),
+                                  ),
+                                );
+                              }
                             } else {
                               // Show snack bar if verification code is not filled
                               ScaffoldMessenger.of(context).showSnackBar(
