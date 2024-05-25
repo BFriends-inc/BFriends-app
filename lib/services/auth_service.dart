@@ -84,7 +84,7 @@ class AuthService {
   }
 
   Future<int> sendVerificationCode(String email) async {
-    final url = Uri.parse('http://10.0.2.2:3000/send-code');
+    final url = Uri.parse('https://asia-east1-bfriend-dev.cloudfunctions.net/sendCode');
 
     try {
       final response = await http.post(
@@ -115,7 +115,7 @@ class AuthService {
   }
 
   Future<int> verifyCode(String verificationCode, email) async {
-    final url = Uri.parse('http://10.0.2.2:3000/verify-code');
+    final url = Uri.parse('https://asia-east1-bfriend-dev.cloudfunctions.net/verifyCode');
 
     final response = await http.post(
       url,
@@ -137,7 +137,7 @@ class AuthService {
   }
 
   Future<int> resetPassword(String password, String email) async {
-    final url = Uri.parse('http://10.0.2.2:3000/reset-password');  // Corrected endpoint
+    final url = Uri.parse('https://asia-east1-bfriend-dev.cloudfunctions.net/resetPassword');  // Corrected endpoint
 
     try {
       final response = await http.post(
