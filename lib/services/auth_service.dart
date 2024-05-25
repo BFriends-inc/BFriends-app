@@ -40,7 +40,7 @@ class AuthService {
           'created_at': FieldValue.serverTimestamp(),
         };
         await _firestore
-            .collection('email_collection')
+            .collection('users')
             .doc(userCredential.user!.uid)
             .set(userData);
       }
@@ -60,13 +60,13 @@ class AuthService {
   Future<void> storeAdditionalUserData(
       User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
-      await _firestore.collection('users').doc(user.uid).set(additionalData);
+      await _firestore.collection('users').doc(user.uid).update(additionalData);
     }
   }
 
   Future<bool> checkEmailExists(String email) async {
     CollectionReference users =
-        FirebaseFirestore.instance.collection('email_collection');
+        FirebaseFirestore.instance.collection('users');
     var result = await users.where('email', isEqualTo: email).limit(1).get();
 
     return result.docs.isEmpty;
