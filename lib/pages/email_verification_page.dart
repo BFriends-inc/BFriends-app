@@ -138,7 +138,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               
                               if (isCorrect == 200) {
                                 nav.pushAuthOnPage(
-                                  context: context, destination: 'reset_pass');
+                                  context: context,
+                                  destination: 'reset_pass',
+                                  extra: widget.email,);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(

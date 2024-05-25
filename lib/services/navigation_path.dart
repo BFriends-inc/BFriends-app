@@ -18,7 +18,10 @@ List<RouteBase> signInRoute = [
         routes: [
           GoRoute(
             path: 'reset_pass',
-            builder: (context, state) => const ResetPasswordScreen(),
+            builder: (context, state) {
+              final String? email = state.extra as String?;
+              return ResetPasswordScreen(email: email ?? '');
+            },
           ),
         ],
       ),

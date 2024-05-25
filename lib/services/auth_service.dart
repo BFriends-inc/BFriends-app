@@ -1,3 +1,4 @@
+import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -135,4 +136,33 @@ class AuthService {
     }
   }
 
+  Future<int> resetPassword(String password, String email) async {
+    final url = Uri.parse('http://10.0.2.2:3000/reset-password');  // Corrected endpoint
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('Password reset successful');
+        return 200;
+      } else if (response.statusCode == 404) {
+        debugPrint('Failed to reset password: ${response.body}');
+        return 404;
+      } else {
+        throw Exception('Failed to reset password');
+      }
+    } catch (e) {
+      debugPrint('Error resetting password: $e');
+      return 500;
+    }
+  }
 }

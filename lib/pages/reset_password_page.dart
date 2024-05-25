@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+  final String email;
+
+  const ResetPasswordScreen({super.key, required this.email});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -24,7 +26,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     final authService = AuthService();
-    
+
     return CustomScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -139,7 +141,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formResetPasswordkey.currentState!
                                 .validate()) {
                               if (_newPassword.text != _confirmPassword.text) {
@@ -150,8 +152,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                // Navigate to EmailVerificationScreen
-                                nav.popAuthOnPage(context: context);
+                                int statusCode = await authService.resetPassword(_newPassword.text, widget.email);
+                                if (statusCode == 200) {
+                                  nav.popAuthOnPage(context: context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Failed to reset password'),
+                                    ),
+                                  );
+                                }
                               }
                             }
                           },
