@@ -1,3 +1,5 @@
+import 'package:bfriends_app/widget/profileStats_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -113,102 +115,16 @@ class ProfilePage extends StatelessWidget {
                     const SizedBox(
                       height: 20.0,
                     ),
-                    Container(
-                      //LANGUAGE
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.secondaryContainer,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'My Preferred Languages',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(20.0, 0, 0, 0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '999',
-                                    style: theme.textTheme.bodySmall,
-                                    textAlign: TextAlign.right,
-                                  ),
-                                  IconButton(
-                                    iconSize:
-                                        theme.textTheme.bodyMedium!.fontSize,
-                                    style: const ButtonStyle(
-                                      splashFactory: NoSplash.splashFactory,
-                                    ),
-                                    onPressed: () {
-                                      debugPrint('view languages pressed.');
-                                    },
-                                    icon: const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    StatsCard(
+                      title: 'My Preferred Languages',
+                      count: 999.toString(),
                     ),
                     const SizedBox(
                       height: 20.0,
                     ),
-                    Container(
-                      //ACTIVITY
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.secondaryContainer,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'My Interests',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(20.0, 0, 0, 0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '999',
-                                    style: theme.textTheme.bodySmall,
-                                    textAlign: TextAlign.right,
-                                  ),
-                                  IconButton(
-                                    iconSize:
-                                        theme.textTheme.bodyMedium!.fontSize,
-                                    style: const ButtonStyle(
-                                      splashFactory: NoSplash.splashFactory,
-                                    ),
-                                    onPressed: () {
-                                      debugPrint('view activities pressed.');
-                                    },
-                                    icon: const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    StatsCard(
+                      title: 'My Interests',
+                      count: 999.toString(),
                     ),
                   ]),
                 ),

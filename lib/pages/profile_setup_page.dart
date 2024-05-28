@@ -177,7 +177,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your username';
                     }
-                    return null;
+                    return _authService
+                        .usernameChecker(usernameController.text);
                   },
                   decoration: InputDecoration(
                     label: const Text('Username'),

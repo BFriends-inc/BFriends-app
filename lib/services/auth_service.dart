@@ -1,8 +1,10 @@
+import 'package:bfriends_app/model/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
+  UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -69,6 +71,14 @@ class AuthService {
     return result.docs.isEmpty;
   }
 
+  String? usernameChecker(String username) {
+    RegExp regExp = RegExp(r'^[a-zA-Z0-9._]+$');
+    if (!username.contains(regExp)) {
+      return "Username can only contain alphanumerics, ., _";
+    }
+    return null;
+  }
+
   String? passwordChecker(String password) {
     //custom function check password strength & formats
     RegExp regExp = RegExp(r'^[a-zA-Z0-9!-/:-@]+$');
@@ -76,7 +86,18 @@ class AuthService {
     if (!password.contains(regExp)) {
       return "Password contain invalid characters.";
     }
-
     return null;
+  }
+
+  Future<void> signOut() async {
+    await _auth.signOut();
+    _user = null;
+  }
+
+  Future<void> _authStateChanged(User? firebaseUser) async {
+    /// Handle changes during Sign-in / Sign-out ///
+    if (firebaseUser == null) {
+      _user = null;
+    } else {}
   }
 }
