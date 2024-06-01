@@ -5,9 +5,11 @@ class StatsCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.count,
+    this.rankColor = false,
   });
   final String title;
   final String count;
+  final bool rankColor;
 
   @override
   Widget build(BuildContext context) {

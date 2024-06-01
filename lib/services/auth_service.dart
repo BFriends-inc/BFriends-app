@@ -3,10 +3,47 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AuthService {
+class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  UserModel? get user => _user;
+
+  AuthService() {
+    _auth.authStateChanges().listen(_authStateChanged);
+  }
+
+  Future<void> _authStateChanged(User? firebaseUser) async {
+    /// Handle changes during Sign-in / Sign-out ///
+    if (firebaseUser == null) {
+      _user = null;
+    } else {
+      await _fetchUserData(firebaseUser.uid);
+      _user == null
+          ? debugPrint('_user is null')
+          : debugPrint(
+              '${_user?.id} signing in with username: ${_user?.username}');
+    }
+    notifyListeners();
+  }
+
+  Future<void> _fetchUserData(String uid) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(uid).get();
+      _user = UserModel(
+        id: uid,
+        joinDate: doc['created_at'].toDate().toString().split(' ')[0],
+        username: doc['username'],
+        avatarURL: 'abc',
+        listLanguage: doc['languages'],
+        listInterest: doc['hobbies'],
+      );
+    } catch (e) {
+      debugPrint("Error fetching user data: $e");
+    }
+  }
 
   Future<User?> signIn(String email, String password) async {
     try {
@@ -14,6 +51,7 @@ class AuthService {
         email: email,
         password: password,
       );
+      //await _fetchUserData(userCredential.user!.uid);
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -38,7 +76,7 @@ class AuthService {
           'created_at': FieldValue.serverTimestamp(),
         };
         await _firestore
-            .collection('email_collection')
+            .collection('users')
             .doc(userCredential.user!.uid)
             .set(userData);
       }
@@ -50,7 +88,7 @@ class AuthService {
         debugPrint('The account already exists for that email.');
       }
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('Error signing up: $e');
     }
     return null;
   }
@@ -59,15 +97,15 @@ class AuthService {
       User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
       await _firestore.collection('users').doc(user.uid).set(additionalData);
+      await _fetchUserData(user.uid);
     }
   }
 
   Future<bool> checkEmailExists(String email) async {
-    CollectionReference users =
-        FirebaseFirestore.instance.collection('email_collection');
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
 
     var result = await users.where('email', isEqualTo: email).limit(1).get();
-    print(result.docs.isEmpty);
+    debugPrint(result.docs.isEmpty.toString());
     return result.docs.isEmpty;
   }
 
@@ -92,12 +130,6 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
     _user = null;
-  }
-
-  Future<void> _authStateChanged(User? firebaseUser) async {
-    /// Handle changes during Sign-in / Sign-out ///
-    if (firebaseUser == null) {
-      _user = null;
-    } else {}
+    notifyListeners();
   }
 }

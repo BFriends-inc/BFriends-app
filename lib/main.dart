@@ -1,3 +1,4 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bfriends_app/services/navigation.dart';
@@ -16,6 +17,7 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<NavigationService>(create: (_) => NavigationService()),
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
         ),
