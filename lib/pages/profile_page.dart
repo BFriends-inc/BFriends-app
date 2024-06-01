@@ -62,7 +62,7 @@ class ProfilePage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user.username,
+                                    user.username!,
                                     style: theme.textTheme.headlineSmall,
                                   ),
                                   const SizedBox(
@@ -120,14 +120,14 @@ class ProfilePage extends StatelessWidget {
                           ),
                           StatsCard(
                             title: 'My Preferred Languages',
-                            count: user.listLanguage.length.toString(),
+                            count: user.listLanguage!.length.toString(),
                           ),
                           const SizedBox(
                             height: 20.0,
                           ),
                           StatsCard(
                             title: 'My Interests',
-                            count: user.listInterest.length.toString(),
+                            count: user.listInterest!.length.toString(),
                           ),
                         ]),
                       ),

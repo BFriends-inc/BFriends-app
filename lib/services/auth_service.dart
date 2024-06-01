@@ -36,14 +36,18 @@ class AuthService extends ChangeNotifier {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
-      _user = UserModel(
-        id: uid,
-        joinDate: doc['created_at'].toDate().toString().split(' ')[0],
-        username: doc['username'],
-        avatarURL: 'abc',
-        listLanguage: doc['languages'],
-        listInterest: doc['hobbies'],
-      );
+      if (doc['email'] != null) {
+        //can only fetch data if email is not empty.
+        _user = UserModel(
+          id: uid,
+          email: doc['email'],
+          joinDate: doc['created_at'].toDate().toString().split(' ')[0],
+          username: doc['username'],
+          avatarURL: 'abc',
+          listLanguage: doc['languages'],
+          listInterest: doc['hobbies'],
+        );
+      }
     } catch (e) {
       debugPrint("Error fetching user data: $e");
     }
@@ -101,6 +105,7 @@ class AuthService extends ChangeNotifier {
       User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
       await _firestore.collection('users').doc(user.uid).update(additionalData);
+      await _fetchUserData(user.uid);
     }
   }
 
