@@ -23,7 +23,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = AuthService();
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -150,7 +150,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                int statusCode = await authService.resetPassword(_newPassword.text, widget.email);
+                                int statusCode =
+                                    await authService.resetPassword(
+                                        _newPassword.text, widget.email);
                                 if (statusCode == 200) {
                                   nav.popAuthOnPage(context: context);
                                 } else {
@@ -170,7 +172,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             ),
                           ),
                           child: const Text(
-                            'Recover Password',
+                            'Reset Password',
                             style: TextStyle(
                               fontSize: 15.0,
                               fontWeight: FontWeight.w200,

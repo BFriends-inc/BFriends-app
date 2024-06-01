@@ -22,7 +22,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = AuthService();
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -116,7 +116,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                int isSent = await authService.sendVerificationCode(_emailController.text);
+                                int isSent =
+                                    await authService.sendVerificationCode(
+                                        _emailController.text);
                                 if (isSent == 200) {
                                   // Navigate to EmailVerificationScreen
                                   nav.pushAuthOnPage(
@@ -132,7 +134,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Failed to send verification code'),
+                                      content: Text(
+                                          'Failed to send verification code'),
                                     ),
                                   );
                                 }
