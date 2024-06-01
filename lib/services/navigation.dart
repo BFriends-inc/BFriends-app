@@ -10,6 +10,7 @@ import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';

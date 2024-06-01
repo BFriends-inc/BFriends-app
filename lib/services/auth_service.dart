@@ -1,7 +1,11 @@
 import 'package:bfriends_app/model/user.dart';
+import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
@@ -96,16 +100,14 @@ class AuthService extends ChangeNotifier {
   Future<void> storeAdditionalUserData(
       User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
-      await _firestore.collection('users').doc(user.uid).set(additionalData);
-      await _fetchUserData(user.uid);
+      await _firestore.collection('users').doc(user.uid).update(additionalData);
     }
   }
 
   Future<bool> checkEmailExists(String email) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
-
     var result = await users.where('email', isEqualTo: email).limit(1).get();
-    debugPrint(result.docs.isEmpty.toString());
+
     return result.docs.isEmpty;
   }
 
@@ -131,5 +133,91 @@ class AuthService extends ChangeNotifier {
     await _auth.signOut();
     _user = null;
     notifyListeners();
+  }
+
+  Future<int> sendVerificationCode(String email) async {
+    final url =
+        Uri.parse('https://asia-east1-bfriend-dev.cloudfunctions.net/sendCode');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+        }),
+      );
+
+      debugPrint('Response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        debugPrint('Verification code sent to $email');
+        return 200;
+      } else if (response.statusCode == 404) {
+        debugPrint('Email not found');
+        return 404;
+      } else {
+        throw Exception('Failed to send verification code');
+      }
+    } catch (e) {
+      debugPrint('Error sending verification code: $e');
+      return 500;
+    }
+  }
+
+  Future<int> verifyCode(String verificationCode, email) async {
+    final url = Uri.parse(
+        'https://asia-east1-bfriend-dev.cloudfunctions.net/verifyCode');
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'code': verificationCode,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint('Verification successful');
+      return 200;
+    } else {
+      return 500;
+    }
+  }
+
+  Future<int> resetPassword(String password, String email) async {
+    final url = Uri.parse(
+        'https://asia-east1-bfriend-dev.cloudfunctions.net/resetPassword'); // Corrected endpoint
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('Password reset successful');
+        return 200;
+      } else if (response.statusCode == 404) {
+        debugPrint('Failed to reset password: ${response.body}');
+        return 404;
+      } else {
+        throw Exception('Failed to reset password');
+      }
+    } catch (e) {
+      debugPrint('Error resetting password: $e');
+      return 500;
+    }
   }
 }

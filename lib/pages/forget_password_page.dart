@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:provider/provider.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -19,6 +22,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
+    final authService = AuthService();
 
     return CustomScaffold(
       child: Column(
@@ -101,7 +105,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formForgetPasswordKey.currentState!
                                 .validate()) {
                               if (_emailController.text.isEmpty) {
@@ -112,10 +116,26 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                // Navigate to EmailVerificationScreen
-                                nav.pushAuthOnPage(
-                                    context: context,
-                                    destination: 'verify_email');
+                                int isSent = await authService.sendVerificationCode(_emailController.text);
+                                if (isSent == 200) {
+                                  // Navigate to EmailVerificationScreen
+                                  nav.pushAuthOnPage(
+                                      context: context,
+                                      destination: 'verify_email',
+                                      extra: _emailController.text);
+                                } else if (isSent == 404) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Email not registered'),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Failed to send verification code'),
+                                    ),
+                                  );
+                                }
                               }
                             }
                           },
