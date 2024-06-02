@@ -1,4 +1,5 @@
 import 'package:bfriends_app/services/auth_service.dart';
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/widget/profileStats_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,22 +10,30 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authService = Provider.of<AuthService>(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final nav = Provider.of<NavigationService>(context, listen: false);
     final user = authService.user;
     double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        actions: [
-          IconButton(
-            onPressed: () {
-              //go to meta functions
-            },
-            icon: const Icon(Icons.circle),
-          ),
-        ],
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40.0),
+        child: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          actions: [
+            IconButton(
+              onPressed: () {
+                //go to meta functions
+                nav.goMeta(context: context);
+              },
+              icon: Icon(
+                Icons.menu_rounded,
+                color: theme.colorScheme.onPrimary,
+              ),
+            ),
+          ],
+        ),
       ),
       body: Align(
         alignment: Alignment.topCenter,
@@ -69,7 +78,7 @@ class ProfilePage extends StatelessWidget {
                                     height: 10.0,
                                   ),
                                   Text(
-                                    'Something',
+                                    'Anything.',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],

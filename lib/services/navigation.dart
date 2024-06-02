@@ -6,9 +6,11 @@
 //import 'dart:js';
 
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/pages/meta_feature_page.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +18,7 @@ import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 //DO: setup routes
 final routerConfig = GoRouter(
@@ -63,10 +66,17 @@ final routerConfig = GoRouter(
                 child: HomePage(selectedTabs: NavigationTabs.events),
               )),
       GoRoute(
-          path: '/profile_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.profile),
-              ))
+        path: '/profile_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+          child: HomePage(selectedTabs: NavigationTabs.profile),
+        ),
+        routes: [
+          GoRoute(
+            path: 'meta',
+            builder: (context, state) => const MetaFeatPage(),
+          ),
+        ],
+      )
     ],
     initialLocation: '/welcome_page',
     debugLogDiagnostics: true,
@@ -147,5 +157,15 @@ class NavigationService {
         return;
     }
     throw Exception('Cannot push notification on the path: $path');
+  }
+
+  void goMeta({required BuildContext context}) {
+    var path = _currentPath(context);
+    switch (path) {
+      case '/profile_page':
+        _router.go('/profile_page/meta');
+        return;
+    }
+    throw Exception('Cannot push meta on the path: $path');
   }
 }
