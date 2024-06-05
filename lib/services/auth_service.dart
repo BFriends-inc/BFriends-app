@@ -1,16 +1,21 @@
+import 'dart:io';
+
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   UserModel? get user => _user;
 
@@ -19,9 +24,9 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> _authStateChanged(User? firebaseUser) async {
+    debugPrint(firebaseUser.toString());
     /// Handle changes during Sign-in / Sign-out ///
     if (firebaseUser == null) {
-      debugPrint('visited on signout?');
       _user = null;
     } else {
       await _fetchUserData(firebaseUser.uid);
@@ -37,6 +42,9 @@ class AuthService extends ChangeNotifier {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
+      
+      debugPrint('Fetching user data for $uid');
+      debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
         //can only fetch data if email is not empty.
         _user = UserModel(
@@ -103,9 +111,25 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> storeAdditionalUserData(
-      User? user, Map<String, dynamic> additionalData) async {
+    User? user,
+    Map<String, dynamic> additionalData
+    ) async {
+    String? avatarURL;
+
     if (user != null) {
-      await _firestore.collection('users').doc(user.uid).update(additionalData);
+      if (additionalData['userImage'] != null) {
+        final storageRef = _storage.ref().child('userImages').child('${user.uid}.jpg');
+        await storageRef.putFile(File(additionalData['userImage'].path));
+        avatarURL = await storageRef.getDownloadURL();
+      }
+      await _firestore.collection('users').doc(user.uid).update({
+        'username': additionalData['username'],
+        'dateOfBirth': additionalData['dateOfBirth'],
+        'gender': additionalData['gender'],
+        'languages': additionalData['languages'],
+        'hobbies': additionalData['hobbies'],
+        'avatarURL': avatarURL,
+      });
       await _fetchUserData(user.uid);
     }
   }
@@ -138,7 +162,7 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     await _auth.signOut();
     _user = null;
-    //notifyListeners();
+    notifyListeners();
   }
 
   Future<int> sendVerificationCode(String email) async {
