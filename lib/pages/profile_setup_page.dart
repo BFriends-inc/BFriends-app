@@ -4,7 +4,6 @@ import 'package:bfriends_app/services/navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   final Map<String, String> userInfo;
@@ -17,7 +16,6 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
@@ -124,26 +122,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    User? user = await _authService.signUp(
+    widget.userInfo['email'] != null
+        ? debugPrint(widget.userInfo['email'])
+        : debugPrint('email is null');
+    final authService = Provider.of<AuthService>(context, listen: false);
+    User? user = await authService.signUp(
         widget.userInfo['email']!, widget.userInfo['password']!);
-    if (user != null) {
-      await _authService.storeAdditionalUserData(user, {
-        'username': usernameController.text,
-        'dateOfBirth': _selectedDate?.toIso8601String(),
-        'gender': _selectedGender,
-        'languages': _selectedItems,
-        'hobbies': _selectedHobbies
-      });
-
-      final nav = Provider.of<NavigationService>(context, listen: false);
-      nav.goHome(tab: NavigationTabs.home);
-    }
+    await authService.storeAdditionalUserData(user, {
+      'username': usernameController.text,
+      'dateOfBirth': _selectedDate?.toIso8601String(),
+      'gender': _selectedGender,
+      'languages': _selectedItems,
+      'hobbies': _selectedHobbies
+    });
+    final nav = Provider.of<NavigationService>(context, listen: false);
+    nav.goHome(tab: NavigationTabs.home);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final authService = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.secondary,
@@ -178,7 +177,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your username';
                     }
-                    return null;
+                    return authService.usernameChecker(usernameController.text);
                   },
                   decoration: InputDecoration(
                     label: const Text('Username'),

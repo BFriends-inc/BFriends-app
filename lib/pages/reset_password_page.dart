@@ -1,8 +1,6 @@
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
-import 'package:bfriends_app/theme/theme.dart';
-import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bfriends_app/services/auth_service.dart';
@@ -25,7 +23,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = AuthService();
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -152,7 +150,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                int statusCode = await authService.resetPassword(_newPassword.text, widget.email);
+                                int statusCode =
+                                    await authService.resetPassword(
+                                        _newPassword.text, widget.email);
                                 if (statusCode == 200) {
                                   nav.popAuthOnPage(context: context);
                                 } else {
@@ -172,7 +172,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             ),
                           ),
                           child: const Text(
-                            'Recover Password',
+                            'Reset Password',
                             style: TextStyle(
                               fontSize: 15.0,
                               fontWeight: FontWeight.w200,

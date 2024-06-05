@@ -1,10 +1,5 @@
-import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/welcome_button.dart';
-import 'package:bfriends_app/pages/signin_page.dart';
-import 'package:bfriends_app/pages/signup_page.dart';
-import 'package:bfriends_app/theme/theme.dart';
-import 'package:provider/provider.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

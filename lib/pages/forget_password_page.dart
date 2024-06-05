@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
-import 'package:bfriends_app/theme/theme.dart';
-import 'package:bfriends_app/pages/email_verification_page.dart';
 import 'package:provider/provider.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 
@@ -24,7 +22,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = AuthService();
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -118,7 +116,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                   ),
                                 );
                               } else {
-                                int isSent = await authService.sendVerificationCode(_emailController.text);
+                                int isSent =
+                                    await authService.sendVerificationCode(
+                                        _emailController.text);
                                 if (isSent == 200) {
                                   // Navigate to EmailVerificationScreen
                                   nav.pushAuthOnPage(
@@ -134,7 +134,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Failed to send verification code'),
+                                      content: Text(
+                                          'Failed to send verification code'),
                                     ),
                                   );
                                 }
