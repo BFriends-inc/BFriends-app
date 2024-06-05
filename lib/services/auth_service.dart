@@ -21,6 +21,7 @@ class AuthService extends ChangeNotifier {
   Future<void> _authStateChanged(User? firebaseUser) async {
     /// Handle changes during Sign-in / Sign-out ///
     if (firebaseUser == null) {
+      debugPrint('visited on signout?');
       _user = null;
     } else {
       await _fetchUserData(firebaseUser.uid);
@@ -137,7 +138,7 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     await _auth.signOut();
     _user = null;
-    notifyListeners();
+    //notifyListeners();
   }
 
   Future<int> sendVerificationCode(String email) async {

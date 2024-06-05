@@ -82,6 +82,7 @@ final routerConfig = GoRouter(
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final currentPath = state.uri.path;
+
       if (currentPath == '/') {
         return '/welcome_page';
       } else if (currentPath == '/home') {
@@ -113,16 +114,21 @@ class NavigationService {
     return GoRouterState.of(context).uri.path;
   }
 
+  /// navigate bottom bar
   void goHome({required NavigationTabs tab}) {
-    /// navigate bottom bar ///
     _router.go('/${tab.name}');
   }
 
+  /// absolute return to welcome page
+  void goWelcome() {
+    _router.go('/welcome_page');
+  }
+
+  /// push account authentication process pages
   void pushAuthOnPage(
       {required BuildContext context,
       required String destination,
       Object? extra}) {
-    /// push account authentication process pages ///
     var path = _currentPath(context);
     try {
       _router.go('$path/$destination', extra: extra);
@@ -132,8 +138,8 @@ class NavigationService {
     }
   }
 
+  /// pop authentication process stack
   void popAuthOnPage({required BuildContext context}) {
-    /// pop authentication process stack ///
     var path = _currentPath(context);
     switch (path) {
       case '/welcome_page/signin/recov_email/verify_email/reset_pass':
@@ -149,6 +155,7 @@ class NavigationService {
     throw Exception('Failed to pop stack from path: $path');
   }
 
+  /// go to notifications page
   void goNotification({required BuildContext context}) {
     var path = _currentPath(context);
     switch (path) {
@@ -159,6 +166,7 @@ class NavigationService {
     throw Exception('Cannot push notification on the path: $path');
   }
 
+  /// Show meta functions in profile page
   void goMeta({required BuildContext context}) {
     var path = _currentPath(context);
     switch (path) {
