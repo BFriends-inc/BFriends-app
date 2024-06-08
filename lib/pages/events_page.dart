@@ -16,33 +16,38 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   final _formProfileSetupKey = GlobalKey<FormState>();
+  late StateSetter _setState;
+
   DateTime? _selectedDate;
-  final _controller = TextEditingController();
+  
+  final _locationSearchController = TextEditingController();
   final uuid = const Uuid();
   final String _sessionToken = '1234567890';
   List<dynamic> _placeList = [];
-  int _dialogPageIndex = 0;
+
   final PageController _pageController = PageController(initialPage: 0);
-  late StateSetter _setState;
   Position? _currentPosition;
+
+  TextEditingController eventNameController = TextEditingController();
+  TextEditingController participantsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_onChanged);
+    _locationSearchController.addListener(_onChanged);
     _getCurrentLocation();
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onChanged);
-    _controller.dispose();
+    _locationSearchController.removeListener(_onChanged);
+    _locationSearchController.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
   _onChanged() {
-    getSuggestion(_controller.text);
+    getSuggestion(_locationSearchController.text);
   }
 
   Future<void> _getCurrentLocation() async {
@@ -134,7 +139,6 @@ class _EventsPageState extends State<EventsPage> {
                     controller: _pageController,
                     onPageChanged: (index) {
                       _setState(() {
-                        _dialogPageIndex = index;
                       });
                     },
                     children: [
@@ -152,8 +156,9 @@ class _EventsPageState extends State<EventsPage> {
 
     setState(() {
       _selectedDate = null;
-      _dialogPageIndex = 0;
-      _controller.clear();
+      _locationSearchController.clear();
+      eventNameController.clear();
+      participantsController.clear();
       _placeList = [];
     });
   }
@@ -171,9 +176,74 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ),
         const SizedBox(height: 16),
-        const TextField(
+        TextFormField(
+          controller: eventNameController,
+          onChanged: (value) {},
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your username';
+            }
+            return null;
+          },
           decoration: InputDecoration(
-            labelText: 'Event Name',
+            label: const Text(
+              'Event Name',
+              style: TextStyle(
+              fontSize: 14,
+              ),
+            ),
+            hintText: 'Input Event Name',
+            hintStyle: TextStyle(
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          keyboardType: TextInputType.number,
+          controller: participantsController,
+          onChanged: (value) {},
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your username';
+            }
+            return null;
+          },
+          decoration: InputDecoration(
+            label: const Text(
+              'Number of Participants Needed',
+              style: TextStyle(
+              fontSize: 14,
+              ),
+            ),
+            hintText: 'Put number of participants',
+            hintStyle: TextStyle(
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -224,6 +294,8 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Widget _buildSecondPage() {
+    final theme = Theme.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -235,17 +307,45 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ),
         const SizedBox(height: 16),
-        TextField(
-          controller: _controller,
+
+        TextFormField(
+          controller: _locationSearchController,
+          onChanged: (value) {},
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your username';
+            }
+            return null;
+          },
           decoration: InputDecoration(
-            hintText: "Pick your event location",
-            focusColor: Colors.white,
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            prefixIcon: const Icon(Icons.map),
+            label: const Text(
+              'Location',
+              style: TextStyle(
+              fontSize: 14,
+              ),
+            ),
+            hintText: 'Pick your event location',
+            hintStyle: TextStyle(
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: theme.colorScheme.tertiaryContainer,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            //prefixIcon: const Icon(Icons.map, size: 24),
             suffixIcon: IconButton(
               icon: const Icon(Icons.cancel),
+              iconSize: 16,
               onPressed: () {
-                _controller.clear();
+                _locationSearchController.clear();
               },
             ),
           ),
