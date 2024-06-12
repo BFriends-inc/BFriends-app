@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bfriends_app/services/image_generation_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,7 +34,7 @@ class UserImagePicker extends FormField<XFile?> {
 
             var height = MediaQuery.of(context).size.height;
             var width = MediaQuery.of(context).size.width;
-
+            ImageGenerationService imageGenerationService = ImageGenerationService();
             return Column(
               children: [
                 Stack(
@@ -53,24 +54,83 @@ class UserImagePicker extends FormField<XFile?> {
                       ),
                     ),
                     Positioned.fill(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: _pickImage,
-                          borderRadius: BorderRadius.circular(40),
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Icon(
-                                Icons.upload,
-                                color: Theme.of(context).colorScheme.onPrimary,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _pickImage,
+                                  borderRadius: BorderRadius.circular(40),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: _pickImage,
+                                          borderRadius: BorderRadius.circular(40),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                              Icons.upload,
+                                              color: Theme.of(context).colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        'Upload Image',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: _pickImage,
+                                  borderRadius: BorderRadius.circular(40),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () => imageGenerationService.generateImage("Dog riding a rocket!"),
+                                          borderRadius: BorderRadius.circular(40),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                              Icons.auto_awesome,
+                                              color: Theme.of(context).colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        'Generate Image',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
+
                   ],
                 ),
                 if (state.hasError)
