@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bfriends_app/pages/user_image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -30,6 +32,8 @@ class _EventsPageState extends State<EventsPage> {
 
   TextEditingController eventNameController = TextEditingController();
   TextEditingController participantsController = TextEditingController();
+
+  XFile? _selectedImage;
 
   @override
   void initState() {
@@ -124,6 +128,8 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   void _showDialog() {
+    var height = MediaQuery.of(context).size.height;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -135,7 +141,9 @@ class _EventsPageState extends State<EventsPage> {
                 key: _formProfileSetupKey,
                 child: Container(
                   padding: const EdgeInsets.all(16),
+                  height: height - 200,
                   child: PageView(
+                    physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     onPageChanged: (index) {
                       _setState(() {
@@ -165,131 +173,147 @@ class _EventsPageState extends State<EventsPage> {
 
   Widget _buildFirstPage() {
     final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'New Event',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: eventNameController,
-          onChanged: (value) {},
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your username';
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            label: const Text(
-              'Event Name',
-              style: TextStyle(
-              fontSize: 14,
-              ),
-            ),
-            hintText: 'Input Event Name',
-            hintStyle: TextStyle(
-              color: theme.colorScheme.onTertiaryContainer,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: theme.colorScheme.tertiaryContainer,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: theme.colorScheme.tertiaryContainer,
-              ),
-              borderRadius: BorderRadius.circular(10),
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'New Event',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          keyboardType: TextInputType.number,
-          controller: participantsController,
-          onChanged: (value) {},
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your username';
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            label: const Text(
-              'Number of Participants Needed',
-              style: TextStyle(
-              fontSize: 14,
-              ),
-            ),
-            hintText: 'Put number of participants',
-            hintStyle: TextStyle(
-              color: theme.colorScheme.onTertiaryContainer,
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: theme.colorScheme.tertiaryContainer,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: theme.colorScheme.tertiaryContainer,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
+          const SizedBox(height: 16),
+          UserImagePicker(
+            context: context,
+            validator: (pickedImage) {
+              if (pickedImage == null) {
+                return 'Please select an image';
+              }
+              return null;
+            },
+            onSave: (pickedImage) {
+              _selectedImage = pickedImage;
+            },
           ),
-        ),
-        const SizedBox(height: 16),
-        GestureDetector(
-          onTap: _presentDatePicker,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: theme.colorScheme.tertiaryContainer,
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 8.0,
-              horizontal: 12.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _selectedDate == null
-                      ? 'Event Date'
-                      : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: eventNameController,
+            onChanged: (value) {},
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your username';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              label: const Text(
+                'Event Name',
+                style: TextStyle(
+                fontSize: 14,
                 ),
-                IconButton(
-                  onPressed: _presentDatePicker,
-                  icon: Icon(
-                    Icons.calendar_today,
-                    color: theme.colorScheme.tertiary,
+              ),
+              hintText: 'Input Event Name',
+              hintStyle: TextStyle(
+                color: theme.colorScheme.onTertiaryContainer,
+              ),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            keyboardType: TextInputType.number,
+            controller: participantsController,
+            onChanged: (value) {},
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your username';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              label: const Text(
+                'Number of Participants Needed',
+                style: TextStyle(
+                fontSize: 14,
+                ),
+              ),
+              hintText: 'Put number of participants',
+              hintStyle: TextStyle(
+                color: theme.colorScheme.onTertiaryContainer,
+              ),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: _presentDatePicker,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 12.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _selectedDate == null
+                        ? 'Event Date'
+                        : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
                   ),
-                ),
-              ],
+                  IconButton(
+                    onPressed: _presentDatePicker,
+                    icon: Icon(
+                      Icons.calendar_today,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          },
-          child: const Text('Next'),
-        ),
-      ],
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            child: const Text('Next'),
+          ),
+        ],
+      ),
     );
   }
 
