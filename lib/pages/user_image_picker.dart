@@ -22,19 +22,31 @@ class UserImagePicker extends FormField<XFile?> {
                   maxWidth: 150,
                 );
 
-                if (pickedImage == null) {
-                  return;
+                if (pickedImage != null) {
+                  state.didChange(pickedImage);
                 }
 
-                state.didChange(pickedImage);
               } catch (error) {
                 debugPrint('Error picking image: $error');
               }
             }
 
+            Future<void> generateImage() async {
+              try {
+                ImageGenerationService imageGenerationService = ImageGenerationService();
+                final generatedImage = await imageGenerationService.generateImage("Dog riding a rocket!");
+
+                if (generatedImage != null) {
+                  state.didChange(generatedImage);
+                }
+              } catch (error) {
+                debugPrint('Error generating image: $error');
+              }
+            }
+
             var height = MediaQuery.of(context).size.height;
             var width = MediaQuery.of(context).size.width;
-            ImageGenerationService imageGenerationService = ImageGenerationService();
+
             return Column(
               children: [
                 Stack(
@@ -61,76 +73,75 @@ class UserImagePicker extends FormField<XFile?> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: _pickImage,
-                                  borderRadius: BorderRadius.circular(40),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: _pickImage,
-                                          borderRadius: BorderRadius.circular(40),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              Icons.upload,
-                                              color: Theme.of(context).colorScheme.onPrimary,
-                                            ),
-                                          ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: _pickImage,
+                                      borderRadius: BorderRadius.circular(40),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          Icons.upload,
+                                          color: Theme.of(context).colorScheme.onPrimary,
                                         ),
                                       ),
-                                      Text(
+                                    ),
+                                  ),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: _pickImage,
+                                      borderRadius: BorderRadius.circular(40),
+                                      child: Text(
                                         'Upload Image',
                                         style: TextStyle(
                                           color: Theme.of(context).colorScheme.onPrimary,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: _pickImage,
-                                  borderRadius: BorderRadius.circular(40),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () => imageGenerationService.generateImage("Dog riding a rocket!"),
-                                          borderRadius: BorderRadius.circular(40),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              Icons.auto_awesome,
-                                              color: Theme.of(context).colorScheme.onPrimary,
-                                            ),
-                                          ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: generateImage,
+                                      borderRadius: BorderRadius.circular(40),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Icon(
+                                          Icons.auto_awesome,
+                                          color: Theme.of(context).colorScheme.onPrimary,
                                         ),
                                       ),
-                                      Text(
+                                    ),
+                                  ),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: generateImage,
+                                      borderRadius: BorderRadius.circular(40),
+                                      child: Text(
                                         'Generate Image',
                                         style: TextStyle(
                                           color: Theme.of(context).colorScheme.onPrimary,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ),
                     ),
-
                   ],
                 ),
                 if (state.hasError)
@@ -156,10 +167,12 @@ class UserImagePicker extends FormField<XFile?> {
       return null;
     }
 
-    if (kIsWeb) {
-      return NetworkImage(state.value!.path);
+    String path = state.value!.path;
+    
+    if (path.startsWith('http') || path.startsWith('https')) {
+      return NetworkImage(path);
     } else {
-      return FileImage(File(state.value!.path));
+      return FileImage(File(path));
     }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 
 class ImageGenerationService {
@@ -9,7 +10,7 @@ class ImageGenerationService {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZjAzODk3Y2MtODU0NS00NTZlLTg1YjMtNzNmNjc4OTA0NGZhIiwidHlwZSI6ImFwaV90b2tlbiJ9.-FbNCWM3OIb3B0OlXVZJkZYMkmt221ghbbWr9ecSmc4';
   static const String _url = 'https://api.edenai.run/v2/image/generation';
 
-  Future<String?> generateImage(String prompt) async {
+  Future<XFile?> generateImage(String prompt) async {
     debugPrint('Generating image with prompt: $prompt');
   try {
     final response = await http.post(
@@ -34,7 +35,7 @@ class ImageGenerationService {
         debugPrint(items.toString());
         String imageUrl = items[0]['image_resource_url']; 
         debugPrint('Generated image: $imageUrl');
-        return imageUrl;
+        return XFile(imageUrl);
       } else {
       debugPrint('Failed to generate image: ${response.body}');
       return null;

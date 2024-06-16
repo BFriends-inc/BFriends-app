@@ -22,6 +22,7 @@ class _EventsPageState extends State<EventsPage> {
 
   DateTime? _selectedDate;
   
+  int? _selectedIndex;
   final _locationSearchController = TextEditingController();
   final uuid = const Uuid();
   final String _sessionToken = '1234567890';
@@ -34,6 +35,8 @@ class _EventsPageState extends State<EventsPage> {
   TextEditingController participantsController = TextEditingController();
 
   XFile? _selectedImage;
+
+  final _isDateValid = ValueNotifier<bool>(true);
 
   @override
   void initState() {
@@ -112,6 +115,40 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+  Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+    const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
+    try {
+      String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+      String request = '$baseURL?place_id=$placeId&key=$placesApiKey';
+      var response = await http.get(Uri.parse(request));
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['result'];
+      } else {
+        throw Exception('Failed to load place details');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  Future<void> _handlePlaceSelection(int index) async {
+    _setState(() {
+      _selectedIndex = index;
+    });
+
+    var selectedPlace = _placeList[index];
+    String placeId = selectedPlace["place_id"];
+    debugPrint('Selected place: ${selectedPlace["description"]}');
+
+    var placeDetails = await getPlaceDetails(placeId);
+    if (placeDetails != null) {
+      double latitude = placeDetails["geometry"]["location"]["lat"];
+      double longitude = placeDetails["geometry"]["location"]["lng"];
+      debugPrint('Latitude: $latitude, Longitude: $longitude');
+    }
+  }
+
   void _presentDatePicker() async {
     final now = DateTime.now();
     final pickedDate = await showDatePicker(
@@ -168,6 +205,7 @@ class _EventsPageState extends State<EventsPage> {
       eventNameController.clear();
       participantsController.clear();
       _placeList = [];
+      _isDateValid.value = true;
     });
   }
 
@@ -217,6 +255,7 @@ class _EventsPageState extends State<EventsPage> {
               ),
               hintText: 'Input Event Name',
               hintStyle: TextStyle(
+                fontSize: 14,
                 color: theme.colorScheme.onTertiaryContainer,
               ),
               border: OutlineInputBorder(
@@ -240,7 +279,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your username';
+                return 'Please enter number of participants';
               }
               return null;
             },
@@ -253,6 +292,7 @@ class _EventsPageState extends State<EventsPage> {
               ),
               hintText: 'Put number of participants',
               hintStyle: TextStyle(
+                fontSize: 14,
                 color: theme.colorScheme.onTertiaryContainer,
               ),
               border: OutlineInputBorder(
@@ -270,45 +310,78 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          GestureDetector(
-            onTap: _presentDatePicker,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
+          TextFormField(
+            readOnly: true,
+            controller: TextEditingController(text: _selectedDate == null
+                ? 'Event Date'
+                : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'),
+            style: TextStyle(
+              fontSize: 14,
+              color: _isDateValid.value ? Colors.black : const Color.fromARGB(255, 195, 65, 63),
+            ),
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                onPressed: _presentDatePicker,
+                icon: Icon(
+                  Icons.calendar_today,
+                  color: theme.colorScheme.tertiary,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
                   color: theme.colorScheme.tertiaryContainer,
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 12.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _selectedDate == null
-                        ? 'Event Date'
-                        : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
-                  ),
-                  IconButton(
-                    onPressed: _presentDatePicker,
-                    icon: Icon(
-                      Icons.calendar_today,
-                      color: theme.colorScheme.tertiary,
-                    ),
-                  ),
-                ],
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: theme.colorScheme.tertiaryContainer,
+                ),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
+            onTap: _presentDatePicker,
+            validator: (value) {
+              if (value == null || value == 'Event Date') {
+                _setState(() {
+                  _isDateValid.value = false;
+                });
+                return 'Please select the event date';
+              }
+              _setState(() {
+                _isDateValid.value = true;
+              });
+              return null;
+            },
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              _pageController.nextPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
+              if (_formProfileSetupKey.currentState!.validate()) {
+                _formProfileSetupKey.currentState!.save();
+                if (eventNameController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter the event name')),
+                  );
+                } else if (_selectedImage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please select an image')),
+                  );
+                } else if (participantsController.text.isEmpty || int.tryParse(participantsController.text) == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a valid number of participants')),
+                  );
+                } else if (_selectedDate == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please select the event date')),
+                  );
+                } else {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
             },
             child: const Text('Next'),
           ),
@@ -337,7 +410,7 @@ class _EventsPageState extends State<EventsPage> {
           onChanged: (value) {},
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your username';
+              return 'Please enter your event location';
             }
             return null;
           },
@@ -381,9 +454,7 @@ class _EventsPageState extends State<EventsPage> {
             itemCount: _placeList.length,
             itemBuilder: (context, index) {
               return GestureDetector(
-                onTap: () {
-                  // Handle place selection
-                },
+                onTap: () => _handlePlaceSelection(index),
                 child: ListTile(
                   title: Text(_placeList[index]["description"]),
                 ),
@@ -394,8 +465,20 @@ class _EventsPageState extends State<EventsPage> {
         const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () {
-            _submitForm();
-            Navigator.of(context).pop();
+             if (_formProfileSetupKey.currentState!.validate()) {
+              _formProfileSetupKey.currentState!.save();
+              var eventName = eventNameController.text;
+              var participants = participantsController.text;
+
+              if (eventName.isEmpty || _selectedImage == null || participants.isEmpty || _selectedDate == null) {
+                return;
+              }
+
+              var eventId = const Uuid().v4();
+              var random = Random();
+              var id = random.nextInt(90000) + 10000;
+              Navigator.pop(context);
+            }
           },
           child: const Text('Save'),
         ),
