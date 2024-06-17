@@ -26,6 +26,7 @@ class _EventsPageState extends State<EventsPage> {
   final _locationSearchController = TextEditingController();
   final uuid = const Uuid();
   final String _sessionToken = '1234567890';
+  Map<String, dynamic> selectedPlace = {};
   List<dynamic> _placeList = [];
 
   final PageController _pageController = PageController(initialPage: 0);
@@ -137,15 +138,25 @@ class _EventsPageState extends State<EventsPage> {
       _selectedIndex = index;
     });
 
-    var selectedPlace = _placeList[index];
-    String placeId = selectedPlace["place_id"];
-    debugPrint('Selected place: ${selectedPlace["description"]}');
+    var selectedSuggestionPlace = _placeList[index];
+    debugPrint(selectedSuggestionPlace.toString());
+    String placeId = selectedSuggestionPlace["place_id"];
+    debugPrint('Selected place: ${selectedSuggestionPlace["description"]}');
 
     var placeDetails = await getPlaceDetails(placeId);
     if (placeDetails != null) {
       double latitude = placeDetails["geometry"]["location"]["lat"];
       double longitude = placeDetails["geometry"]["location"]["lng"];
       debugPrint('Latitude: $latitude, Longitude: $longitude');
+
+      Map<String, dynamic> place = {
+        'placeId': placeId,
+        'placeName': selectedSuggestionPlace["description"],
+        'placeAddress': placeDetails["formatted_address"],
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+      selectedPlace = place;
     }
   }
 
