@@ -14,13 +14,14 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   bool agreePersonalData = true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context,
+        listen: false); //authentication provider
     //get screen width + height
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
@@ -149,7 +150,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return _authService
+                          return authService
                               .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
@@ -247,7 +248,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            emailExists = await _authService
+                            emailExists = await authService
                                 .checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
@@ -258,11 +259,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 'password': passwordController.text,
                               };
                               // Navigate to ProfileSetupScreen
+                              if (!context.mounted) return;
                               nav.pushAuthOnPage(
                                   context: context,
                                   destination: 'set_profile',
                                   extra: userInfo);
                             } else if (!agreePersonalData) {
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(

@@ -11,11 +11,17 @@ List<RouteBase> signInRoute = [
     routes: [
       GoRoute(
         path: 'verify_email',
-        builder: (context, state) => const EmailVerificationScreen(),
+        builder: (context, state) {
+          final String? email = state.extra as String?;
+          return EmailVerificationScreen(email: email ?? '');
+        },
         routes: [
           GoRoute(
             path: 'reset_pass',
-            builder: (context, state) => const ResetPasswordScreen(),
+            builder: (context, state) {
+              final String? email = state.extra as String?;
+              return ResetPasswordScreen(email: email ?? '');
+            },
           ),
         ],
       ),
