@@ -1,5 +1,6 @@
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:bfriends_app/widget/bar_button.dart';
 import 'package:bfriends_app/widget/profileStats_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +121,22 @@ class ProfilePage extends StatelessWidget {
                                 Text(
                                   user.joinDate.toString(),
                                   style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  children: [
+                                    BarButton(
+                                      color: theme.colorScheme.primaryContainer,
+                                      onColor:
+                                          theme.colorScheme.onPrimaryContainer,
+                                      height: 30.0,
+                                      //width: 100.0,
+                                      icon: Icons.edit,
+                                      text: 'Edit My Profile',
+                                    ),
+                                  ],
                                 )
                               ],
                             ),
