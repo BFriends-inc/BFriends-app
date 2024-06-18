@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:bfriends_app/pages/event_image_picker.dart';
+import 'package:bfriends_app/services/event_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -38,6 +40,9 @@ class _EventsPageState extends State<EventsPage> {
   XFile? _selectedImage;
 
   final _isDateValid = ValueNotifier<bool>(true);
+
+  final User? user = FirebaseAuth.instance.currentUser;
+  final eventService = EventService();
 
   @override
   void initState() {
@@ -475,42 +480,56 @@ class _EventsPageState extends State<EventsPage> {
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: () {
-             if (_formProfileSetupKey.currentState!.validate()) {
-              _formProfileSetupKey.currentState!.save();
-              var eventName = eventNameController.text;
-              var participants = participantsController.text;
-
-              if (eventName.isEmpty || _selectedImage == null || participants.isEmpty || _selectedDate == null) {
-                return;
-              }
-
-              var eventId = const Uuid().v4();
-              var random = Random();
-              var id = random.nextInt(90000) + 10000;
-              Navigator.pop(context);
-            }
-          },
+          onPressed: _submitForm,
           child: const Text('Save'),
         ),
       ],
     );
   }
 
-  void _submitForm() {
-    if (_formProfileSetupKey.currentState!.validate()) {
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select the event date')),
+  Future<void> _submitForm() async {
+    if (_formProfileSetupKey.currentState?.validate() == true && _selectedDate != null) {
+      _formProfileSetupKey.currentState?.save();
+
+      final eventName = eventNameController.text;
+      final participants = participantsController.text;
+      final eventDate = _selectedDate!.toLocal().toIso8601String().substring(0, 10);
+      final placeName = selectedPlace['placeName'] ?? 'No place selected';
+      final placeAddress = selectedPlace['placeAddress'] ?? 'No address available';
+      final latitude = selectedPlace['latitude'] ?? 0.0;
+      final longitude = selectedPlace['longitude'] ?? 0.0;
+      final ownerId = user?.uid ?? '';
+
+      debugPrint('Event Name: $eventName');
+      debugPrint('Participants: $participants');
+      debugPrint('Event Date: $eventDate');
+      debugPrint('Place Name: $placeName');
+      debugPrint('Place Address: $placeAddress');
+      debugPrint('Latitude: $latitude');
+      debugPrint('Longitude: $longitude');
+
+      try {
+        await eventService.createEvent(
+          ownerId: ownerId,
+          eventName: eventName,
+          participants: participants,
+          selectedImage: _selectedImage!,
+          eventDate: eventDate,
+          placeName: placeName,
+          placeAddress: placeAddress,
+          latitude: latitude,
+          longitude: longitude,
         );
-      } else {
-        _setState(() {
-          _selectedDate = null;
-        });
-        debugPrint('Form submitted');
+
+        Navigator.of(context).pop();
+      } catch (e) {
+        debugPrint('Error creating event: $e');
       }
+    } else {
+      debugPrint('Please fill all the fields');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
