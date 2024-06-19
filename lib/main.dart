@@ -1,17 +1,26 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/theme/theme_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
     MultiProvider(
       providers: [
+        Provider<NavigationService>(create: (_) => NavigationService()),
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
         ),
-        Provider<NavigationService>(create: (_) => NavigationService()),
         ChangeNotifierProvider<MapControllerService>(
           create: (_) => MapControllerService(),
         ),

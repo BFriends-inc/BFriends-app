@@ -1,7 +1,8 @@
 //import 'dart:typed_data';
 import 'dart:ui';
 import 'package:bfriends_app/services/navigation.dart';
-import 'package:bfriends_app/widgets/event_pill.dart';
+import 'package:bfriends_app/widget/event_pill.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -69,31 +70,27 @@ class MapPageState extends State<MapPage>
     final mapControllerService = Provider.of<MapControllerService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: TextStyle(
-              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-              color: theme.colorScheme.onPrimary),
-        ),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: theme.colorScheme.onPrimary,
-              semanticLabel: 'Notifications',
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40.0),
+        child: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.notifications_outlined,
+                color: theme.colorScheme.onPrimary,
+                semanticLabel: 'Notifications',
+              ),
+              onPressed: () {
+                //context.pop();
+                final nav =
+                    Provider.of<NavigationService>(context, listen: false);
+                nav.goNotification(context: context);
+              },
             ),
-            onPressed: () {
-              //context.pop();
-              final nav =
-                  Provider.of<NavigationService>(context, listen: false);
-              nav.goNotification(context: context);
-            },
-          ),
-        ],
+          ],
+        ),
       ),
       body: mapControllerService.currentPosition == null
           ? const Center(child: Text('Fetching map...'))
@@ -128,6 +125,17 @@ class MapPageState extends State<MapPage>
                     _onMapTapped();
                   },
                 ),
+                // Align(
+                //   alignment: Alignment.topRight,
+                //   child: IconButton.filled(
+                //     onPressed: () {
+                //       final nav = Provider.of<NavigationService>(context,
+                //           listen: false);
+                //       nav.goNotification(context: context);
+                //     },
+                //     icon: const Icon(Icons.notifications_none_rounded),
+                //   ),
+                // ),
                 if (_selectedMarker != null)
                   EventPill(
                     pillPosition: 200,
