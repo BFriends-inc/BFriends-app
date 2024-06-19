@@ -127,12 +127,12 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 Row(
                                   children: [
+                                    //collection of buttons
                                     BarButton(
                                       color: theme.colorScheme.primaryContainer,
                                       onColor:
                                           theme.colorScheme.onPrimaryContainer,
                                       height: 30.0,
-                                      //width: 100.0,
                                       icon: Icons.edit,
                                       text: 'Edit My Profile',
                                     ),

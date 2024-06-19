@@ -70,12 +70,7 @@ final routerConfig = GoRouter(
         pageBuilder: (context, state) => const NoTransitionPage<void>(
           child: HomePage(selectedTabs: NavigationTabs.profile),
         ),
-        routes: [
-          GoRoute(
-            path: 'meta',
-            builder: (context, state) => const MetaFeatPage(),
-          ),
-        ],
+        routes: profileRoute,
       )
     ],
     initialLocation: '/welcome_page',
@@ -167,7 +162,10 @@ class NavigationService {
   }
 
   /// Show meta functions in profile page
-  void goMeta({required BuildContext context}) {
+  void pushPageOnProfile({
+    required BuildContext context,
+    required String destination,
+  }) {
     var path = _currentPath(context);
     switch (path) {
       case '/profile_page':
