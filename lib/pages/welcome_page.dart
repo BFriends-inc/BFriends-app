@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/welcome_button.dart';
 
@@ -40,27 +41,38 @@ class WelcomeScreen extends StatelessWidget {
                 horizontal: 40.0,
               ),
               child: Center(
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Welcome to BeFriends!\n',
-                        style: TextStyle(
-                          fontSize: 35.0,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onPrimary,
+                child: Column(
+                  children: [
+                    AnimatedTextKit(
+                      repeatForever: false,
+                      isRepeatingAnimation: false,
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          '   Welcome to BeFriends!',
+                          textStyle: TextStyle(
+                            fontSize: 21.0,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                          speed: const Duration(milliseconds: 80),
                         ),
+                      ],
+                    ),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '\nA place to connect with people',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: '\nA place to connect with people',
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -69,18 +81,20 @@ class WelcomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: SizedBox(
-                      height: 40, //height
+                      height: 40, // height
                       child: WelcomeButton(
                         buttonText: 'Sign in',
                         tapDestination: 'signin',
                         color: Colors.transparent,
                         textColor: Colors.white,
+                        hoverColor: Colors.transparent,
+                        pressedColor: Colors.grey, // Color when pressed
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10), //button spacing
+                  const SizedBox(width: 10), // button spacing
                   Expanded(
                     child: SizedBox(
                       height: 50, //
@@ -89,6 +103,8 @@ class WelcomeScreen extends StatelessWidget {
                         tapDestination: 'signup',
                         color: Colors.white,
                         textColor: theme.colorScheme.primary,
+                        hoverColor: const Color.fromARGB(255, 198, 194, 199),
+                        pressedColor: Colors.grey, // Color when pressed
                       ),
                     ),
                   ),

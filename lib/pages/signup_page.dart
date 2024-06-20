@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +15,13 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   bool agreePersonalData = true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = Provider.of<AuthService>(context,
-        listen: false); //authentication provider
     //get screen width + height
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
@@ -59,13 +59,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // get started text
-                      Text(
-                        'Let\'s Get Started!',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                      AnimatedTextKit(
+                        repeatForever: false,
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            '   Let\'s Get Started!',
+                            textStyle: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.primary,
+                            ),
+                            speed: const Duration(milliseconds: 80),
+                          ),
+                        ],
                       ),
                       const SizedBox(
                         height: 40.0,
@@ -150,7 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return authService
+                          return _authService
                               .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
@@ -247,8 +254,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.hovered)) {
+                                  return theme.colorScheme.secondary;
+                                } else if (states
+                                    .contains(MaterialState.pressed)) {
+                                  return theme.colorScheme.tertiary;
+                                }
+                                return theme.colorScheme.primary;
+                              },
+                            ),
+                            textStyle: MaterialStateProperty.all(
+                              TextStyle(
+                                fontSize: 15.0,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    17.0), // Adjust the border radius as needed
+                              ),
+                            ),
+                            minimumSize: MaterialStateProperty.all(
+                              Size(double.infinity,
+                                  50.0), // Width set to match parent, height set to 120.0
+                            ),
+                          ),
                           onPressed: () async {
-                            emailExists = await authService
+                            emailExists = await _authService
                                 .checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
@@ -259,13 +296,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 'password': passwordController.text,
                               };
                               // Navigate to ProfileSetupScreen
-                              if (!context.mounted) return;
                               nav.pushAuthOnPage(
                                   context: context,
                                   destination: 'set_profile',
                                   extra: userInfo);
                             } else if (!agreePersonalData) {
-                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -278,7 +313,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 30.0,
+                        height: 25.0,
                       ),
                       // sign up divider
                       Row(
@@ -313,7 +348,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ],
                       ),
                       const SizedBox(
-                        height: 30.0,
+                        height: 25.0,
                       ),
                       // sign up social media logo
                       Row(
