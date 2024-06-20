@@ -1,5 +1,6 @@
 //import 'dart:typed_data';
 import 'dart:ui';
+import 'package:bfriends_app/services/marker_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/widget/event_pill.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,49 +19,8 @@ class MapPage extends StatefulWidget {
 
 class MapPageState extends State<MapPage>
     with AutomaticKeepAliveClientMixin<MapPage> {
-  BitmapDescriptor? customIcon;
-  Marker? _selectedMarker;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCustomMarker();
-  }
-
   @override
   bool get wantKeepAlive => true;
-
-  Future<void> _loadCustomMarker() async {
-    final markerIcon =
-        await getBytesFromAsset('assets/images/sports_marker.png', 150);
-    customIcon = BitmapDescriptor.fromBytes(
-      markerIcon, /*size: const Size(515, 590)*/
-    );
-    setState(() {});
-  }
-
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
-    FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
-  }
-
-  void _onMarkerTapped(Marker marker) {
-    setState(() {
-      debugPrint('got tapped');
-      if (_selectedMarker != marker) _selectedMarker = marker;
-    });
-  }
-
-  void _onMapTapped() {
-    setState(() {
-      _selectedMarker = null;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +28,7 @@ class MapPageState extends State<MapPage>
     super.build(context);
 
     final mapControllerService = Provider.of<MapControllerService>(context);
+    final markerService = Provider.of<MarkerProvider>(context);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -107,36 +68,26 @@ class MapPageState extends State<MapPage>
                     target: mapControllerService.currentPosition!,
                     zoom: 18,
                   ),
-                  markers: {
-                    if (customIcon != null &&
-                        mapControllerService.currentPosition != null)
-                      Marker(
-                        markerId: const MarkerId('custom_marker'),
-                        position: mapControllerService.currentPosition!,
-                        icon: customIcon!,
-                        onTap: () {
-                          debugPrint('create pill');
-                          _onMarkerTapped(
-                              const Marker(markerId: MarkerId('oompa')));
-                        },
-                      ),
-                  },
+                  markers: markerService.markers
+                  // {
+                  // Marker(
+                  //   markerId: const MarkerId('custom_marker'),
+                  //   position: mapControllerService.currentPosition!,
+                  //   icon: customIcon!,
+                  //   onTap: () {
+                  //     debugPrint('create pill');
+                  //     _onMarkerTapped(
+                  //         const Marker(markerId: MarkerId('oompa')));
+                  //   },
+                  // ),
+                  // }
+                  ,
                   onTap: (argument) {
-                    _onMapTapped();
+                    //user tapped on map, unselect the any current selection.
+                    markerService.unselectMarker();
                   },
                 ),
-                // Align(
-                //   alignment: Alignment.topRight,
-                //   child: IconButton.filled(
-                //     onPressed: () {
-                //       final nav = Provider.of<NavigationService>(context,
-                //           listen: false);
-                //       nav.goNotification(context: context);
-                //     },
-                //     icon: const Icon(Icons.notifications_none_rounded),
-                //   ),
-                // ),
-                if (_selectedMarker != null)
+                if (markerService.selectedMarker != null)
                   EventPill(
                     pillPosition: 200,
                     title: 'gengar',

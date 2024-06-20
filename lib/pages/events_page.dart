@@ -12,7 +12,7 @@ import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({Key? key});
+  const EventsPage({super.key});
 
   @override
   _EventsPageState createState() => _EventsPageState();
@@ -23,7 +23,7 @@ class _EventsPageState extends State<EventsPage> {
   late StateSetter _setState;
 
   DateTime? _selectedDate;
-  
+
   int? _selectedIndex;
   final _locationSearchController = TextEditingController();
   final uuid = const Uuid();
@@ -82,10 +82,12 @@ class _EventsPageState extends State<EventsPage> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
       }
 
-      _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      _currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -104,10 +106,13 @@ class _EventsPageState extends State<EventsPage> {
     }
 
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-      String location = '${_currentPosition!.latitude},${_currentPosition!.longitude}';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String location =
+          '${_currentPosition!.latitude},${_currentPosition!.longitude}';
       int radius = 50000; // 50 km
-      String request = '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
+      String request =
+          '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
         _setState(() {
@@ -124,7 +129,8 @@ class _EventsPageState extends State<EventsPage> {
   Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/details/json';
       String request = '$baseURL?place_id=$placeId&key=$placesApiKey';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
@@ -199,8 +205,7 @@ class _EventsPageState extends State<EventsPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     onPageChanged: (index) {
-                      _setState(() {
-                      });
+                      _setState(() {});
                     },
                     children: [
                       _buildFirstPage(),
@@ -258,7 +263,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your username';
+                return 'Please enter an event name';
               }
               return null;
             },
@@ -266,7 +271,7 @@ class _EventsPageState extends State<EventsPage> {
               label: const Text(
                 'Event Name',
                 style: TextStyle(
-                fontSize: 14,
+                  fontSize: 14,
                 ),
               ),
               hintText: 'Input Event Name',
@@ -303,7 +308,7 @@ class _EventsPageState extends State<EventsPage> {
               label: const Text(
                 'Number of Participants Needed',
                 style: TextStyle(
-                fontSize: 14,
+                  fontSize: 14,
                 ),
               ),
               hintText: 'Put number of participants',
@@ -328,12 +333,15 @@ class _EventsPageState extends State<EventsPage> {
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            controller: TextEditingController(text: _selectedDate == null
-                ? 'Event Date'
-                : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'),
+            controller: TextEditingController(
+                text: _selectedDate == null
+                    ? 'Event Date'
+                    : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'),
             style: TextStyle(
               fontSize: 14,
-              color: _isDateValid.value ? Colors.black : const Color.fromARGB(255, 195, 65, 63),
+              color: _isDateValid.value
+                  ? Colors.black
+                  : const Color.fromARGB(255, 195, 65, 63),
             ),
             decoration: InputDecoration(
               suffixIcon: IconButton(
@@ -377,19 +385,24 @@ class _EventsPageState extends State<EventsPage> {
                 _formProfileSetupKey.currentState!.save();
                 if (eventNameController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter the event name')),
+                    const SnackBar(
+                        content: Text('Please enter the event name')),
                   );
                 } else if (_selectedImage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Please select an image')),
                   );
-                } else if (participantsController.text.isEmpty || int.tryParse(participantsController.text) == null) {
+                } else if (participantsController.text.isEmpty ||
+                    int.tryParse(participantsController.text) == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid number of participants')),
+                    const SnackBar(
+                        content: Text(
+                            'Please enter a valid number of participants')),
                   );
                 } else if (_selectedDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please select the event date')),
+                    const SnackBar(
+                        content: Text('Please select the event date')),
                   );
                 } else {
                   _pageController.nextPage(
@@ -420,7 +433,6 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ),
         const SizedBox(height: 16),
-
         TextFormField(
           controller: _locationSearchController,
           onChanged: (value) {},
@@ -434,7 +446,7 @@ class _EventsPageState extends State<EventsPage> {
             label: const Text(
               'Location',
               style: TextStyle(
-              fontSize: 14,
+                fontSize: 14,
               ),
             ),
             hintText: 'Pick your event location',
@@ -488,14 +500,17 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<void> _submitForm() async {
-    if (_formProfileSetupKey.currentState?.validate() == true && _selectedDate != null) {
+    if (_formProfileSetupKey.currentState?.validate() == true &&
+        _selectedDate != null) {
       _formProfileSetupKey.currentState?.save();
 
       final eventName = eventNameController.text;
       final participants = participantsController.text;
-      final eventDate = _selectedDate!.toLocal().toIso8601String().substring(0, 10);
+      final eventDate =
+          _selectedDate!.toLocal().toIso8601String().substring(0, 10);
       final placeName = selectedPlace['placeName'] ?? 'No place selected';
-      final placeAddress = selectedPlace['placeAddress'] ?? 'No address available';
+      final placeAddress =
+          selectedPlace['placeAddress'] ?? 'No address available';
       final latitude = selectedPlace['latitude'] ?? 0.0;
       final longitude = selectedPlace['longitude'] ?? 0.0;
       final ownerId = user?.uid ?? '';
@@ -529,7 +544,6 @@ class _EventsPageState extends State<EventsPage> {
       debugPrint('Please fill all the fields');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -25,7 +25,8 @@ class EventService {
   }) async {
     try {
       // Upload image to Firebase Storage
-      final storageRef = _storage.ref().child('eventImages').child('$eventName.jpg');
+      final storageRef =
+          _storage.ref().child('eventImages').child('$eventName.jpg');
       await storageRef.putFile(File(selectedImage.path));
       String imageUrl = await storageRef.getDownloadURL();
 
