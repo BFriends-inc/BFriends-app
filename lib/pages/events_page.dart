@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bfriends_app/pages/event_card.dart';
 import 'package:bfriends_app/pages/event_image_picker.dart';
 import 'package:bfriends_app/services/event_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +25,9 @@ class _EventsPageState extends State<EventsPage> {
   late StateSetter _setState;
 
   DateTime? _selectedDate;
-  
+  TimeOfDay? _selectedStartTime;
+  TimeOfDay? _selectedEndTime;
+
   int? _selectedIndex;
   final _locationSearchController = TextEditingController();
   final uuid = const Uuid();
@@ -44,11 +48,14 @@ class _EventsPageState extends State<EventsPage> {
   final User? user = FirebaseAuth.instance.currentUser;
   final eventService = EventService();
 
+  List<Map<String, dynamic>> _events = [];
+
   @override
   void initState() {
     super.initState();
     _locationSearchController.addListener(_onChanged);
     _getCurrentLocation();
+    _loadEvents();
   }
 
   @override
@@ -165,20 +172,39 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
-  void _presentDatePicker() async {
-    final now = DateTime.now();
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: now,
-      lastDate: DateTime(now.year + 1),
-    );
-    if (pickedDate != null) {
-      _setState(() {
-        _selectedDate = pickedDate;
+void _presentDatePicker() async {
+  final now = DateTime.now();
+  final pickedDate = await showDatePicker(
+    context: context,
+    initialDate: now,
+    firstDate: now,
+    lastDate: DateTime(now.year + 1),
+  );
+  if (pickedDate != null) {
+    _setState(() {
+      _selectedDate = pickedDate;
+      _presentTimePicker(context, 'Start Time', (pickedTime) {
+        _selectedStartTime = pickedTime;
+          _presentTimePicker(context, 'End Time', (pickedTime) {
+            _selectedEndTime = pickedTime;
+          });
+        });
       });
     }
   }
+
+void _presentTimePicker(BuildContext context, String title, void Function(TimeOfDay time) onTimePicked) async {
+  final pickedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    helpText: title,
+  );
+  if (pickedTime != null) {
+    _setState(() {
+      onTimePicked(pickedTime);
+    });
+  }
+}
 
   void _showDialog() {
     var height = MediaQuery.of(context).size.height;
@@ -195,6 +221,7 @@ class _EventsPageState extends State<EventsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   height: height - 200,
+                  width: double.infinity,
                   child: PageView(
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
@@ -222,6 +249,8 @@ class _EventsPageState extends State<EventsPage> {
       participantsController.clear();
       _placeList = [];
       _isDateValid.value = true;
+      _selectedStartTime = null;
+      _selectedEndTime = null;
     });
   }
 
@@ -251,6 +280,7 @@ class _EventsPageState extends State<EventsPage> {
             onSave: (pickedImage) {
               _selectedImage = pickedImage;
             },
+            eventNameController: eventNameController,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -258,7 +288,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your username';
+                return 'Please enter the event name';
               }
               return null;
             },
@@ -295,7 +325,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter number of participants';
+                return 'Please enter the number of participants';
               }
               return null;
             },
@@ -329,8 +359,8 @@ class _EventsPageState extends State<EventsPage> {
           TextFormField(
             readOnly: true,
             controller: TextEditingController(text: _selectedDate == null
-                ? 'Event Date'
-                : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'),
+                ? 'Event Date and Time'
+                : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}   ${_selectedStartTime?.format(context) ?? ''} - ${_selectedEndTime?.format(context) ?? ''}'),
             style: TextStyle(
               fontSize: 14,
               color: _isDateValid.value ? Colors.black : const Color.fromARGB(255, 195, 65, 63),
@@ -358,11 +388,11 @@ class _EventsPageState extends State<EventsPage> {
             ),
             onTap: _presentDatePicker,
             validator: (value) {
-              if (value == null || value == 'Event Date') {
+              if (value == null || value == 'Event Date and Time' || _selectedStartTime == null || _selectedEndTime == null) {
                 _setState(() {
                   _isDateValid.value = false;
                 });
-                return 'Please select the event date';
+                return 'Please select the event date and time';
               }
               _setState(() {
                 _isDateValid.value = true;
@@ -494,6 +524,8 @@ class _EventsPageState extends State<EventsPage> {
       final eventName = eventNameController.text;
       final participants = participantsController.text;
       final eventDate = _selectedDate!.toLocal().toIso8601String().substring(0, 10);
+      final eventStartTime = _selectedStartTime!.format(context);
+      final eventEndTime = _selectedEndTime!.format(context);
       final placeName = selectedPlace['placeName'] ?? 'No place selected';
       final placeAddress = selectedPlace['placeAddress'] ?? 'No address available';
       final latitude = selectedPlace['latitude'] ?? 0.0;
@@ -503,6 +535,8 @@ class _EventsPageState extends State<EventsPage> {
       debugPrint('Event Name: $eventName');
       debugPrint('Participants: $participants');
       debugPrint('Event Date: $eventDate');
+      debugPrint('Event Start Time: $eventStartTime');
+      debugPrint('Event End Time: $eventEndTime');
       debugPrint('Place Name: $placeName');
       debugPrint('Place Address: $placeAddress');
       debugPrint('Latitude: $latitude');
@@ -515,6 +549,8 @@ class _EventsPageState extends State<EventsPage> {
           participants: participants,
           selectedImage: _selectedImage!,
           eventDate: eventDate,
+          eventStartTime: eventStartTime,
+          eventEndTime: eventEndTime,
           placeName: placeName,
           placeAddress: placeAddress,
           latitude: latitude,
@@ -530,6 +566,16 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+  Future<void> _loadEvents() async {
+    try {
+      List<Map<String, dynamic>> events = await eventService.getEvents();
+      setState(() {
+        _events = events;
+      });
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -556,6 +602,26 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ],
       ),
+      body: _events.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                final event = _events[index];
+                debugPrint(event.toString());
+                return EventCard(
+                  image: NetworkImage(event['imageUrl']),
+                  eventName: event['eventName'] ?? 'No name',
+                  eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
+                  startTime: event['startTime'] ?? 'No time',
+                  endTime: event['endTime'] ?? 'No time',
+                  location: event['place']['placeName'] ?? 'No name',
+                  participants: event['participationList'].length.toString(),
+                  maxParticipants: event['participants'] ?? "No limit specified",
+                  isFull: event['participationList'].length >= int.parse(event['participants']),
+                );
+              },
+            ),
     );
   }
 }
