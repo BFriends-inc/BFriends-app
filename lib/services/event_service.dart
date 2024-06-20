@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -69,6 +70,7 @@ class EventService {
       final eventId = uuid.v4();
       debugPrint(eventId);
       final event = {
+        'eventId': eventId,
         'ownerId': ownerId,
         'eventName': eventName,
         'participants': participants,
@@ -97,6 +99,30 @@ class EventService {
       return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     } catch (e) {
       throw Exception('Error fetching events: $e');
+    }
+  }
+
+  Future<void> joinEvent(String eventId, String userId) async {
+    try {
+      final event = _firestore.collection('events').doc(eventId);
+      final eventDoc = await event.get();
+      final eventOwner = eventDoc.get('ownerId');
+      final participationList = eventDoc.get('participationList');
+      final maxParticipants = int.parse(eventDoc.get('participants'));
+
+      if (participationList.length < maxParticipants) {
+        if (!participationList.contains(userId)) {
+          participationList.add(userId);
+          await event.update({'participationList': participationList});
+          debugPrint('Joined event $eventId');
+        } else {
+          debugPrint('User already joined event $eventId');
+        }
+      } else {
+        debugPrint('Event $eventId is full');
+      }
+    } catch (e) {
+      throw Exception('Error joining event: $e');
     }
   }
 }

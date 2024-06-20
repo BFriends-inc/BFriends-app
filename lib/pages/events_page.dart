@@ -584,10 +584,15 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
             itemCount: _events.length,
             itemBuilder: (context, index) {
               final event = _events[index];
-              if (event['ownerId'] != user?.uid || !event['participationList'].contains(user?.uid)) {
+              debugPrint(event['participationList'].toString());
+              debugPrint(user?.uid);
+              debugPrint(event['participationList'].contains(user?.uid).toString());
+              if (event['ownerId'] != user?.uid && !event['participationList'].contains(user?.uid)) {
                 return const SizedBox.shrink();
               }
               return EventCard(
+                eventId: event['eventId'] ?? 'No id',
+                userId: user?.uid ?? "No user id",
                 image: NetworkImage(event['imageUrl']),
                 eventName: event['eventName'] ?? 'No name',
                 eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
@@ -598,6 +603,7 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
                 maxParticipants: event['participants'] ?? "No limit specified",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
+                isJoined: event['participationList'].contains(user?.uid),
               );
             },
           );
@@ -612,6 +618,8 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
               final event = _events[index];
               debugPrint(event.toString());
               return EventCard(
+                eventId: event['eventId'] ?? 'No id',
+                userId: user?.uid ?? "No user id",
                 image: NetworkImage(event['imageUrl']),
                 eventName: event['eventName'] ?? 'No name',
                 eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
@@ -622,6 +630,7 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
                 maxParticipants: event['participants'] ?? "No limit specified",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
+                isJoined: event['participationList'].contains(user?.uid),
               );
             },
           );

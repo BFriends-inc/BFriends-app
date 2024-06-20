@@ -1,6 +1,9 @@
+import 'package:bfriends_app/services/event_service.dart';
 import 'package:flutter/material.dart';
 
 class EventCard extends StatelessWidget {
+  final String eventId;
+  final String userId;
   final ImageProvider image;
   final String eventName;
   final String eventDate;
@@ -11,8 +14,11 @@ class EventCard extends StatelessWidget {
   final String maxParticipants;
   final bool isFull;
   final bool isHosted;
+  final bool isJoined;
 
   EventCard({
+    required this.eventId,
+    required this.userId,
     required this.image,
     required this.eventName,
     required this.eventDate,
@@ -23,11 +29,13 @@ class EventCard extends StatelessWidget {
     required this.maxParticipants,
     required this.isFull,
     required this.isHosted,
+    required this.isJoined,
   });
 
   @override
   Widget build(BuildContext context) {
-    
+    final eventService = EventService();
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -90,14 +98,21 @@ class EventCard extends StatelessWidget {
                 const SizedBox(height: 10.0),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isFull ? Colors.blue : Colors.green,
-                      borderRadius: BorderRadius.circular(20.0),
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: isHosted ? Colors.grey : isJoined ? Colors.grey : isFull ? Colors.red : Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                    onPressed: () {
+                      if (!isHosted && !isFull) {
+                        eventService.joinEvent(eventId, userId);
+                      }
+                    },
                     child: Text(
-                      isHosted ? 'HOSTED' : isFull ? 'FULL' : 'JOIN',
+                      isHosted ? 'HOSTED' : isJoined ? 'JOINED' : isFull ? 'FULL' : 'JOIN',
                       style: const TextStyle(
                         color: Colors.white,
                       ),
