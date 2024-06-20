@@ -28,7 +28,7 @@ class BarButton extends StatelessWidget {
       onTap: () {
         debugPrint("Bar button pressed.");
         final nav = Provider.of<NavigationService>(context, listen: false);
-        //nav.pushAuthOnPage(context: context, destination: tapDestination!);
+        nav.pushAuthOnPage(context: context, destination: tapDestination!);
       },
       child: Container(
         decoration: BoxDecoration(

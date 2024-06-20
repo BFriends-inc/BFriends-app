@@ -26,7 +26,7 @@ class ProfilePage extends StatelessWidget {
             IconButton(
               onPressed: () {
                 //go to meta functions
-                nav.goMeta(context: context);
+                nav.pushPageOnProfile(context: context, destination: 'meta');
               },
               icon: Icon(
                 Icons.menu_rounded,
@@ -135,6 +135,7 @@ class ProfilePage extends StatelessWidget {
                                       height: 30.0,
                                       icon: Icons.edit,
                                       text: 'Edit My Profile',
+                                      tapDestination: 'edit_profile'
                                     ),
                                   ],
                                 )

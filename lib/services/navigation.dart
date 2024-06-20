@@ -167,11 +167,11 @@ class NavigationService {
     required String destination,
   }) {
     var path = _currentPath(context);
-    switch (path) {
-      case '/profile_page':
-        _router.go('/profile_page/meta');
-        return;
+    try {
+      _router.go('$path/$destination');
+    } on Exception catch (e) {
+      debugPrint('Cannot push $destination on the path: $path');
+      debugPrint(e.toString());
     }
-    throw Exception('Cannot push meta on the path: $path');
   }
 }
