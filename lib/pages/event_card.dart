@@ -10,6 +10,7 @@ class EventCard extends StatelessWidget {
   final String participants;
   final String maxParticipants;
   final bool isFull;
+  final bool isHosted;
 
   EventCard({
     required this.image,
@@ -21,10 +22,12 @@ class EventCard extends StatelessWidget {
     required this.participants,
     required this.maxParticipants,
     required this.isFull,
+    required this.isHosted,
   });
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
+    
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -94,7 +97,7 @@ class EventCard extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
                     child: Text(
-                      isFull ? 'FULL' : 'JOIN',
+                      isHosted ? 'HOSTED' : isFull ? 'FULL' : 'JOIN',
                       style: const TextStyle(
                         color: Colors.white,
                       ),

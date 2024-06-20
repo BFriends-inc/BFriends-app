@@ -577,11 +577,64 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
     }
   }
 
+  Widget MyEventsPage() {
+    return _events.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: _events.length,
+            itemBuilder: (context, index) {
+              final event = _events[index];
+              if (event['ownerId'] != user?.uid || !event['participationList'].contains(user?.uid)) {
+                return const SizedBox.shrink();
+              }
+              return EventCard(
+                image: NetworkImage(event['imageUrl']),
+                eventName: event['eventName'] ?? 'No name',
+                eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
+                startTime: event['startTime'] ?? 'No time',
+                endTime: event['endTime'] ?? 'No time',
+                location: event['place']['placeName'] ?? 'No name',
+                participants: event['participationList'].length.toString(),
+                maxParticipants: event['participants'] ?? "No limit specified",
+                isFull: event['participationList'].length >= int.parse(event['participants']),
+                isHosted: event['ownerId'] == user?.uid,
+              );
+            },
+          );
+  }
+
+  Widget AllEventsPage() {
+    return _events.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: _events.length,
+            itemBuilder: (context, index) {
+              final event = _events[index];
+              debugPrint(event.toString());
+              return EventCard(
+                image: NetworkImage(event['imageUrl']),
+                eventName: event['eventName'] ?? 'No name',
+                eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
+                startTime: event['startTime'] ?? 'No time',
+                endTime: event['endTime'] ?? 'No time',
+                location: event['place']['placeName'] ?? 'No name',
+                participants: event['participationList'].length.toString(),
+                maxParticipants: event['participants'] ?? "No limit specified",
+                isFull: event['participationList'].length >= int.parse(event['participants']),
+                isHosted: event['ownerId'] == user?.uid,
+              );
+            },
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         title: Text(
           'BFriends',
@@ -601,27 +654,34 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
             onPressed: _showDialog,
           ),
         ],
+        bottom: const TabBar(
+            tabs: [
+              Tab(
+                child: Text(
+                  'My Events',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  'All Events',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+              ),
+              )
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            MyEventsPage(),
+            AllEventsPage(),
+          ],
+        ),
       ),
-      body: _events.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _events.length,
-              itemBuilder: (context, index) {
-                final event = _events[index];
-                debugPrint(event.toString());
-                return EventCard(
-                  image: NetworkImage(event['imageUrl']),
-                  eventName: event['eventName'] ?? 'No name',
-                  eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
-                  startTime: event['startTime'] ?? 'No time',
-                  endTime: event['endTime'] ?? 'No time',
-                  location: event['place']['placeName'] ?? 'No name',
-                  participants: event['participationList'].length.toString(),
-                  maxParticipants: event['participants'] ?? "No limit specified",
-                  isFull: event['participationList'].length >= int.parse(event['participants']),
-                );
-              },
-            ),
     );
   }
 }
