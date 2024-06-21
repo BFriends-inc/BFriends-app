@@ -14,25 +14,28 @@ class _NotificationPageState extends State<NotificationPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 5.0,
-        backgroundColor: theme.colorScheme.background,
-        foregroundColor: theme.colorScheme.onBackground,
-        surfaceTintColor: theme.colorScheme.background,
-        shadowColor: Colors.black26, //Need shadow color
-        leading: IconButton(
-          onPressed: () {
-            context.pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40.0),
+        child: AppBar(
+          elevation: 5.0,
+          backgroundColor: theme.colorScheme.background,
+          foregroundColor: theme.colorScheme.onBackground,
+          surfaceTintColor: theme.colorScheme.background,
+          shadowColor: Colors.black26, //Need shadow color
+          leading: IconButton(
+            onPressed: () {
+              context.pop();
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+            ),
           ),
-        ),
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-            fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+          title: Text(
+            'Notifications',
+            style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineSmall?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+            ),
           ),
         ),
       ),
