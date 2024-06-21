@@ -584,23 +584,13 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
             itemCount: _events.length,
             itemBuilder: (context, index) {
               final event = _events[index];
-              debugPrint(event['participationList'].toString());
-              debugPrint(user?.uid);
-              debugPrint(event['participationList'].contains(user?.uid).toString());
               if (event['ownerId'] != user?.uid && !event['participationList'].contains(user?.uid)) {
                 return const SizedBox.shrink();
               }
+              debugPrint(event.runtimeType.toString());
               return EventCard(
-                eventId: event['eventId'] ?? 'No id',
+                event: event,
                 userId: user?.uid ?? "No user id",
-                image: NetworkImage(event['imageUrl']),
-                eventName: event['eventName'] ?? 'No name',
-                eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
-                startTime: event['startTime'] ?? 'No time',
-                endTime: event['endTime'] ?? 'No time',
-                location: event['place']['placeName'] ?? 'No name',
-                participants: event['participationList'].length.toString(),
-                maxParticipants: event['participants'] ?? "No limit specified",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].contains(user?.uid),
@@ -616,18 +606,9 @@ void _presentTimePicker(BuildContext context, String title, void Function(TimeOf
             itemCount: _events.length,
             itemBuilder: (context, index) {
               final event = _events[index];
-              debugPrint(event.toString());
               return EventCard(
-                eventId: event['eventId'] ?? 'No id',
+                event: event,
                 userId: user?.uid ?? "No user id",
-                image: NetworkImage(event['imageUrl']),
-                eventName: event['eventName'] ?? 'No name',
-                eventDate: event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date',
-                startTime: event['startTime'] ?? 'No time',
-                endTime: event['endTime'] ?? 'No time',
-                location: event['place']['placeName'] ?? 'No name',
-                participants: event['participationList'].length.toString(),
-                maxParticipants: event['participants'] ?? "No limit specified",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].contains(user?.uid),
