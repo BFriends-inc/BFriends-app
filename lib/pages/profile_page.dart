@@ -137,55 +137,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Row(
                                   children: [
                                     //collection of buttons
-                                    GestureDetector(
-                                      onTap: () {
-                                        debugPrint("Bar button pressed.");
-                                        final nav =
-                                            Provider.of<NavigationService>(
-                                                context,
-                                                listen: false);
-                                        nav.pushAuthOnPage(
-                                            context: context,
-                                            destination: 'edit_profile');
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                        height: 30,
-                                        width: ((theme.textTheme.bodySmall!
-                                                    .fontSize! /
-                                                theme.textTheme.bodySmall!
-                                                    .height!) *
-                                            'Edit My Profile'.length),
-                                        padding: const EdgeInsets.all(5.0),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.edit,
-                                              size: 20.0,
-                                              color:
-                                                  theme.colorScheme.onPrimary,
-                                            ),
-                                            const SizedBox(
-                                              width: 10.0,
-                                            ),
-                                            Text(
-                                              'Edit My Profile',
-                                              style: TextStyle(
-                                                  color: theme
-                                                      .colorScheme.onPrimary,
-                                                  fontStyle: theme.textTheme
-                                                      .bodySmall!.fontStyle,
-                                                  fontSize: theme.textTheme
-                                                      .bodySmall!.fontSize),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    BarButton(
+                                      color: theme.colorScheme.primaryContainer,
+                                      onColor:
+                                          theme.colorScheme.onPrimaryContainer,
+                                      height: 30.0,
+                                      icon: Icons.edit,
+                                      text: 'Edit My Profile',
+                                      tapDestination: 'edit_profile',
+                                    )
                                   ],
                                 )
                               ],
