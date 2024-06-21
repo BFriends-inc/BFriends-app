@@ -34,10 +34,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'BFriends app',
       theme: Provider.of<ThemeProvider>(context).themeData,
-      home: const FriendsPage(),
+      routerConfig: routerConfig,
+      restorationScopeId: 'app',
     );
   }
 }

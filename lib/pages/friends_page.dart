@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/pages/chat_page.dart';
 import 'package:bfriends_app/pages/friend_detail_page.dart';
+import 'package:flutter/scheduler.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _FriendsPageState createState() => _FriendsPageState();
 }
 
@@ -50,7 +52,7 @@ class _FriendsPageState extends State<FriendsPage> {
               friend.name.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     }
-
+    
     return filteredFriends;
   }
 
@@ -154,7 +156,12 @@ class _FriendsPageState extends State<FriendsPage> {
                 itemCount: selectedFriends.length,
                 itemBuilder: (context, index) {
                   final friend = selectedFriends[index];
-                  return FriendTile(friend: friend);
+                  // decide the delay time here
+                  final delay = Duration(milliseconds: 200 * index);
+                  return FriendTile(
+                    friend: friend,
+                    delay: delay,
+                  );
                 },
               ),
             ),
@@ -165,50 +172,102 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 }
 
-class FriendTile extends StatelessWidget {
+class FriendTile extends StatefulWidget {
   final Friend friend;
+  final Duration delay;
 
-  const FriendTile({required this.friend, super.key});
+  const FriendTile({required this.friend, required this.delay, super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _FriendTileState createState() => _FriendTileState();
+}
+
+class _FriendTileState extends State<FriendTile> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+
+    final curvedAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+
+    // Start animation after the specified delay (200 ms)
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(widget.delay, () {
+        if (mounted) {
+          _controller.forward();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: (friend.block == true)
-          ? const Color.fromARGB(255, 133, 127, 139)
-          : const Color.fromARGB(255, 219, 201, 237),
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      child: ListTile(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FriendDetailPage(friend: friend),
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0.0, (1 - _animation.value) * 50),
+          child: Opacity(
+            opacity: _animation.value,
+            child: child,
+          ),
+        );
+      },
+      child: Card(
+        color: (widget.friend.block == true)
+            ? const Color.fromARGB(255, 133, 127, 139)
+            : const Color.fromARGB(255, 219, 201, 237),
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        child: ListTile(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FriendDetailPage(friend: widget.friend),
+              ),
+            );
+          },
+          leading: ClipOval(
+            child: Image.asset(
+              widget.friend.imagePath,
+              fit: BoxFit.cover,
+              width: 40.0,
+              height: 40.0,
             ),
-          );
-        },
-        leading: ClipOval(
-          child: Image.asset(
-            friend.imagePath,
-            fit: BoxFit.cover,
-            width: 40.0,
-            height: 40.0,
           ),
-        ),
-        title: Text(
-          friend.name,
-          style: const TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+          title: Text(
+            widget.friend.name,
+            style: const TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(friend.languages.join(', '),
-                style: const TextStyle(fontSize: 13.0)),
-            Text(friend.hobbies.join(', '),
-                style: const TextStyle(fontSize: 13.0)),
-          ],
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(widget.friend.languages.join(', '), style: const TextStyle(fontSize: 13.0)),
+              Text(widget.friend.hobbies.join(', '), style: const TextStyle(fontSize: 13.0)),
+            ],
+          ),
         ),
       ),
     );

@@ -8,6 +8,7 @@ class FriendDetailPage extends StatefulWidget {
   const FriendDetailPage({required this.friend, super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _FriendDetailPageState createState() => _FriendDetailPageState();
 }
 
