@@ -5,9 +5,14 @@ import 'package:bfriends_app/widget/profileStats_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -129,14 +134,14 @@ class ProfilePage extends StatelessWidget {
                                   children: [
                                     //collection of buttons
                                     BarButton(
-                                      color: theme.colorScheme.primaryContainer,
-                                      onColor:
-                                          theme.colorScheme.onPrimaryContainer,
-                                      height: 30.0,
-                                      icon: Icons.edit,
-                                      text: 'Edit My Profile',
-                                      tapDestination: 'edit_profile'
-                                    ),
+                                        color:
+                                            theme.colorScheme.primaryContainer,
+                                        onColor: theme
+                                            .colorScheme.onPrimaryContainer,
+                                        height: 30.0,
+                                        icon: Icons.edit,
+                                        text: 'Edit My Profile',
+                                        tapDestination: 'edit_profile'),
                                   ],
                                 )
                               ],

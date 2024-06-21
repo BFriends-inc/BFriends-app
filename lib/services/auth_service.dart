@@ -24,7 +24,7 @@ class AuthService extends ChangeNotifier {
       debugPrint('visited on signout?');
       _user = null;
     } else {
-      await _fetchUserData(firebaseUser.uid);
+      await _fetchUserData(firebaseUser.uid, firebaseUser);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -33,13 +33,14 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserData(String uid) async {
+  Future<void> _fetchUserData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
       if (doc['email'] != null) {
         //can only fetch data if email is not empty.
         _user = UserModel(
+          firebaseUser: firebaseUser,
           id: uid,
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
@@ -106,7 +107,7 @@ class AuthService extends ChangeNotifier {
       User? user, Map<String, dynamic> additionalData) async {
     if (user != null) {
       await _firestore.collection('users').doc(user.uid).update(additionalData);
-      await _fetchUserData(user.uid);
+      await _fetchUserData(user.uid, user);
     }
   }
 
