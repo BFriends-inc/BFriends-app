@@ -5,6 +5,7 @@ import 'package:bfriends_app/theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
+import 'package:bfriends_app/pages/friends_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,11 +34,10 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'BFriends app',
       theme: Provider.of<ThemeProvider>(context).themeData,
-      routerConfig: routerConfig,
-      restorationScopeId: 'app',
+      home: const FriendsPage(),
     );
   }
 }
