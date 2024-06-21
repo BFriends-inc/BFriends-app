@@ -20,6 +20,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool changed = false;
   List<String> _selectedItems = [];
   List<String> _selectedHobbies = [];
+  final TextEditingController fullNameController = TextEditingController();
 
   void _languageSelect() async {
     final List<String>? results = await showDialog(
@@ -43,6 +44,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     if (results != null) {
       setState(() {
+        changed = true;
         _selectedItems = results;
       });
     }
@@ -74,6 +76,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     if (resultsHobby != null) {
       setState(() {
+        changed = true;
         _selectedHobbies = resultsHobby;
       });
     }
@@ -95,7 +98,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.user;
     double width = MediaQuery.of(context).size.width;
-    final TextEditingController fullNameController = TextEditingController();
     if (_selectedItems.isEmpty) {
       for (int i = 0; i < user!.listLanguage!.length;) {
         _selectedItems.add(user.listLanguage![i]);
@@ -207,7 +209,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         //   return null;
                         // },
                         decoration: InputDecoration(
-                            //labelText: user?.username,
+                            labelText: user?.username,
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             helperText: 'Full Name',
                             border: OutlineInputBorder(
