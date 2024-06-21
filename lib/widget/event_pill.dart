@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventPill extends StatefulWidget {
   const EventPill({
     super.key,
+    required this.eventId,
     required this.pillPosition,
     required this.title,
     required this.date,
+    required this.startTime,
     required this.imageURL,
     required this.maxPpl,
     required this.ppl,
   });
+  final String eventId;
   final double pillPosition;
-  final String title, imageURL;
+  final String title, imageURL, startTime;
   final DateTime date;
   final int ppl, maxPpl;
 
@@ -63,8 +67,8 @@ class EventPillState extends State<EventPill> {
                   height: imgH,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image.asset(
-                      'assets/images/BFriends_logo_full.png',
+                    child: Image.network(
+                      widget.imageURL,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -78,9 +82,29 @@ class EventPillState extends State<EventPill> {
                       children: [
                         Text(
                           widget.title,
-                          style: theme.textTheme.bodyLarge, //need edit
+                          style: TextStyle(
+                            fontStyle: theme.textTheme.titleSmall!.fontStyle,
+                            fontSize: theme.textTheme.titleSmall!.fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis, //need edit
                         ),
-                        const Text('LoremIpdasunfjkfn'), // need edit
+                        const Divider(),
+                        Text(
+                            'Date: ${widget.date.toString().split(' ')[0]}   ${widget.startTime}'),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: theme.colorScheme.tertiaryContainer,
+                                borderRadius: BorderRadius.circular(10.0)),
+                            padding:
+                                const EdgeInsets.fromLTRB(5.0, 3.0, 5.0, 3.0),
+                            child:
+                                Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
+                          ),
+                        ),
                       ],
                     ),
                   ),

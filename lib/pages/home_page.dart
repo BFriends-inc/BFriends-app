@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:bfriends_app/services/marker_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/widget/event_pill.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,7 @@ class MapPageState extends State<MapPage>
 
     final mapControllerService = Provider.of<MapControllerService>(context);
     final markerService = Provider.of<MarkerProvider>(context);
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -68,33 +70,23 @@ class MapPageState extends State<MapPage>
                     target: mapControllerService.currentPosition!,
                     zoom: 18,
                   ),
-                  markers: markerService.markers
-                  // {
-                  // Marker(
-                  //   markerId: const MarkerId('custom_marker'),
-                  //   position: mapControllerService.currentPosition!,
-                  //   icon: customIcon!,
-                  //   onTap: () {
-                  //     debugPrint('create pill');
-                  //     _onMarkerTapped(
-                  //         const Marker(markerId: MarkerId('oompa')));
-                  //   },
-                  // ),
-                  // }
-                  ,
+                  markers: markerService.markers,
                   onTap: (argument) {
                     //user tapped on map, unselect the any current selection.
                     markerService.unselectMarker();
                   },
                 ),
-                if (markerService.selectedMarker != null)
+                if (markerService.selectedMarker != null &&
+                    markerService.markerDetail != null)
                   EventPill(
+                    eventId: markerService.selectedMarker.toString(),
                     pillPosition: 200,
-                    title: 'gengar',
-                    date: DateTime.now(),
-                    imageURL: '111',
-                    maxPpl: 1,
-                    ppl: 1,
+                    title: markerService.markerDetail!['name'],
+                    date: markerService.markerDetail!['date'],
+                    imageURL: markerService.markerDetail!['imgURL'].toString(),
+                    maxPpl: int.parse(markerService.markerDetail!['capacity']),
+                    ppl: markerService.markerDetail!['joinNum'].length,
+                    startTime: markerService.markerDetail!['startTime'],
                   ),
               ],
             ),

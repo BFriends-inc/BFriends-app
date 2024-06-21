@@ -16,12 +16,13 @@ class MarkerProvider with ChangeNotifier {
   final MapControllerService _mapController;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   BitmapDescriptor? customIcon;
-  Marker? selectedMarker;
+  MarkerId? selectedMarker;
+  Map<String, dynamic>? markerDetail;
 
   MarkerProvider(this._mapController) {
     _mapController.addListener(_onLocationUpdated);
-    _startFetchingMarkers();
     _loadCustomMarker();
+    _startFetchingMarkers();
   }
 
   Set<Marker> get markers => _markers;
@@ -44,15 +45,38 @@ class MarkerProvider with ChangeNotifier {
         .asUint8List();
   }
 
+  Future<void> _fetchEventData(String eventId) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('events').doc(eventId).get();
+      debugPrint("Event name is: $eventId");
+      markerDetail = {
+        'name': doc['eventName'],
+        'imgURL': doc['imageUrl'],
+        'date': doc['date'].toDate(),
+        'startTime': doc['startTime'],
+        'endTime': doc['endTime'],
+        'capacity': doc['participants'],
+        'joinNum': doc['participationList'],
+        'placeName': doc['place']['placeName']
+      };
+    } catch (e) {
+      debugPrint("Error fetching user data: $e");
+    }
+    return;
+  }
+
   /// select the marker and update the current selection.
-  void _onMarkerTapped(Marker marker) {
-    debugPrint(' ${marker.markerId} got tapped');
+  void _onMarkerTapped(MarkerId marker) async {
+    debugPrint(' $marker got tapped');
     if (selectedMarker != marker) selectedMarker = marker;
+    await _fetchEventData(selectedMarker!.value);
   }
 
   /// unselect the current selected marker.
   void unselectMarker() {
     selectedMarker = null;
+    markerDetail = null;
   }
 
   /// Listen to the location update from the map controller
@@ -68,7 +92,7 @@ class MarkerProvider with ChangeNotifier {
     });
   }
 
-  /// Filter for markers within 3km of the user and display on the map.
+  /// Filter for markers within 5km of the user and display on the map.
   Future<void> fetchMarkers() async {
     try {
       LatLng? userLocation = _mapController.currentPosition;
@@ -84,7 +108,8 @@ class MarkerProvider with ChangeNotifier {
           icon: customIcon!,
           onTap: () {
             debugPrint('create event pill');
-            _onMarkerTapped(Marker(markerId: MarkerId(doc.id)));
+            //debugPrint(doc.id);
+            _onMarkerTapped(MarkerId(doc.id));
           },
         );
       }).toSet();
@@ -96,7 +121,7 @@ class MarkerProvider with ChangeNotifier {
           marker.position.latitude,
           marker.position.longitude,
         );
-        return distanceInMeters <= 3000; // 3km range
+        return distanceInMeters <= 5000; // 5km range
       }).toSet();
 
       if (_markers != filteredMarkers) {
