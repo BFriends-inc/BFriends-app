@@ -43,6 +43,7 @@ dependencies:
   cloud_firestore: ^4.17.3
   google_maps_flutter: ^2.6.1
   location: ^5.0.0
+  like_button: ^2.0.5
 
 dev_dependencies:
   flutter_test:

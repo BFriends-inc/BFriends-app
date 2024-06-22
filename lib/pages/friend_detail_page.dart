@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/pages/chat_page.dart';
+import 'package:like_button/like_button.dart';
 
 class FriendDetailPage extends StatefulWidget {
   final Friend friend;
@@ -102,6 +103,15 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> onLikeButtonTapped(bool isLiked) async {
+    if (!widget.friend.block) {
+      setState(() {
+        widget.friend.favorite = !widget.friend.favorite;
+      });
+    }
+    return widget.friend.favorite;
   }
 
   @override
@@ -249,17 +259,24 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
           Positioned(
             top: 75,
             right: 20,
-            child: IconButton(
-              icon: const Icon(Icons.favorite),
-              color: widget.friend.favorite
-                  ? Color.fromARGB(234, 209, 0, 0)
-                  : Colors.black,
-              onPressed: () {
-                if (!widget.friend.block) {
-                  setState(() {
-                    widget.friend.favorite = !widget.friend.favorite;
-                  });
-                }
+            child: LikeButton(
+              isLiked: widget.friend.favorite,
+              onTap: onLikeButtonTapped,
+              circleColor: const CircleColor(
+                start: Color(0xFFF44336),
+                end: Color(0xFFF44336),
+              ),
+              bubblesColor: const BubblesColor(
+                dotPrimaryColor: Color(0xFFF44336),
+                dotSecondaryColor: Color(0xFFF44336),
+              ),
+              likeBuilder: (bool isLiked) {
+                return Icon(
+                  Icons.favorite,
+                  color: isLiked
+                      ? const Color.fromARGB(234, 209, 0, 0)
+                      : Colors.grey,
+                );
               },
             ),
           ),
