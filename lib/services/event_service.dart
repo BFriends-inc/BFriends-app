@@ -38,6 +38,8 @@ class EventService {
     required double latitude,
     required double longitude,
   }) async {
+    const googleMapsApiKey = 'AIzaSyDyS54e5Iu_jFGV3YiKGv5yg3fiUJiH87A';
+
     try {
       String imageUrl;
 
@@ -66,28 +68,59 @@ class EventService {
         imageUrl = await storageRef.getDownloadURL();
       }
 
-      // Create event in Firestore
-      final eventId = uuid.v4();
-      debugPrint(eventId);
-      final event = {
-        'eventId': eventId,
-        'ownerId': ownerId,
-        'eventName': eventName,
-        'participants': participants,
-        'imageUrl': imageUrl,
-        'date': DateTime.parse(eventDate),
-        'startTime': eventStartTime,
-        'endTime': eventEndTime,
-        'place': {
-          'placeName': placeName,
-          'placeAddress': placeAddress,
-          'latitude': latitude,
-          'longitude': longitude,
-        },
-        'participationList': [ownerId],
-      };
-      await _firestore.collection('events').doc(eventId).set(event);
-      debugPrint('Event created successfully!');
+     
+      String staticMapUrl = 'https://maps.googleapis.com/maps/api/staticmap'
+          '?center=$latitude,$longitude'
+          '&zoom=13'
+          '&scale=1'
+          '&size=600x300'
+          '&maptype=roadmap'
+          '&key=$googleMapsApiKey'
+          '&format=png'
+          '&visual_refresh=true'
+          '&markers=size:mid%7Ccolor:0xff0000%7Clabel:1%7C$latitude,$longitude';
+
+      // Download the static map image
+      var response = await http.get(Uri.parse(staticMapUrl));
+      if (response.statusCode == 200) {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String mapFilePath = '${appDocDir.path}/map_$eventName.png';
+        await File(mapFilePath).writeAsBytes(response.bodyBytes);
+
+        // Upload the static map image to Firebase Storage
+        final mapHolderRef = _storage.ref().child('eventMapHolderImages').child('$eventName.jpg');
+        await mapHolderRef.putFile(File(mapFilePath));
+        String mapHolderImgUrl = await mapHolderRef.getDownloadURL();
+
+        // Delete the local file
+        await File(mapFilePath).delete();
+        
+        // Create event in Firestore
+        final eventId = uuid.v4();
+        debugPrint(eventId);
+        final event = {
+          'eventId': eventId,
+          'ownerId': ownerId,
+          'eventName': eventName,
+          'participants': participants,
+          'imageUrl': imageUrl,
+          'mapHolderImgUrl': mapHolderImgUrl,
+          'date': DateTime.parse(eventDate),
+          'startTime': eventStartTime,
+          'endTime': eventEndTime,
+          'place': {
+            'placeName': placeName,
+            'placeAddress': placeAddress,
+            'latitude': latitude,
+            'longitude': longitude,
+          },
+          'participationList': [ownerId],
+        };
+        await _firestore.collection('events').doc(eventId).set(event);
+        debugPrint('Event created successfully!');
+      } else {
+        throw Exception('Failed to download static map image');
+      }
     } catch (e) {
       throw Exception('Error creating event: $e');
     }
@@ -123,6 +156,17 @@ class EventService {
       }
     } catch (e) {
       throw Exception('Error joining event: $e');
+    }
+  }
+
+  Future<void> updateEvent(String eventId, Map<String, dynamic> updatedData) async {
+    try {
+      debugPrint("Updating event: $updatedData");
+      await FirebaseFirestore.instance.collection('events').doc(eventId).update(updatedData);
+      debugPrint("Event updated successfully");
+    } catch (e) {
+      debugPrint("Error updating event: $e");
+      throw e;
     }
   }
 }

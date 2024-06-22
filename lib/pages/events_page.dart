@@ -172,39 +172,39 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
-void _presentDatePicker() async {
-  final now = DateTime.now();
-  final pickedDate = await showDatePicker(
-    context: context,
-    initialDate: now,
-    firstDate: now,
-    lastDate: DateTime(now.year + 1),
-  );
-  if (pickedDate != null) {
-    _setState(() {
-      _selectedDate = pickedDate;
-      _presentTimePicker(context, 'Start Time', (pickedTime) {
-        _selectedStartTime = pickedTime;
-          _presentTimePicker(context, 'End Time', (pickedTime) {
-            _selectedEndTime = pickedTime;
+  void _presentDatePicker() async {
+    final now = DateTime.now();
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now,
+      lastDate: DateTime(now.year + 1),
+    );
+    if (pickedDate != null) {
+      _setState(() {
+        _selectedDate = pickedDate;
+        _presentTimePicker(context, 'Start Time', (pickedTime) {
+          _selectedStartTime = pickedTime;
+            _presentTimePicker(context, 'End Time', (pickedTime) {
+              _selectedEndTime = pickedTime;
+            });
           });
         });
-      });
     }
   }
 
-void _presentTimePicker(BuildContext context, String title, void Function(TimeOfDay time) onTimePicked) async {
-  final pickedTime = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.now(),
-    helpText: title,
-  );
-  if (pickedTime != null) {
-    _setState(() {
-      onTimePicked(pickedTime);
-    });
+  void _presentTimePicker(BuildContext context, String title, void Function(TimeOfDay time) onTimePicked) async {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      helpText: title,
+    );
+    if (pickedTime != null) {
+      _setState(() {
+        onTimePicked(pickedTime);
+      });
+    }
   }
-}
 
   void _showDialog() {
     var height = MediaQuery.of(context).size.height;

@@ -2,6 +2,7 @@ import 'package:bfriends_app/pages/event_detail.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class EventCard extends StatelessWidget {
   final Map<String, dynamic> event;
