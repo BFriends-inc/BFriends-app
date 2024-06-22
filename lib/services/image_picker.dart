@@ -13,7 +13,7 @@ class UserImagePicker extends FormField<XFile?> {
           onSaved: onSave,
           initialValue: null,
           builder: (FormFieldState<XFile?> state) {
-            void _pickImage() async {
+            void pickImage() async {
               try {
                 final pickedImage = await ImagePicker().pickImage(
                   source: ImageSource.gallery,
@@ -44,7 +44,7 @@ class UserImagePicker extends FormField<XFile?> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: _pickImage,
+                          onTap: pickImage,
                           borderRadius: BorderRadius.circular(40),
                           child: Align(
                             alignment: Alignment.bottomCenter,
