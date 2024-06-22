@@ -8,6 +8,8 @@ const lightColorScheme = ColorScheme(
   secondary: Color.fromARGB(255, 57, 26, 120),
   onSecondary: Color.fromARGB(255, 255, 255, 255),
   tertiary: Color.fromARGB(255, 137, 79, 190),
+  secondaryContainer:
+      Color.fromARGB(255, 219, 219, 219), //for in-app cards on background
   tertiaryContainer: Colors.black12, //for text box
   onTertiaryContainer: Colors.black26,
   error: Color(0xFFBA1A1A),
