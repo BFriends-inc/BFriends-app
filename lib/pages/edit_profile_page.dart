@@ -473,7 +473,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                 ? user?.username ?? ''
                                                 : fullNameController.text);
                                             Navigator.of(context).pop();
-                                            context.pop();
+                                            Navigator.pop(context);
                                           },
                                           child: const Text('Save')),
                                       TextButton(

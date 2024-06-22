@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bfriends_app/pages/edit_profile_page.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:bfriends_app/widget/bar_button.dart';
@@ -16,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -137,15 +139,72 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Row(
                                   children: [
                                     //collection of buttons
-                                    BarButton(
-                                      color: theme.colorScheme.primaryContainer,
-                                      onColor:
-                                          theme.colorScheme.onPrimaryContainer,
-                                      height: 30.0,
-                                      icon: Icons.edit,
-                                      text: 'Edit My Profile',
-                                      tapDestination: 'edit_profile',
-                                    )
+                                    // BarButton(
+                                    //   color: theme.colorScheme.primaryContainer,
+                                    //   onColor:
+                                    //       theme.colorScheme.onPrimaryContainer,
+                                    //   height: 30.0,
+                                    //   icon: Icons.edit,
+                                    //   text: 'Edit My Profile',
+                                    //   tapDestination: 'edit_profile',
+                                    // )
+                                     GestureDetector(
+                                      onTap: () {
+                                        debugPrint("Bar button pressed.");
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+                                        ).then((_) {
+                                          Future.delayed(Duration(seconds: 1), () {
+                                          setState(() {
+                                            debugPrint("State updated with new message after delay");
+                                          });
+                                        });
+                                        });
+                                        // final nav =
+                                        //     Provider.of<NavigationService>(
+                                        //         context,
+                                        //         listen: false);
+                                        // nav.pushAuthOnPage(
+                                        //     context: context,
+                                        //     destination: 'edit_profile');
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                        height: 30,
+                                        width: ((theme.textTheme.bodySmall!
+                                                    .fontSize! /
+                                                theme.textTheme.bodySmall!
+                                                    .height!) *
+                                            'Edit My Profile'.length),
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.edit,
+                                              size: 20.0,
+                                              color:
+                                                  theme.colorScheme.onPrimary,
+                                            ),
+                                            const SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              'Edit My Profile',
+                                              style: TextStyle(
+                                                  color: theme
+                                                      .colorScheme.onPrimary,
+                                                  fontStyle: theme.textTheme
+                                                      .bodySmall!.fontStyle,
+                                                  fontSize: theme.textTheme
+                                                      .bodySmall!.fontSize),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 )
                               ],
@@ -167,11 +226,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ]),
                       ),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {});
-                          },
-                          icon: const Icon(Icons.abc))
                     ],
                   ),
                 ),
