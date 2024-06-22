@@ -258,7 +258,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
           ),
           Positioned(
             top: 75,
-            right: 20,
+            right: 25,
             child: LikeButton(
               isLiked: widget.friend.favorite,
               onTap: onLikeButtonTapped,
