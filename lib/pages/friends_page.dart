@@ -52,7 +52,7 @@ class _FriendsPageState extends State<FriendsPage> {
               friend.name.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     }
-    
+
     return filteredFriends;
   }
 
@@ -183,7 +183,8 @@ class FriendTile extends StatefulWidget {
   _FriendTileState createState() => _FriendTileState();
 }
 
-class _FriendTileState extends State<FriendTile> with SingleTickerProviderStateMixin {
+class _FriendTileState extends State<FriendTile>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -234,8 +235,8 @@ class _FriendTileState extends State<FriendTile> with SingleTickerProviderStateM
       },
       child: Card(
         color: (widget.friend.block == true)
-            ? const Color.fromARGB(255, 133, 127, 139)
-            : const Color.fromARGB(255, 219, 201, 237),
+            ? Color.fromARGB(255, 212, 208, 215)
+            : Color.fromARGB(255, 222, 219, 224),
         margin: const EdgeInsets.symmetric(vertical: 10.0),
         child: ListTile(
           onTap: () {
@@ -264,8 +265,10 @@ class _FriendTileState extends State<FriendTile> with SingleTickerProviderStateM
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.friend.languages.join(', '), style: const TextStyle(fontSize: 13.0)),
-              Text(widget.friend.hobbies.join(', '), style: const TextStyle(fontSize: 13.0)),
+              Text(widget.friend.languages.join(', '),
+                  style: const TextStyle(fontSize: 13.0)),
+              Text(widget.friend.hobbies.join(', '),
+                  style: const TextStyle(fontSize: 13.0)),
             ],
           ),
         ),

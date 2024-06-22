@@ -106,6 +106,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -251,7 +252,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
             child: IconButton(
               icon: const Icon(Icons.favorite),
               color: widget.friend.favorite
-                  ? const Color.fromARGB(156, 255, 241, 116)
+                  ? Color.fromARGB(234, 209, 0, 0)
                   : Colors.black,
               onPressed: () {
                 if (!widget.friend.block) {
@@ -267,9 +268,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
             right: 20,
             child: IconButton(
               icon: const Icon(Icons.chat),
-              color: isPressedChat
-                  ? const Color.fromARGB(156, 255, 241, 116)
-                  : Colors.black,
+              color: Colors.black,
               onPressed: () {
                 if (!widget.friend.block) {
                   setState(() {
