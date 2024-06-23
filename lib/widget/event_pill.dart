@@ -94,7 +94,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     bool showGradient = (widget.ppl / widget.maxPpl) > 0.8;
     //debug
-    //showGradient = true;
+    showGradient = true;
     return AnimatedPositioned(
       bottom: pillPosH,
       left: 20,
@@ -188,12 +188,9 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
                                         ),
                                         padding: const EdgeInsets.fromLTRB(5.0, 3.0, 5.0, 3.0),
                                         child: showGradient ? Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children : [Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
-                                          const SizedBox(width: 20),
-                                          const Icon(Icons.whatshot, color: Colors.red),
-                                          const Icon(Icons.whatshot, color: Colors.red),
-                                          const Icon(Icons.whatshot, color: Colors.red),
-                                          const Icon(Icons.whatshot, color: Colors.red)]): 
+                                          const Icon(Icons.whatshot, color: Colors.red),]): 
                                           Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
                                       ),
                                     ),
