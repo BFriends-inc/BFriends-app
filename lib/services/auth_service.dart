@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
     if (firebaseUser == null) {
       _user = null;
     } else {
-      await _fetchUserData(firebaseUser.uid);
+      _user = await fetchUserData(firebaseUser.uid);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserData(String uid) async {
+  Future<UserModel?> fetchUserData(String uid) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
@@ -47,12 +47,12 @@ class AuthService extends ChangeNotifier {
       debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
         //can only fetch data if email is not empty.
-        _user = UserModel(
+        return UserModel(
           id: uid,
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
           username: doc['username'],
-          avatarURL: 'abc',
+          avatarURL: doc['avatarURL'],
           listLanguage: doc['languages'],
           listInterest: doc['hobbies'],
         );
@@ -60,6 +60,7 @@ class AuthService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error fetching user data: $e");
     }
+    return null;
   }
 
   Future<User?> signIn(String email, String password) async {
@@ -130,7 +131,7 @@ class AuthService extends ChangeNotifier {
         'hobbies': additionalData['hobbies'],
         'avatarURL': avatarURL,
       });
-      await _fetchUserData(user.uid);
+      _user = await fetchUserData(user.uid);
     }
   }
 
