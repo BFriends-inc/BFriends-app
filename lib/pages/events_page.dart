@@ -50,12 +50,24 @@ class _EventsPageState extends State<EventsPage> {
 
   List<Map<String, dynamic>> _events = [];
 
+  void _listenToEvents() {
+    FirebaseFirestore.instance.collection('events').snapshots().listen(
+      (snapshot) {
+        setState(() {
+          _events = snapshot.docs.map((doc) => doc.data()).toList();
+        });
+      },
+      onError: (error) => debugPrint("Listen failed: $error"),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _locationSearchController.addListener(_onChanged);
     _getCurrentLocation();
     _loadEvents();
+    _listenToEvents();
   }
 
   @override

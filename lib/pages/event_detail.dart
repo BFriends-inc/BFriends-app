@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 class EventDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> event;
@@ -19,6 +24,7 @@ class EventDetailsScreen extends StatefulWidget {
 }
 
 class _EventDetailsScreenState extends State<EventDetailsScreen> {
+  late StateSetter _setState;
   late TextEditingController _eventNameController;
   late TextEditingController _eventDateController;
   late TextEditingController _startTimeController;
@@ -29,16 +35,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   TimeOfDay? _selectedStartTime;
   TimeOfDay? _selectedEndTime;
 
+  int? _selectedIndex;
+  final uuid = const Uuid();
+  final String _sessionToken = '1234567890';
+  Map<String, dynamic> selectedPlace = {};
+  List<dynamic> _placeList = [];
+  Position? _currentPosition;
+
   final eventService = EventService();
 
   @override
   void initState() {
     super.initState();
-    _eventNameController = TextEditingController(text: widget.event['eventName']);
-    _eventDateController = TextEditingController(text: (widget.event['date'] != null ? (widget.event['date'] as Timestamp).toDate().toIso8601String() : 'No date').substring(0, 10));
-    _startTimeController = TextEditingController(text: widget.event['startTime']);
+    _eventNameController =
+        TextEditingController(text: widget.event['eventName']);
+    _eventDateController = TextEditingController(
+        text: (widget.event['date'] != null
+                ? (widget.event['date'] as Timestamp).toDate().toIso8601String()
+                : 'No date')
+            .substring(0, 10));
+    _startTimeController =
+        TextEditingController(text: widget.event['startTime']);
     _endTimeController = TextEditingController(text: widget.event['endTime']);
-    _locationController = TextEditingController(text: widget.event['place']['placeName']);
+    _locationController =
+        TextEditingController(text: widget.event['place']['placeName']);
+    _locationController.addListener(_onChanged);
+    _getCurrentLocation();
   }
 
   @override
@@ -51,6 +73,130 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     super.dispose();
   }
 
+  _onChanged() {
+    getSuggestion(_locationController.text);
+  }
+  
+  Future<void> _getCurrentLocation() async {
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return Future.error('Location services are disabled.');
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return Future.error('Location permissions are denied');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+      }
+
+      _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void getSuggestion(String input) async {
+    const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
+
+    if (_currentPosition == null) {
+      await _getCurrentLocation();
+    }
+
+    if (_currentPosition == null) {
+      debugPrint('Could not get current location');
+      return;
+    }
+
+    try {
+      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String location = '${_currentPosition!.latitude},${_currentPosition!.longitude}';
+      int radius = 50000; // 50 km
+      String request = '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
+      var response = await http.get(Uri.parse(request));
+      if (response.statusCode == 200) {
+        _setState(() {
+          _placeList = json.decode(response.body)['predictions'];
+        });
+      } else {
+        throw Exception('Failed to load predictions');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+    const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
+    try {
+      String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+      String request = '$baseURL?place_id=$placeId&key=$placesApiKey';
+      var response = await http.get(Uri.parse(request));
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['result'];
+      } else {
+        throw Exception('Failed to load place details');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  Future<void> _handlePlaceSelection(int index) async {
+    _setState(() {
+      _selectedIndex = index;
+    });
+
+    var selectedSuggestionPlace = _placeList[index];
+    debugPrint(selectedSuggestionPlace.toString());
+    String placeId = selectedSuggestionPlace["place_id"];
+    debugPrint('Selected place: ${selectedSuggestionPlace["description"]}');
+
+    var placeDetails = await getPlaceDetails(placeId);
+    if (placeDetails != null) {
+      double latitude = placeDetails["geometry"]["location"]["lat"];
+      double longitude = placeDetails["geometry"]["location"]["lng"];
+      debugPrint('Latitude: $latitude, Longitude: $longitude');
+
+      Map<String, dynamic> place = {
+        'placeId': placeId,
+        'placeName': selectedSuggestionPlace["description"],
+        'placeAddress': placeDetails["formatted_address"],
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+      selectedPlace = place;
+    }
+  }
+
+  void _updateEventDetails() async {
+    final eventId = widget.event['eventId'];
+    final updatedEvent = await eventService.getEventById(eventId);
+    if (updatedEvent != null) {
+      setState(() {
+        widget.event['eventName'] = updatedEvent['eventName'];
+        widget.event['date'] = updatedEvent['date'];
+        widget.event['startTime'] = updatedEvent['startTime'];
+        widget.event['endTime'] = updatedEvent['endTime'];
+        widget.event['place'] = updatedEvent['place'];
+        widget.event['participationList'] = updatedEvent['participationList'];
+        widget.event['participants'] = updatedEvent['participants'];
+        widget.event['mapHolderImgUrl'] = updatedEvent['mapHolderImgUrl'];
+      });
+    }
+  }
+
+  
   @override
   Widget build(BuildContext context) {
     final eventService = EventService();
@@ -67,13 +213,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final location = _locationController.text;
     final List<dynamic> participantsList = widget.event['participationList'];
     final participants = widget.event['participationList'].length.toString();
-    final maxParticipants = widget.event['participants'] ?? "No limit specified";
+    final maxParticipants =
+        widget.event['participants'] ?? "No limit specified";
 
     final holderImage = widget.event['mapHolderImgUrl'];
 
     DateTime? _selectedDate;
     TimeOfDay? _selectedTime;
-  
+
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF0F0F0),
@@ -96,21 +243,25 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 title: 'Event name',
                 value: eventName,
                 icon: isOwner ? Icons.edit : null,
-                onEdit: () => _editField(context, 'Event name', _eventNameController),
+                onEdit: () =>
+                    _editField(context, 'Event name', _eventNameController),
               ),
               _buildDetailCard(
                 context,
                 title: 'Date',
                 value: '$eventDate From $startTime to $endTime',
                 icon: isOwner ? Icons.edit : null,
-                onEdit: () => _editField(context, 'Date', _eventDateController, startTimeController: _startTimeController, endTimeController: _endTimeController),
+                onEdit: () => _editField(context, 'Date', _eventDateController,
+                    startTimeController: _startTimeController,
+                    endTimeController: _endTimeController),
               ),
               _buildDetailCard(
                 context,
                 title: 'Location',
                 value: location,
                 icon: isOwner ? Icons.edit : null,
-                onEdit: () => _editField(context, 'Location', _locationController),
+                onEdit: () =>
+                    _editField(context, 'Location', _locationController),
                 child: Container(
                   height: 150,
                   margin: const EdgeInsets.symmetric(vertical: 10),
@@ -136,7 +287,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading participants'));
+                      return const Center(
+                          child: Text('Error loading participants'));
                     } else {
                       return Column(children: snapshot.data ?? []);
                     }
@@ -161,7 +313,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Future<List<Widget>> _buildParticipantsList(List<dynamic> participantsList, AuthService authService) async {
+  Future<List<Widget>> _buildParticipantsList(
+      List<dynamic> participantsList, AuthService authService) async {
     List<Widget> participantsWidgets = [];
 
     for (var participant in participantsList) {
@@ -170,7 +323,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       String name = userDetails?.username ?? "Unknown";
       bool isHost = widget.event['ownerId'] == uid;
       String imageUrl = userDetails?.avatarURL ?? "";
-      participantsWidgets.add(_buildParticipantRow(name, isHost, false, imageUrl));
+      participantsWidgets
+          .add(_buildParticipantRow(name, isHost, false, imageUrl));
     }
 
     return participantsWidgets;
@@ -219,7 +373,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildParticipantRow(String name, bool isHost, bool isConfirmed, String imageUrl) {
+  Widget _buildParticipantRow(
+      String name, bool isHost, bool isConfirmed, String imageUrl) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -228,7 +383,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             backgroundColor: Colors.white,
             backgroundImage: imageUrl.isNotEmpty
                 ? NetworkImage(imageUrl)
-                : const AssetImage('assets/images/avatar_placeholder.jpg') as ImageProvider,
+                : const AssetImage('assets/images/avatar_placeholder.jpg')
+                    as ImageProvider,
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -265,67 +421,119 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  void _editField(BuildContext context, String title, TextEditingController controller, {TextEditingController? startTimeController, TextEditingController? endTimeController}) {
+  void _editField(
+      BuildContext context, String title, TextEditingController controller,
+      {TextEditingController? startTimeController,
+      TextEditingController? endTimeController}) {
     if (title == 'Date') {
-      _presentDatePicker().then((_) {
-        if (_selectedDate != null) {
-          controller.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-          _presentTimePicker(context, 'Select Start Time', (TimeOfDay time) {
-            _selectedStartTime = time;
-            startTimeController?.text = _formatTimeOfDay(time);
-            _presentTimePicker(context, 'Select End Time', (TimeOfDay time) {
-              _selectedEndTime = time;
-              endTimeController?.text = _formatTimeOfDay(time);
-              setState(() {});
-            });
-          });
-        }
+  _presentDatePicker().then((_) {
+    if (_selectedDate != null) {
+      controller.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+      _presentTimePicker(context, 'Select Start Time', (TimeOfDay time) {
+        _selectedStartTime = time;
+        startTimeController?.text = _formatTimeOfDay(time);
+        _presentTimePicker(context, 'Select End Time', (TimeOfDay time) async {
+          _selectedEndTime = time;
+          endTimeController?.text = _formatTimeOfDay(time);
+          try {
+            String eventId = widget.event['eventId'];
+            Map<String, dynamic> updatedData = {
+              'date': DateTime.parse(_selectedDate.toString()),
+              'startTime': _selectedStartTime?.format(context),
+              'endTime': _selectedEndTime?.format(context),
+            };
+            debugPrint(updatedData.toString());
+            await eventService.updateEvent(eventId, updatedData);
+            _updateEventDetails();
+          } catch (e) {
+            debugPrint("Failed to update event: $e");
+          }
+        });
       });
-    } else {
+    }
+  });
+}
+ else {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 20,
-              right: 20,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 20),
-                  Text('Edit $title', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(labelText: title),
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, StateSetter setState) {
+              _setState = setState;
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                  left: 20,
+                  right: 20,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 20),
+                      Text('Edit $title',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: title == 'Location' ? _locationController : controller,
+                        decoration: InputDecoration(
+                          labelText: title,
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.cancel),
+                            iconSize: 16,
+                            onPressed: () {
+                              _locationController.clear();
+                            },
+                        ),),
+                        onChanged: (value) {
+                          _onChanged();
+                        },
+                      ),
+                      if (title == 'Location') ...[
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _placeList.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                debugPrint(index.toString());
+                                _handlePlaceSelection(index);
+                              },
+                              child: ListTile(
+                                title: Text(_placeList[index]["description"]),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          Map<String, dynamic> updatedData = {};
+                          if (title == 'Event name') {
+                            updatedData['eventName'] = controller.text;
+                          } else if (title == 'Location') {
+                            updatedData['place'] = selectedPlace;
+                          }
+                          String eventId = widget.event['eventId'];
+                          try {
+                            await eventService.updateEvent(eventId, updatedData);
+                            Navigator.pop(context);
+                            _updateEventDetails();
+                          } catch (e) {
+                            debugPrint("Failed to update event: $e");
+                          }
+                        },
+                        child: const Text('Save'),
+                      ),
+                      const SizedBox(height: 10), 
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () async {
-                      Map<String, dynamic> updatedData = {};
-                      if (title == 'Event name') {
-                        updatedData['eventName'] = controller.text;
-                      } else if (title == 'Location') {
-                        updatedData['place'] = {'placeName': controller.text};                      }
-                      String eventId = widget.event['eventId'];
-                      try {
-                        await eventService.updateEvent(eventId, updatedData);
-                        Navigator.pop(context);
-                        setState(() {});
-                      } catch (e) {
-                        debugPrint("Failed to update event: $e");
-                      }
-                    },
-                    child: const Text('Save'),
-                  ),
-                  const SizedBox(height: 10), // Added padding below the Save button
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       );
@@ -335,11 +543,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   String _formatTimeOfDay(TimeOfDay time) {
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    final format = DateFormat.jm(); // Change this format if you need to
+    final format = DateFormat.jm();
     return format.format(dt);
   }
 
-  Future<void> _presentTimePicker(BuildContext context, String title, void Function(TimeOfDay time) onTimePicked) async {
+  Future<void> _presentTimePicker(BuildContext context, String title,
+      void Function(TimeOfDay time) onTimePicked) async {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -363,7 +572,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (pickedDate != null) {
       setState(() {
         _selectedDate = pickedDate;
-        });
+      });
     }
   }
 }
