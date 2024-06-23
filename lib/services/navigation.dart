@@ -174,4 +174,6 @@ class NavigationService {
       debugPrint(e.toString());
     }
   }
+
+  void getPage(String s) {}
 }

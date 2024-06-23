@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
@@ -53,14 +54,29 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20.0),
-                      Text(
-                        'Reset Password',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                      AnimatedTextKit(
+                        repeatForever: false,
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            '   Reset Password',
+                            textStyle: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.primary,
+                            ),
+                            speed: const Duration(milliseconds: 80),
+                          ),
+                        ],
                       ),
+                      // Text(
+                      //   'Reset Password',
+                      //   style: TextStyle(
+                      //     fontSize: 30.0,
+                      //     fontWeight: FontWeight.w900,
+                      //     color: theme.colorScheme.primary,
+                      //   ),
+                      // ),
                       const SizedBox(height: 20.0),
                       TextFormField(
                         controller: _newPassword,
@@ -143,7 +159,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             if (_formResetPasswordkey.currentState!
                                 .validate()) {
                               if (_newPassword.text != _confirmPassword.text) {
-                                // Show snackbar if email is empty
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Passwords do not match.'),
@@ -165,11 +180,31 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               }
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40),
+                          style: ButtonStyle(
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(15.0)),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                              ),
                             ),
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors
+                                    .blue; // Background color when pressed
+                              }
+                              return theme.colorScheme
+                                  .primary; // Default background color
+                            }),
+                            foregroundColor:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors.white; // Text color when pressed
+                              }
+                              return theme
+                                  .colorScheme.onPrimary; // Default text color
+                            }),
                           ),
                           child: const Text(
                             'Reset Password',
