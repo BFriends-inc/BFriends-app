@@ -511,10 +511,23 @@ class _EventsPageState extends State<EventsPage> {
             shrinkWrap: true,
             itemCount: _placeList.length,
             itemBuilder: (context, index) {
+              bool isSelected = index == _selectedIndex;
               return GestureDetector(
                 onTap: () => _handlePlaceSelection(index),
-                child: ListTile(
-                  title: Text(_placeList[index]["description"]),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.black : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  child: ListTile(
+                    title: Text(
+                      _placeList[index]["description"],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -596,16 +609,15 @@ class _EventsPageState extends State<EventsPage> {
             itemCount: _events.length,
             itemBuilder: (context, index) {
               final event = _events[index];
-              if (event['ownerId'] != user?.uid && !event['participationList'].contains(user?.uid)) {
+              if (event['ownerId'] != user?.uid && !event['participationList'].keys.contains(user?.uid)) {
                 return const SizedBox.shrink();
               }
-              debugPrint(event.runtimeType.toString());
               return EventCard(
                 event: event,
                 userId: user?.uid ?? "No user id",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
-                isJoined: event['participationList'].contains(user?.uid),
+                isJoined: event['participationList'].keys.contains(user?.uid),
               );
             },
           );
@@ -623,7 +635,7 @@ class _EventsPageState extends State<EventsPage> {
                 userId: user?.uid ?? "No user id",
                 isFull: event['participationList'].length >= int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
-                isJoined: event['participationList'].contains(user?.uid),
+                isJoined: event['participationList'].keys.contains(user?.uid),
               );
             },
           );

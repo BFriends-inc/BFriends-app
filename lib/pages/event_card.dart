@@ -29,7 +29,7 @@ class EventCard extends StatelessWidget {
     final startTime = event['startTime'] ?? 'No time';
     final endTime = event['endTime'] ?? 'No time';
     final location = event['place']['placeName'] ?? 'No name';
-    final List<dynamic> participantsList = event['participationList'];
+    final Map<String, dynamic> participantsList = event['participationList'];
     final participants = event['participationList'].length.toString();
     final maxParticipants = event['participants'] ?? "No limit specified";
     

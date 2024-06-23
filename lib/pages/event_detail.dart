@@ -41,7 +41,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Map<String, dynamic> selectedPlace = {};
   List<dynamic> _placeList = [];
   Position? _currentPosition;
-  
+
   final eventService = EventService();
 
   bool _isEditing = false; // Declare _isEditing here
@@ -204,6 +204,46 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
+  void _cancelEvent() async {
+    final eventId = widget.event['eventId'];
+
+    try {
+      bool confirmed = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Cancel Event'),
+            content: const Text('Are you sure you want to cancel this event?'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed) {
+        await eventService.cancelEvent(eventId);
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      debugPrint("Failed to cancel event: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to cancel event: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -217,7 +257,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final startTime = _startTimeController.text;
     final endTime = _endTimeController.text;
     final location = widget.event['place']['placeName'] ?? 'No name';
-    final List<dynamic> participantsList = widget.event['participationList'];
+    final Map<String, dynamic> participantsList =
+        widget.event['participationList'];
     final participants = widget.event['participationList'].length.toString();
     final maxParticipants =
         widget.event['participants'] ?? "No limit specified";
@@ -312,8 +353,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildActionButton(context, 'Cancel Event', Colors.grey),
-                      _buildActionButton(context, 'Chat', Colors.blue),
+                      _buildActionButton(
+                          context, 'Cancel Event', Colors.grey, _cancelEvent),
+                      _buildActionButton(context, 'Chat', Colors.blue, () {}),
+                    ],
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildActionButton(context, 'Chat', Colors.blue, () {}),
                     ],
                   ),
                 ),
@@ -327,7 +379,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   void _removeParticipant(String uid) async {
     try {
       String eventId = widget.event['eventId'];
-      // Remove participant logic here
       await eventService.removeParticipant(eventId, uid);
       _updateEventDetails();
     } catch (e) {
@@ -335,23 +386,58 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
+  Future<void> _checkParticipant(String uid, bool? isChecked) async {
+    try {
+      String eventId = widget.event['eventId'];
+      bool isConfirmed = !isChecked!;
+      Map<String, dynamic> updatedData = {
+        'participationList.$uid.isConfirmed': isConfirmed,
+      };
+      debugPrint(updatedData.toString());
+      await eventService.updateEvent(eventId, updatedData);
+      _updateEventDetails();
+    } catch (e) {
+      debugPrint("Failed to update participant: $e");
+    }
+  }
+
   Future<List<Widget>> _buildParticipantsList(
-    List<dynamic> participantsList, AuthService authService) async {
+      Map<String, dynamic> participantsList, AuthService authService) async {
     List<Widget> participantsWidgets = [];
 
-    for (var participant in participantsList) {
-      String uid = participant.toString();
-      UserModel? userDetails = await authService.fetchUserData(uid);
-      String name = userDetails?.username ?? "Unknown";
-      bool isHost = widget.event['ownerId'] == uid;
-      String imageUrl = userDetails?.avatarURL ?? "";
+    String hostId = widget.event['ownerId'];
+
+    if (participantsList.keys.contains(hostId)) {
+      UserModel? hostDetails = await authService.fetchUserData(hostId);
+      String hostName = hostDetails?.username ?? "Host";
+      String hostImageUrl = hostDetails?.avatarURL ?? "";
       participantsWidgets.add(_buildParticipantRow(
-        name,
-        isHost,
-        false,
-        imageUrl,
-        () => _removeParticipant(uid),
+        hostName,
+        true,
+        true,
+        hostImageUrl,
+        () {},
+        () {},
       ));
+    }
+    for (var entry in participantsList.entries) {
+      if (entry.key != hostId) {
+        String uid = entry.key;
+        var participant = entry.value;
+        UserModel? userDetails = await authService.fetchUserData(uid);
+        debugPrint(userDetails.toString()); 
+        String name = userDetails?.username ?? "Unknown";
+        bool isHost = widget.event['ownerId'] == uid;
+        String imageUrl = userDetails?.avatarURL ?? "";
+        participantsWidgets.add(_buildParticipantRow(
+          name,
+          isHost,
+          participant['isConfirmed'] ?? false,
+          imageUrl,
+          () => _removeParticipant(uid),
+          () => _checkParticipant(uid, participant['isConfirmed']),
+        ));
+      }
     }
 
     return participantsWidgets;
@@ -400,47 +486,66 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  Widget _buildParticipantRow(
-    String name, bool isHost, bool isConfirmed, String imageUrl, Function() onRemove) {
+  Widget _buildParticipantRow(String name, bool isHost, bool isConfirmed,
+      String imageUrl, Function() onRemove, Function() onChecked) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: Colors.white,
-            backgroundImage: imageUrl.isNotEmpty
-                ? NetworkImage(imageUrl)
-                : const AssetImage('assets/images/avatar_placeholder.jpg')
-                    as ImageProvider,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              name,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-          if (isHost) ...[
-            const Text('Host', style: TextStyle(color: Colors.green)),
-          ],
-          if (!isHost) ...[
-            if (_isEditing) 
-              IconButton(
-                icon: const Icon(Icons.remove_circle),
-                onPressed: () {
-                  onRemove();
-                },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                backgroundImage: imageUrl.isNotEmpty
+                    ? NetworkImage(imageUrl)
+                    : const AssetImage('assets/images/avatar_placeholder.jpg')
+                        as ImageProvider,
               ),
-            Checkbox(value: isConfirmed, onChanged: (value) {}),
-            Icon(Icons.person, color: isConfirmed ? Colors.green : Colors.grey),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              if (isHost) ...[
+                const Text('Host', style: TextStyle(color: Colors.green)),
+              ],
+              if (!isHost && _isEditing)
+                IconButton(
+                  icon: const Icon(
+                    Icons.remove_circle,
+                    color: Colors.grey,
+                  ),
+                  onPressed: onRemove,
+                ),
+              if (!isHost) ...[
+                Icon(Icons.person,
+                    color: isConfirmed ? Colors.green : Colors.grey),
+                Checkbox(
+                  value: isConfirmed,
+                  onChanged: (isChecked) {
+                    onChecked();
+                  },
+                ),
+                Text(
+                  isConfirmed ? 'Confirmed' : 'Not Confirmed',
+                  style: TextStyle(
+                    color: isConfirmed ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );
   }
 
-
-  Widget _buildActionButton(BuildContext context, String label, Color color) {
+  Widget _buildActionButton(BuildContext context, String label, Color color,
+      void Function() onPressed) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -448,7 +553,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      onPressed: () {},
+      onPressed: onPressed,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Text(label, style: const TextStyle(color: Colors.white)),
@@ -534,13 +639,29 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           shrinkWrap: true,
                           itemCount: _placeList.length,
                           itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () {
-                                debugPrint(index.toString());
-                                _handlePlaceSelection(index);
-                              },
-                              child: ListTile(
-                                title: Text(_placeList[index]["description"]),
+                            bool isSelected = index == _selectedIndex;
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Colors.black
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                              child: InkWell(
+                                onTap: () {
+                                  _handlePlaceSelection(index);
+                                },
+                                child: ListTile(
+                                  title: Text(
+                                    _placeList[index]["description"],
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
                               ),
                             );
                           },
