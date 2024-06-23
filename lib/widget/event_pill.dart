@@ -94,7 +94,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     bool showGradient = (widget.ppl / widget.maxPpl) > 0.8;
     //debug
-    showGradient = true;
+    //showGradient = true;
     return AnimatedPositioned(
       bottom: pillPosH,
       left: 20,
