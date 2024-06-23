@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -50,8 +51,17 @@ class _EventsPageState extends State<EventsPage> {
 
   List<Map<String, dynamic>> _events = [];
 
+  StreamSubscription? _eventsSubscription;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
+  }
+
   void _listenToEvents() {
-    FirebaseFirestore.instance.collection('events').snapshots().listen(
+    _eventsSubscription =
+        FirebaseFirestore.instance.collection('events').snapshots().listen(
       (snapshot) {
         setState(() {
           _events = snapshot.docs.map((doc) => doc.data()).toList();
@@ -75,6 +85,8 @@ class _EventsPageState extends State<EventsPage> {
     _locationSearchController.removeListener(_onChanged);
     _locationSearchController.dispose();
     _pageController.dispose();
+    _isDateValid.dispose();
+    _eventsSubscription?.cancel();
     super.dispose();
   }
 
@@ -101,10 +113,12 @@ class _EventsPageState extends State<EventsPage> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
       }
 
-      _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      _currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -123,10 +137,13 @@ class _EventsPageState extends State<EventsPage> {
     }
 
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-      String location = '${_currentPosition!.latitude},${_currentPosition!.longitude}';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String location =
+          '${_currentPosition!.latitude},${_currentPosition!.longitude}';
       int radius = 50000; // 50 km
-      String request = '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
+      String request =
+          '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
         _setState(() {
@@ -143,7 +160,8 @@ class _EventsPageState extends State<EventsPage> {
   Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/details/json';
       String request = '$baseURL?place_id=$placeId&key=$placesApiKey';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
@@ -197,15 +215,16 @@ class _EventsPageState extends State<EventsPage> {
         _selectedDate = pickedDate;
         _presentTimePicker(context, 'Start Time', (pickedTime) {
           _selectedStartTime = pickedTime;
-            _presentTimePicker(context, 'End Time', (pickedTime) {
-              _selectedEndTime = pickedTime;
-            });
+          _presentTimePicker(context, 'End Time', (pickedTime) {
+            _selectedEndTime = pickedTime;
           });
         });
+      });
     }
   }
 
-  void _presentTimePicker(BuildContext context, String title, void Function(TimeOfDay time) onTimePicked) async {
+  void _presentTimePicker(BuildContext context, String title,
+      void Function(TimeOfDay time) onTimePicked) async {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -238,8 +257,7 @@ class _EventsPageState extends State<EventsPage> {
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
                     onPageChanged: (index) {
-                      _setState(() {
-                      });
+                      _setState(() {});
                     },
                     children: [
                       _buildFirstPage(),
@@ -308,7 +326,7 @@ class _EventsPageState extends State<EventsPage> {
               label: const Text(
                 'Event Name',
                 style: TextStyle(
-                fontSize: 14,
+                  fontSize: 14,
                 ),
               ),
               hintText: 'Input Event Name',
@@ -345,7 +363,7 @@ class _EventsPageState extends State<EventsPage> {
               label: const Text(
                 'Number of Participants Needed',
                 style: TextStyle(
-                fontSize: 14,
+                  fontSize: 14,
                 ),
               ),
               hintText: 'Put number of participants',
@@ -370,12 +388,15 @@ class _EventsPageState extends State<EventsPage> {
           const SizedBox(height: 16),
           TextFormField(
             readOnly: true,
-            controller: TextEditingController(text: _selectedDate == null
-                ? 'Event Date and Time'
-                : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}   ${_selectedStartTime?.format(context) ?? ''} - ${_selectedEndTime?.format(context) ?? ''}'),
+            controller: TextEditingController(
+                text: _selectedDate == null
+                    ? 'Event Date and Time'
+                    : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}   ${_selectedStartTime?.format(context) ?? ''} - ${_selectedEndTime?.format(context) ?? ''}'),
             style: TextStyle(
               fontSize: 14,
-              color: _isDateValid.value ? Colors.black : const Color.fromARGB(255, 195, 65, 63),
+              color: _isDateValid.value
+                  ? Colors.black
+                  : const Color.fromARGB(255, 195, 65, 63),
             ),
             decoration: InputDecoration(
               suffixIcon: IconButton(
@@ -400,7 +421,10 @@ class _EventsPageState extends State<EventsPage> {
             ),
             onTap: _presentDatePicker,
             validator: (value) {
-              if (value == null || value == 'Event Date and Time' || _selectedStartTime == null || _selectedEndTime == null) {
+              if (value == null ||
+                  value == 'Event Date and Time' ||
+                  _selectedStartTime == null ||
+                  _selectedEndTime == null) {
                 _setState(() {
                   _isDateValid.value = false;
                 });
@@ -419,19 +443,24 @@ class _EventsPageState extends State<EventsPage> {
                 _formProfileSetupKey.currentState!.save();
                 if (eventNameController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter the event name')),
+                    const SnackBar(
+                        content: Text('Please enter the event name')),
                   );
                 } else if (_selectedImage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Please select an image')),
                   );
-                } else if (participantsController.text.isEmpty || int.tryParse(participantsController.text) == null) {
+                } else if (participantsController.text.isEmpty ||
+                    int.tryParse(participantsController.text) == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid number of participants')),
+                    const SnackBar(
+                        content: Text(
+                            'Please enter a valid number of participants')),
                   );
                 } else if (_selectedDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please select the event date')),
+                    const SnackBar(
+                        content: Text('Please select the event date')),
                   );
                 } else {
                   _pageController.nextPage(
@@ -462,7 +491,6 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ),
         const SizedBox(height: 16),
-
         TextFormField(
           controller: _locationSearchController,
           onChanged: (value) {},
@@ -476,7 +504,7 @@ class _EventsPageState extends State<EventsPage> {
             label: const Text(
               'Location',
               style: TextStyle(
-              fontSize: 14,
+                fontSize: 14,
               ),
             ),
             hintText: 'Pick your event location',
@@ -543,16 +571,19 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<void> _submitForm() async {
-    if (_formProfileSetupKey.currentState?.validate() == true && _selectedDate != null) {
+    if (_formProfileSetupKey.currentState?.validate() == true &&
+        _selectedDate != null) {
       _formProfileSetupKey.currentState?.save();
 
       final eventName = eventNameController.text;
       final participants = participantsController.text;
-      final eventDate = _selectedDate!.toLocal().toIso8601String().substring(0, 10);
+      final eventDate =
+          _selectedDate!.toLocal().toIso8601String().substring(0, 10);
       final eventStartTime = _selectedStartTime!.format(context);
       final eventEndTime = _selectedEndTime!.format(context);
       final placeName = selectedPlace['placeName'] ?? 'No place selected';
-      final placeAddress = selectedPlace['placeAddress'] ?? 'No address available';
+      final placeAddress =
+          selectedPlace['placeAddress'] ?? 'No address available';
       final latitude = selectedPlace['latitude'] ?? 0.0;
       final longitude = selectedPlace['longitude'] ?? 0.0;
       final ownerId = user?.uid ?? '';
@@ -594,8 +625,8 @@ class _EventsPageState extends State<EventsPage> {
   Future<void> _loadEvents() async {
     try {
       List<Map<String, dynamic>> events = await eventService.getEvents();
-      setState(() {
-        _events = events;
+        setState(() {
+          _events = events;
       });
     } catch (e) {
       debugPrint('Error loading events: $e');
@@ -609,13 +640,15 @@ class _EventsPageState extends State<EventsPage> {
             itemCount: _events.length,
             itemBuilder: (context, index) {
               final event = _events[index];
-              if (event['ownerId'] != user?.uid && !event['participationList'].keys.contains(user?.uid)) {
+              if (event['ownerId'] != user?.uid &&
+                  !event['participationList'].keys.contains(user?.uid)) {
                 return const SizedBox.shrink();
               }
               return EventCard(
                 event: event,
                 userId: user?.uid ?? "No user id",
-                isFull: event['participationList'].length >= int.parse(event['participants']),
+                isFull: event['participationList'].length >=
+                    int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
               );
@@ -633,7 +666,8 @@ class _EventsPageState extends State<EventsPage> {
               return EventCard(
                 event: event,
                 userId: user?.uid ?? "No user id",
-                isFull: event['participationList'].length >= int.parse(event['participants']),
+                isFull: event['participationList'].length >=
+                    int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
               );
@@ -649,26 +683,26 @@ class _EventsPageState extends State<EventsPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: TextStyle(
-            fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-            fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-            color: theme.colorScheme.onPrimary,
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.add,
+          backgroundColor: theme.colorScheme.primary,
+          title: Text(
+            'BFriends',
+            style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
               color: theme.colorScheme.onPrimary,
-              semanticLabel: 'Add a New Event',
             ),
-            onPressed: _showDialog,
           ),
-        ],
-        bottom: const TabBar(
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: theme.colorScheme.onPrimary,
+                semanticLabel: 'Add a New Event',
+              ),
+              onPressed: _showDialog,
+            ),
+          ],
+          bottom: const TabBar(
             tabs: [
               Tab(
                 child: Text(
@@ -684,7 +718,7 @@ class _EventsPageState extends State<EventsPage> {
                   style: TextStyle(
                     color: Colors.white,
                   ),
-              ),
+                ),
               )
             ],
           ),

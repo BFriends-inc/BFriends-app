@@ -171,14 +171,15 @@ class EventService {
       final eventDoc = await event.get();
       final eventOwner = eventDoc.get('ownerId');
       final participationList =
-          Map<String, dynamic>.from(eventDoc.get('participationList'));
-      final maxParticipants = int.parse(eventDoc.get('participants'));
+          Map<String, dynamic>.from(eventDoc.get('participationList') ?? {});
+      final maxParticipants =
+          int.parse(eventDoc.get('participants').toString());
 
       if (participationList.length < maxParticipants) {
-        if (!participationList.keys.contains(userId)) {
-          participationList[userId] = {'isConfirmed': false};
-          debugPrint(participationList.toString());
-          await event.update({'participationList': participationList});
+        if (!participationList.containsKey(userId)) {
+          await event.update({
+            'participationList.$userId': {'isConfirmed': false},
+          });
           debugPrint('Joined event $eventId');
         } else {
           debugPrint('User already joined event $eventId');

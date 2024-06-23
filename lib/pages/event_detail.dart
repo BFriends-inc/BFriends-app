@@ -44,7 +44,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   final eventService = EventService();
 
-  bool _isEditing = false; // Declare _isEditing here
+  bool _isEditing = false;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
+  }
 
   @override
   void initState() {
@@ -425,7 +431,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         String uid = entry.key;
         var participant = entry.value;
         UserModel? userDetails = await authService.fetchUserData(uid);
-        debugPrint(userDetails.toString()); 
+        debugPrint(userDetails.toString());
         String name = userDetails?.username ?? "Unknown";
         bool isHost = widget.event['ownerId'] == uid;
         String imageUrl = userDetails?.avatarURL ?? "";
@@ -527,7 +533,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 Checkbox(
                   value: isConfirmed,
                   onChanged: (isChecked) {
-                    onChecked();
+                    if (widget.event['ownerId'] == FirebaseAuth.instance.currentUser?.uid) {
+                      onChecked();
+                    }
                   },
                 ),
                 Text(
