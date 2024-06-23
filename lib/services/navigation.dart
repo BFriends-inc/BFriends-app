@@ -176,4 +176,6 @@ class NavigationService {
     }
     throw Exception('Cannot push meta on the path: $path');
   }
+
+  void getPage(String s) {}
 }
