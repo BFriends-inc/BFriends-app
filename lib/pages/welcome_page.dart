@@ -81,7 +81,7 @@ class WelcomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Row(
                 children: [
-                  Expanded(
+                  const Expanded(
                     child: SizedBox(
                       height: 40, // height
                       child: WelcomeButton(
@@ -89,8 +89,8 @@ class WelcomeScreen extends StatelessWidget {
                         tapDestination: 'signin',
                         color: Colors.transparent,
                         textColor: Colors.white,
-                        hoverColor: Colors.transparent,
-                        pressedColor: Colors.grey, // Color when pressed
+                        // hoverColor: Colors.transparent,
+                        // pressedColor: Colors.grey, // Color when pressed
                       ),
                     ),
                   ),

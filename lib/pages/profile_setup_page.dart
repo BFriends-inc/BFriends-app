@@ -21,7 +21,6 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
@@ -131,9 +130,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    User? user = await _authService.signUp(
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
+    User? user = await authService.signUp(
         widget.userInfo['email']!, widget.userInfo['password']!);
-    await _authService.storeAdditionalUserData(user, {
+    await authService.storeAdditionalUserData(user, {
       'username': usernameController.text,
       'dateOfBirth': _selectedDate?.toIso8601String(),
       'gender': _selectedGender,
@@ -150,6 +151,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
 
     return Scaffold(
       appBar: AppBar(

@@ -15,13 +15,16 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   bool agreePersonalData = true;
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
     //get screen width + height
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
@@ -157,7 +160,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return _authService
+                          return authService
                               .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
@@ -286,7 +289,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                           onPressed: () async {
-                            emailExists = await _authService
+                            emailExists = await authService
                                 .checkEmailExists(emailController.text.trim());
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
