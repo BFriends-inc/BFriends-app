@@ -19,6 +19,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     final authService = Provider.of<AuthService>(context,
