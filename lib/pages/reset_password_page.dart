@@ -69,14 +69,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                         ],
                       ),
-                      Text(
-                        'Reset Password',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
+                      // Text(
+                      //   'Reset Password',
+                      //   style: TextStyle(
+                      //     fontSize: 30.0,
+                      //     fontWeight: FontWeight.w900,
+                      //     color: theme.colorScheme.primary,
+                      //   ),
+                      // ),
                       const SizedBox(height: 20.0),
                       TextFormField(
                         controller: _newPassword,
