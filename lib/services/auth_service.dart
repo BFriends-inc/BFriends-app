@@ -53,7 +53,7 @@ class AuthService extends ChangeNotifier {
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
           username: doc['username'],
-          avatarURL: 'abc',
+          avatarURL: doc['avatarURL'],
           listLanguage: doc['languages'],
           listInterest: doc['hobbies'],
         );
@@ -122,15 +122,12 @@ class AuthService extends ChangeNotifier {
         final storageRef = _storage.ref().child('userImages').child('${user.uid}.jpg');
         await storageRef.putFile(File(additionalData['userImage'].path));
         avatarURL = await storageRef.getDownloadURL();
+        additionalData['avatarURL'] = avatarURL;
+        additionalData.remove('userImage');
       }
-      await _firestore.collection('users').doc(user.uid).update({
-        'username': additionalData['username'],
-        'dateOfBirth': additionalData['dateOfBirth'],
-        'gender': additionalData['gender'],
-        'languages': additionalData['languages'],
-        'hobbies': additionalData['hobbies'],
-        'avatarURL': avatarURL,
-      });
+      await _firestore.collection('users').doc(user.uid).update(
+        additionalData
+      );
       await _fetchUserData(user.uid, user);
     }
   }

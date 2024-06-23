@@ -4,7 +4,9 @@ import 'package:bfriends_app/services/navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:bfriends_app/services/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bfriends_app/widget/profileStats_card.dart';
 
@@ -20,7 +22,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool changed = false;
   List<String> _selectedItems = [];
   List<String> _selectedHobbies = [];
-  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController statusController = TextEditingController();
+  final TextEditingController aboutMeController = TextEditingController();
+  final _formProfileSetupKey = GlobalKey<FormState>();
+  XFile? _selectedImage;
 
   void _languageSelect() async {
     final List<String>? results = await showDialog(
@@ -88,7 +94,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     await authService.storeAdditionalUserData(user, {
       'username': newfullname,
       'languages': _selectedItems,
-      'hobbies': _selectedHobbies
+      'hobbies': _selectedHobbies,
+      'userImage': _selectedImage,
+      'status': statusController.text,
+      'aboutMe': aboutMeController.text,
     });
   }
 
@@ -177,41 +186,58 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               children: [
-                Container(
-                  margin: const EdgeInsets.all(20.0),
-                  height: 150.0,
-                  width: 150.0,
-                  child: ClipOval(
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      'assets/images/BFriends_logo_full.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                UserImagePicker(
+                  context: context,
+                  validator: (pickedImage) {
+                    if (pickedImage == null) {
+                      return 'Please select an image';
+                    }
+                    return null;
+                  },
+                  onSave: (pickedImage) {
+                    debugPrint('SAVED IMAGE');
+                    _selectedImage = pickedImage;
+                    changed = true;
+                  },
                 ),
+                // Container(
+                //   margin: const EdgeInsets.all(20.0),
+                //   height: 150.0,
+                //   width: 150.0,
+                //   child: ClipOval(
+                //     clipBehavior: Clip.antiAlias,
+                //     child: Image.asset(
+                //       'assets/images/BFriends_logo_full.png',
+                //       fit: BoxFit.cover,
+                //     ),
+                //   ),
+                // ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 5.0),
-                  child: Column(
+                  child: Form(key: _formProfileSetupKey,
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextField(
-                        controller: fullNameController,
+                      TextFormField(
+                        // controller: fullNameController,
+                        // onChanged: (value) {
+                        //   if (value != user?.username) {
+                        //     changed = true;
+                        //   }
+                        // },
+                        controller: usernameController,
                         onChanged: (value) {
                           if (value != user?.username) {
-                            changed = true;
+                             changed = true;
                           }
                         },
-                        // validator: (value) {
-                        //   if(value == null || value.isEmpty) {
-                        //     return 'Please enter your new full name';
-                        //   }
-                        //   else if(value != user?.username) {changed = true;}
-                        //   return null;
-                        // },
+                        validator: (value) {
+                          return authService.usernameChecker(value ?? user?.username ?? '');
+                        },
                         decoration: InputDecoration(
                             labelText: user?.username,
                             floatingLabelBehavior: FloatingLabelBehavior.never,
-                            helperText: 'Full Name',
+                            helperText: 'Username',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color:
@@ -227,15 +253,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         height: 10,
                       ),
                       TextField(
+                        controller: statusController,
                         onChanged: (value) {
                           debugPrint(value);
-                          if (value != 'Anything') {
+                          if (value != user?.status) {
                             debugPrint('changed');
                             changed = true;
                           }
                         },
                         decoration: InputDecoration(
-                            labelText: 'Anything.',
+                            labelText: user?.status,
                             floatingLabelBehavior: FloatingLabelBehavior.never,
                             helperText: 'Status',
                             border: OutlineInputBorder(
@@ -250,7 +277,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 borderRadius: BorderRadius.circular(10))),
                       ),
                     ],
-                  ),
+                  ),),
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
@@ -272,15 +299,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             style: theme.textTheme.bodyLarge,
                           ),
                           TextField(
+                            controller: aboutMeController,
                             onChanged: (value) {
-                              if (value != 'Anything') {
+                              if (value != user?.aboutMe) {
                                 changed = true;
                               }
                             },
                             maxLines: null,
                             maxLength: 200,
                             decoration: InputDecoration(
-                                labelText: 'Anything.',
+                                labelText: user?.aboutMe,
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.never,
                                 border: OutlineInputBorder(
@@ -468,10 +496,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     actions: <Widget>[
                                       TextButton(
                                           onPressed: () {
-                                            _editProfile((fullNameController
+                                            debugPrint(usernameController.text);
+                                            debugPrint(statusController.text);
+                                            debugPrint(aboutMeController.text);
+                                            _editProfile((usernameController
                                                     .text.isEmpty)
                                                 ? user?.username ?? ''
-                                                : fullNameController.text);
+                                                : usernameController.text);
+                                            _formProfileSetupKey.currentState!.save();
                                             Navigator.of(context).pop();
                                             Navigator.pop(context);
                                           },

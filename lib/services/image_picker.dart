@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:bfriends_app/model/user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:bfriends_app/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class UserImagePicker extends FormField<XFile?> {
   UserImagePicker({
@@ -31,6 +34,9 @@ class UserImagePicker extends FormField<XFile?> {
               }
             }
 
+            final authService = Provider.of<AuthService>(context, listen: false);
+            final user = authService.user;
+
             return Column(
               children: [
                 Stack(
@@ -38,7 +44,7 @@ class UserImagePicker extends FormField<XFile?> {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey,
-                      foregroundImage: _getForegroundImage(state),
+                      foregroundImage: _getForegroundImage(state, user),
                     ),
                     Positioned.fill(
                       child: Material(
@@ -79,9 +85,13 @@ class UserImagePicker extends FormField<XFile?> {
           },
         );
 
-  static ImageProvider? _getForegroundImage(FormFieldState<XFile?> state) {
-    if (state.value == null) {
+  static ImageProvider? _getForegroundImage(FormFieldState<XFile?> state, UserModel? user) {
+    
+    if (state.value == null && user == null) {
       return null;
+    }
+    else if(state.value == null && user != null) {
+      return Image.network(user.avatarURL.toString()).image;
     }
 
     if (kIsWeb) {

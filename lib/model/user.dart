@@ -17,7 +17,9 @@ class UserModel {
   String? email;
   Object? joinDate;
   String? username;
-  final String? avatarURL;
+  String? avatarURL;
   final List<dynamic>? listLanguage;
   final List<dynamic>? listInterest;
+  String? status;
+  String? aboutMe;
 }
