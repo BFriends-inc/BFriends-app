@@ -41,8 +41,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Map<String, dynamic> selectedPlace = {};
   List<dynamic> _placeList = [];
   Position? _currentPosition;
-
+  
   final eventService = EventService();
+
+  bool _isEditing = false; // Declare _isEditing here
 
   @override
   void initState() {
@@ -76,7 +78,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   _onChanged() {
     getSuggestion(_locationController.text);
   }
-  
+
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled;
@@ -96,10 +98,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
       }
 
-      _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      _currentPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -118,10 +122,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
 
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-      String location = '${_currentPosition!.latitude},${_currentPosition!.longitude}';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String location =
+          '${_currentPosition!.latitude},${_currentPosition!.longitude}';
       int radius = 50000; // 50 km
-      String request = '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
+      String request =
+          '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&location=$location&radius=$radius';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
         _setState(() {
@@ -138,7 +145,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     const String placesApiKey = "AIzaSyAWWVJHrSvqKnNomA76ZsjhYM0Bwe0uz80";
     try {
-      String baseURL = 'https://maps.googleapis.com/maps/api/place/details/json';
+      String baseURL =
+          'https://maps.googleapis.com/maps/api/place/details/json';
       String request = '$baseURL?place_id=$placeId&key=$placesApiKey';
       var response = await http.get(Uri.parse(request));
       if (response.statusCode == 200) {
@@ -196,10 +204,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
-  
   @override
   Widget build(BuildContext context) {
-    final eventService = EventService();
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = FirebaseAuth.instance.currentUser;
     final bool isOwner = user?.uid == widget.event['ownerId'];
@@ -210,7 +216,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final eventDate = _eventDateController.text;
     final startTime = _startTimeController.text;
     final endTime = _endTimeController.text;
-    final location = _locationController.text;
+    final location = widget.event['place']['placeName'] ?? 'No name';
     final List<dynamic> participantsList = widget.event['participationList'];
     final participants = widget.event['participationList'].length.toString();
     final maxParticipants =
@@ -281,6 +287,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 title: 'Participants: $participants/$maxParticipants',
                 value: '',
                 icon: isOwner ? Icons.edit : null,
+                onEdit: () {
+                  setState(() {
+                    _isEditing = !_isEditing;
+                  });
+                },
                 child: FutureBuilder<List<Widget>>(
                   future: _buildParticipantsList(participantsList, authService),
                   builder: (context, snapshot) {
@@ -313,8 +324,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
+  void _removeParticipant(String uid) async {
+    try {
+      String eventId = widget.event['eventId'];
+      // Remove participant logic here
+      await eventService.removeParticipant(eventId, uid);
+      _updateEventDetails();
+    } catch (e) {
+      debugPrint("Failed to remove participant: $e");
+    }
+  }
+
   Future<List<Widget>> _buildParticipantsList(
-      List<dynamic> participantsList, AuthService authService) async {
+    List<dynamic> participantsList, AuthService authService) async {
     List<Widget> participantsWidgets = [];
 
     for (var participant in participantsList) {
@@ -323,8 +345,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       String name = userDetails?.username ?? "Unknown";
       bool isHost = widget.event['ownerId'] == uid;
       String imageUrl = userDetails?.avatarURL ?? "";
-      participantsWidgets
-          .add(_buildParticipantRow(name, isHost, false, imageUrl));
+      participantsWidgets.add(_buildParticipantRow(
+        name,
+        isHost,
+        false,
+        imageUrl,
+        () => _removeParticipant(uid),
+      ));
     }
 
     return participantsWidgets;
@@ -374,7 +401,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildParticipantRow(
-      String name, bool isHost, bool isConfirmed, String imageUrl) {
+    String name, bool isHost, bool isConfirmed, String imageUrl, Function() onRemove) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -397,6 +424,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             const Text('Host', style: TextStyle(color: Colors.green)),
           ],
           if (!isHost) ...[
+            if (_isEditing) 
+              IconButton(
+                icon: const Icon(Icons.remove_circle),
+                onPressed: () {
+                  onRemove();
+                },
+              ),
             Checkbox(value: isConfirmed, onChanged: (value) {}),
             Icon(Icons.person, color: isConfirmed ? Colors.green : Colors.grey),
           ],
@@ -404,6 +438,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ),
     );
   }
+
 
   Widget _buildActionButton(BuildContext context, String label, Color color) {
     return ElevatedButton(
@@ -426,34 +461,34 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       {TextEditingController? startTimeController,
       TextEditingController? endTimeController}) {
     if (title == 'Date') {
-  _presentDatePicker().then((_) {
-    if (_selectedDate != null) {
-      controller.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-      _presentTimePicker(context, 'Select Start Time', (TimeOfDay time) {
-        _selectedStartTime = time;
-        startTimeController?.text = _formatTimeOfDay(time);
-        _presentTimePicker(context, 'Select End Time', (TimeOfDay time) async {
-          _selectedEndTime = time;
-          endTimeController?.text = _formatTimeOfDay(time);
-          try {
-            String eventId = widget.event['eventId'];
-            Map<String, dynamic> updatedData = {
-              'date': DateTime.parse(_selectedDate.toString()),
-              'startTime': _selectedStartTime?.format(context),
-              'endTime': _selectedEndTime?.format(context),
-            };
-            debugPrint(updatedData.toString());
-            await eventService.updateEvent(eventId, updatedData);
-            _updateEventDetails();
-          } catch (e) {
-            debugPrint("Failed to update event: $e");
-          }
-        });
+      _presentDatePicker().then((_) {
+        if (_selectedDate != null) {
+          controller.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+          _presentTimePicker(context, 'Select Start Time', (TimeOfDay time) {
+            _selectedStartTime = time;
+            startTimeController?.text = _formatTimeOfDay(time);
+            _presentTimePicker(context, 'Select End Time',
+                (TimeOfDay time) async {
+              _selectedEndTime = time;
+              endTimeController?.text = _formatTimeOfDay(time);
+              try {
+                String eventId = widget.event['eventId'];
+                Map<String, dynamic> updatedData = {
+                  'date': DateTime.parse(_selectedDate.toString()),
+                  'startTime': _selectedStartTime?.format(context),
+                  'endTime': _selectedEndTime?.format(context),
+                };
+                debugPrint(updatedData.toString());
+                await eventService.updateEvent(eventId, updatedData);
+                _updateEventDetails();
+              } catch (e) {
+                debugPrint("Failed to update event: $e");
+              }
+            });
+          });
+        }
       });
-    }
-  });
-}
- else {
+    } else {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -477,7 +512,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 20),
                       TextField(
-                        controller: title == 'Location' ? _locationController : controller,
+                        controller: title == 'Location'
+                            ? _locationController
+                            : controller,
                         decoration: InputDecoration(
                           labelText: title,
                           suffixIcon: IconButton(
@@ -486,7 +523,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             onPressed: () {
                               _locationController.clear();
                             },
-                        ),),
+                          ),
+                        ),
                         onChanged: (value) {
                           _onChanged();
                         },
@@ -519,7 +557,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           }
                           String eventId = widget.event['eventId'];
                           try {
-                            await eventService.updateEvent(eventId, updatedData);
+                            await eventService.updateEvent(
+                                eventId, updatedData);
                             Navigator.pop(context);
                             _updateEventDetails();
                           } catch (e) {
@@ -528,7 +567,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         },
                         child: const Text('Save'),
                       ),
-                      const SizedBox(height: 10), 
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),

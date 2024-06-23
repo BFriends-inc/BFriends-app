@@ -195,4 +195,17 @@ class EventService {
       throw e;
     }
   }
+  
+  Future<void> removeParticipant(String eventId, String userId) async {
+    try {
+      // Remove the participant from the event
+      await _firestore.collection('events').doc(eventId).update({
+        'participationList': FieldValue.arrayRemove([userId]),
+      });
+      debugPrint('Participant removed successfully');
+    } catch (e) {
+      debugPrint('Error removing participant: $e');
+      throw Exception('Failed to remove participant');
+    }
+  }
 }
