@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,11 +24,12 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _authStateChanged(User? firebaseUser) async {
     debugPrint(firebaseUser.toString());
+
     /// Handle changes during Sign-in / Sign-out ///
     if (firebaseUser == null) {
       _user = null;
     } else {
-      await _fetchUserData(firebaseUser.uid);
+      await _fetchUserData(firebaseUser.uid, firebaseUser);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -38,16 +38,17 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserData(String uid) async {
+  Future<void> _fetchUserData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
-      
+
       debugPrint('Fetching user data for $uid');
       debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
         //can only fetch data if email is not empty.
         _user = UserModel(
+          firebaseUser: firebaseUser,
           id: uid,
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
@@ -111,26 +112,26 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> storeAdditionalUserData(
-    User? user,
-    Map<String, dynamic> additionalData
-    ) async {
+      User? user, Map<String, dynamic> additionalData) async {
     String? avatarURL;
 
     if (user != null) {
       if (additionalData['userImage'] != null) {
-        final storageRef = _storage.ref().child('userImages').child('${user.uid}.jpg');
+        final storageRef =
+            _storage.ref().child('userImages').child('${user.uid}.jpg');
         await storageRef.putFile(File(additionalData['userImage'].path));
         avatarURL = await storageRef.getDownloadURL();
       }
-      await _firestore.collection('users').doc(user.uid).update({
-        'username': additionalData['username'],
-        'dateOfBirth': additionalData['dateOfBirth'],
-        'gender': additionalData['gender'],
-        'languages': additionalData['languages'],
-        'hobbies': additionalData['hobbies'],
-        'avatarURL': avatarURL,
-      });
-      await _fetchUserData(user.uid);
+      // await _firestore.collection('users').doc(user.uid).update({
+      //   'username': additionalData['username'],
+      //   'dateOfBirth': additionalData['dateOfBirth'],
+      //   'gender': additionalData['gender'],
+      //   'languages': additionalData['languages'],
+      //   'hobbies': additionalData['hobbies'],
+      //   'avatarURL': avatarURL,
+      // });
+      await _firestore.collection('users').doc(user.uid).update(additionalData);
+      await _fetchUserData(user.uid, user);
     }
   }
 
