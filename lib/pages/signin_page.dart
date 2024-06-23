@@ -17,13 +17,14 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool rememberPassword = true;
 
   void _signInUser(BuildContext context) async {
-    User? user = await _authService.signIn(
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
+    User? user = await authService.signIn(
         _usernameController.text.trim(), _passwordController.text);
     if (user != null) {
       if (!context.mounted) return;
