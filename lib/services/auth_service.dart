@@ -53,7 +53,7 @@ class AuthService extends ChangeNotifier {
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
           username: doc['username'],
-          avatarURL: 'abc',
+          avatarURL: 'abc', //doc['avatarURL'],
           listLanguage: doc['languages'],
           listInterest: doc['hobbies'],
         );
@@ -122,15 +122,15 @@ class AuthService extends ChangeNotifier {
         await storageRef.putFile(File(additionalData['userImage'].path));
         avatarURL = await storageRef.getDownloadURL();
       }
-      // await _firestore.collection('users').doc(user.uid).update({
-      //   'username': additionalData['username'],
-      //   'dateOfBirth': additionalData['dateOfBirth'],
-      //   'gender': additionalData['gender'],
-      //   'languages': additionalData['languages'],
-      //   'hobbies': additionalData['hobbies'],
-      //   'avatarURL': avatarURL,
-      // });
-      await _firestore.collection('users').doc(user.uid).update(additionalData);
+      await _firestore.collection('users').doc(user.uid).update({
+        'username': additionalData['username'],
+        'dateOfBirth': additionalData['dateOfBirth'],
+        'gender': additionalData['gender'],
+        'languages': additionalData['languages'],
+        'hobbies': additionalData['hobbies'],
+        'avatarURL': avatarURL,
+      });
+      //await _firestore.collection('users').doc(user.uid).update(additionalData);
       await _fetchUserData(user.uid, user);
     }
   }
@@ -161,9 +161,10 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    debugPrint("signing out from ${_user!.email}");
     await _auth.signOut();
     _user = null;
-    notifyListeners();
+    //notifyListeners();
   }
 
   Future<int> sendVerificationCode(String email) async {

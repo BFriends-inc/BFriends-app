@@ -17,7 +17,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,6 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final nav = Provider.of<NavigationService>(context, listen: false);
     final user = authService.user;
     double width = MediaQuery.of(context).size.width;
+    debugPrint(user?.username ?? 'NULL');
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -148,16 +148,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                     //   text: 'Edit My Profile',
                                     //   tapDestination: 'edit_profile',
                                     // )
-                                     GestureDetector(
+                                    GestureDetector(
                                       onTap: () {
                                         debugPrint("Bar button pressed.");
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const ProfileEditScreen()),
                                         ).then((_) {
-                                          Future.delayed(Duration(seconds: 1), () {
-                                          setState(() {
-                                            debugPrint("State updated with new message after delay");
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            setState(() {
+                                              debugPrint(
+                                                  "State updated with new message after delay");
+                                            });
                                           });
-                                        });
                                         });
                                         // final nav =
                                         //     Provider.of<NavigationService>(

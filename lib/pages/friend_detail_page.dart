@@ -244,6 +244,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
+                      debugPrint('back button triggered');
                       Navigator.pop(context);
                     },
                   ),

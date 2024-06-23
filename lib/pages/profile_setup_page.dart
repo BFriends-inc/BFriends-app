@@ -140,6 +140,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'languages': _selectedItems,
       'hobbies': _selectedHobbies,
       'userImage': _selectedImage,
+      'friends': [], //new user do not have any friends yet
+      'requests': [],
     });
     final nav = Provider.of<NavigationService>(context, listen: false);
     nav.goHome(tab: NavigationTabs.home);
@@ -192,7 +194,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your username';
                     }
-                    return null;
+                    return _authService
+                        .usernameChecker(usernameController.text);
                   },
                   decoration: InputDecoration(
                     label: const Text('Username'),

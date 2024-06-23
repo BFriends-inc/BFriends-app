@@ -197,7 +197,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               value != passwordController.text) {
                             return 'Password does not match. Please try again.';
                           }
-                          return null;
+                          return _authService
+                              .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
@@ -280,7 +281,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             ),
                             minimumSize: MaterialStateProperty.all(
-                              Size(double.infinity,
+                              const Size(double.infinity,
                                   50.0), // Width set to match parent, height set to 120.0
                             ),
                           ),
