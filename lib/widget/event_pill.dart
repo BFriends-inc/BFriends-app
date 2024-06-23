@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventPill extends StatefulWidget {
   const EventPill({
@@ -25,29 +24,35 @@ class EventPill extends StatefulWidget {
 }
 
 class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
-  final pillSizeH = 120.0; // how large the pill is vertically
-  final pillPosH = 50.0; // how high the pill is positioned
-  final imgH = 110.0, imgW = 110.0; // how large the image is
+  final pillSizeH = 120.0; //how large the pill is vertically
+  final pillPosH = 50.0; //how high the pill is positioned
+  final imgH = 110.0, imgW = 110.0; //how large the image is
 
   late AnimationController _controller;
+  late AnimationController _colorController;
   late Animation<double> _fadeInAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
+  //add color 
+  late Animation<Color?> _colorAnimation;
 
   @override
-  //method is called once when the state object is created.
   void initState() {
-    //Calls the parent class's initState method
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000), //1 sec
-      vsync: this, //helps to optimize the animation by preventing offscreen animations from consuming unnecessary resources.
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
     );
+
+    _colorController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this, //helps to optimize the animation by preventing offscreen animations from consuming unnecessary resources.
+    )..repeat(reverse: true);
 
     _fadeInAnimation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeIn, //curve, which starts slowly and speeds up.
+      curve: Curves.easeIn,
     );
 
     _slideAnimation = Tween<Offset>(
@@ -55,7 +60,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOut,
+      curve: Curves.easeOut, //curve, which starts slowly and speeds up.
     ));
 
     _scaleAnimation = Tween<double>(
@@ -66,31 +71,30 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
       curve: Curves.elasticOut, //elasticOut curve, which starts quickly, overshoots, and then settles back.
     ));
 
+    _colorAnimation = ColorTween(
+      begin: Colors.yellow,
+      end: Colors.red,
+    ).animate(CurvedAnimation(
+      parent: _colorController,
+      curve: Curves.linear,
+    ));
+
     _controller.forward(); //starts the animation
-  }
-
-  @override
-  //use for keep showing the animation eventhough we move from one widget to another
-  void didUpdateWidget(covariant EventPill oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.eventId != oldWidget.eventId) {
-      // Reset the animation controllers
-      _controller.reset();
-      // Restart the animations
-      _controller.forward();
-    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _colorController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    bool showGradient = (widget.ppl / widget.maxPpl) > 0.8;
+    //debug
+    //showGradient = true;
     return AnimatedPositioned(
       bottom: pillPosH,
       left: 20,
@@ -110,84 +114,100 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
             onExit: (event) {
               _controller.reverse();
             },
-            child: FadeTransition(
-              opacity: _fadeInAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  height: pillSizeH,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.background,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        blurRadius: 20,
-                        offset: Offset.zero,
-                        color: Colors.grey.withOpacity(0.5),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                        width: imgW,
-                        height: imgH,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.network(
-                            widget.imageURL,
-                            fit: BoxFit.cover,
+            child: AnimatedBuilder(
+              animation: _colorController,
+              builder: (context, child) {
+                return FadeTransition(
+                  opacity: _fadeInAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Container(
+                      height: pillSizeH,
+                      decoration: BoxDecoration(
+                        gradient: showGradient //change to gradient instead
+                            ? LinearGradient(
+                                colors: [_colorAnimation.value!, Colors.orange],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: showGradient ? null : theme.colorScheme.background,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            blurRadius: 20,
+                            offset: Offset.zero,
+                            color: Colors.grey.withOpacity(0.5),
                           ),
-                        ),
+                        ],
                       ),
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-                          child: SlideTransition(
-                            position: _slideAnimation,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.title,
-                                  style: TextStyle(
-                                    fontStyle: theme.textTheme.titleSmall!.fontStyle,
-                                    fontSize: theme.textTheme.titleSmall!.fontSize,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const Divider(),
-                                Text(
-                                  'Date: ${widget.date.toString().split(' ')[0]}   ${widget.startTime}',
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: theme.colorScheme.tertiaryContainer,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    padding: const EdgeInsets.fromLTRB(5.0, 3.0, 5.0, 3.0),
-                                    child: Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
-                                  ),
-                                ),
-                              ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            width: imgW,
+                            height: imgH,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                widget.imageURL,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                              child: SlideTransition(
+                                position: _slideAnimation,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.title,
+                                      style: TextStyle(
+                                        fontStyle: theme.textTheme.titleSmall!.fontStyle,
+                                        fontSize: theme.textTheme.titleSmall!.fontSize,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const Divider(),
+                                    Text(
+                                      'Date: ${widget.date.toString().split(' ')[0]}   ${widget.startTime}',
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.tertiaryContainer,
+                                          borderRadius: BorderRadius.circular(10.0),
+                                        ),
+                                        padding: const EdgeInsets.fromLTRB(5.0, 3.0, 5.0, 3.0),
+                                        child: showGradient ? Row(
+                                          children : [Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
+                                          const SizedBox(width: 20),
+                                          const Icon(Icons.whatshot, color: Colors.red),
+                                          const Icon(Icons.whatshot, color: Colors.red),
+                                          const Icon(Icons.whatshot, color: Colors.red),
+                                          const Icon(Icons.whatshot, color: Colors.red)]): 
+                                          Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                    // image
-                    // column
-                    // info
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ),
