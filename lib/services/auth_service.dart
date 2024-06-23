@@ -131,7 +131,7 @@ class AuthService extends ChangeNotifier {
         'hobbies': additionalData['hobbies'],
         'avatarURL': avatarURL,
       });
-      await _fetchUserData(user.uid);
+      _user = await fetchUserData(user.uid);
     }
   }
 
