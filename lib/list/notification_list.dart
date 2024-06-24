@@ -6,10 +6,12 @@ class NotificationList extends StatelessWidget {
   const NotificationList(
       {super.key,
       required this.notifications,
-      required this.onRemoveNotification});
+      required this.onRemoveNotification,
+      required this.onAcceptNotification});
 
   final List<NotificationItem> notifications;
   final void Function(NotificationItem notif) onRemoveNotification;
+  final void Function(NotificationItem notif) onAcceptNotification;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,6 @@ class NotificationList extends StatelessWidget {
             onDismissed: (direction) {
               onRemoveNotification(notifications[index]);
             },
-            child: Notifications(notifications[index])));
+            child: Notifications(notifications[index], onRemoveNotification, onAcceptNotification)));
   }
 }
