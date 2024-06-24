@@ -53,6 +53,7 @@ class App extends StatelessWidget {
       theme: Provider.of<ThemeProvider>(context).themeData,
       routerConfig: routerConfig,
       restorationScopeId: 'app',
+      debugShowCheckedModeBanner: false,
     );
   }
 }
