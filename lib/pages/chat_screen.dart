@@ -84,10 +84,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   onPressed: () {
                     if (widget.currUser != null &&
                         _messageController.text.isNotEmpty) {
-                      _chatService.sendMessage(
-                          chatId,
-                          widget.currUser!.uid,
-                          widget.event['eventName'] ?? "",
+                      _chatService.sendMessage(chatId, widget.currUser!.uid,
                           _messageController.text);
                       _messageController.clear();
                     } else {
