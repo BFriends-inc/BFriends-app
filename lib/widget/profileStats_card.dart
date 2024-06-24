@@ -23,7 +23,7 @@ class StatsCard extends StatefulWidget {
 class _StatsCardState extends State<StatsCard> {
   void _openCardOverlay(String info, String mode){
     showModalBottomSheet(
-      isScrollControlled: false,
+      isScrollControlled: true,
       context: context,
       builder: (ctx) => (mode == 'show') ? ShowInfo(info: info) : EditInfo(info: info)
     );
@@ -165,12 +165,6 @@ class _EditInfoState extends State<EditInfo>{
     final theme = Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.user;
-    Map<String, String> userInfo = {
-      'fullName': user?.username ?? '',
-      'email': user?.email ?? '',
-    };
-    final ProfileSetupScreen pss = ProfileSetupScreen(userInfo: userInfo);
-    //pss._selectedItems = user?.listLanguage;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 48, 16, 16),

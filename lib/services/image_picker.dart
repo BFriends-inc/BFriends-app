@@ -83,7 +83,6 @@ class UserImagePicker extends FormField<XFile?> {
     if (state.value == null) {
       return null;
     }
-
     if (kIsWeb) {
       return NetworkImage(state.value!.path);
     } else {
@@ -91,3 +90,4 @@ class UserImagePicker extends FormField<XFile?> {
     }
   }
 }
+
