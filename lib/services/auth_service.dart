@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
     if (firebaseUser == null) {
       _user = null;
     } else {
-      _user = await fetchUserData(firebaseUser.uid);
+      _user = await _fetchUserData(firebaseUser.uid, firebaseUser);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<UserModel?> fetchUserData(String uid) async {
+  Future<UserModel?> _fetchUserData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
@@ -48,6 +48,7 @@ class AuthService extends ChangeNotifier {
       if (doc['email'] != null) {
         //can only fetch data if email is not empty.
         return UserModel(
+          firebaseUser: firebaseUser,
           id: uid,
           email: doc['email'],
           joinDate: doc['created_at'].toDate().toString().split(' ')[0],
@@ -55,6 +56,8 @@ class AuthService extends ChangeNotifier {
           avatarURL: doc['avatarURL'],
           listLanguage: doc['languages'],
           listInterest: doc['hobbies'],
+          status: doc['status'],
+          aboutMe: doc['aboutMe'],
         );
       }
     } catch (e) {
@@ -122,16 +125,13 @@ class AuthService extends ChangeNotifier {
         final storageRef = _storage.ref().child('userImages').child('${user.uid}.jpg');
         await storageRef.putFile(File(additionalData['userImage'].path));
         avatarURL = await storageRef.getDownloadURL();
+        additionalData['avatarURL'] = avatarURL;
+        additionalData.remove('userImage');
       }
-      await _firestore.collection('users').doc(user.uid).update({
-        'username': additionalData['username'],
-        'dateOfBirth': additionalData['dateOfBirth'],
-        'gender': additionalData['gender'],
-        'languages': additionalData['languages'],
-        'hobbies': additionalData['hobbies'],
-        'avatarURL': avatarURL,
-      });
-      _user = await fetchUserData(user.uid);
+      await _firestore.collection('users').doc(user.uid).update(
+        additionalData
+      );
+      _user = await _fetchUserData(user.uid, user);
     }
   }
 

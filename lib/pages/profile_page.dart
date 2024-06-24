@@ -1,12 +1,23 @@
+import 'dart:async';
+
+import 'package:bfriends_app/pages/edit_profile_page.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:bfriends_app/widget/bar_button.dart';
 import 'package:bfriends_app/widget/profileStats_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,7 +36,8 @@ class ProfilePage extends StatelessWidget {
             IconButton(
               onPressed: () {
                 //go to meta functions
-                nav.goMeta(context: context);
+                nav.pushPageOnProfile(context: context, destination: 'meta');
+                //setState(() {});
               },
               icon: Icon(
                 Icons.menu_rounded,
@@ -38,7 +50,7 @@ class ProfilePage extends StatelessWidget {
       body: Align(
         alignment: Alignment.topCenter,
         //user's profiles displayed here.
-        child: user != null
+        child: user != null 
             ? Container(
                 width: width,
                 alignment: Alignment.topCenter,
@@ -56,8 +68,8 @@ class ProfilePage extends StatelessWidget {
                             width: 100.0,
                             child: ClipOval(
                               clipBehavior: Clip.antiAlias,
-                              child: Image.asset(
-                                'assets/images/BFriends_logo_full.png',
+                              child: Image.network(
+                                user.avatarURL.toString(),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -71,14 +83,14 @@ class ProfilePage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user.username!,
+                                    user.username ?? '',
                                     style: theme.textTheme.headlineSmall,
                                   ),
                                   const SizedBox(
                                     height: 10.0,
                                   ),
                                   Text(
-                                    'Anything.',
+                                    user.status ?? '',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],
@@ -107,7 +119,7 @@ class ProfilePage extends StatelessWidget {
                                   style: theme.textTheme.bodyMedium,
                                 ),
                                 Text(
-                                  'About me mvlajkljdklajd',
+                                  user.aboutMe ?? '',
                                   style: theme.textTheme.bodySmall,
                                 ),
                                 const SizedBox(
@@ -120,6 +132,80 @@ class ProfilePage extends StatelessWidget {
                                 Text(
                                   user.joinDate.toString(),
                                   style: theme.textTheme.bodySmall,
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  children: [
+                                    //collection of buttons
+                                    // BarButton(
+                                    //   color: theme.colorScheme.primaryContainer,
+                                    //   onColor:
+                                    //       theme.colorScheme.onPrimaryContainer,
+                                    //   height: 30.0,
+                                    //   icon: Icons.edit,
+                                    //   text: 'Edit My Profile',
+                                    //   tapDestination: 'edit_profile',
+                                    // )
+                                     GestureDetector(
+                                      onTap: () {
+                                        debugPrint("Bar button pressed.");
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+                                        ).then((_) {
+                                          Future.delayed(Duration(seconds: 1), () {
+                                          setState(() {
+                                            debugPrint("State updated with new message after delay");
+                                          });
+                                        });
+                                        });
+                                        // final nav =
+                                        //     Provider.of<NavigationService>(
+                                        //         context,
+                                        //         listen: false);
+                                        // nav.pushAuthOnPage(
+                                        //     context: context,
+                                        //     destination: 'edit_profile');
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                        height: 30,
+                                        width: ((theme.textTheme.bodySmall!
+                                                    .fontSize! /
+                                                theme.textTheme.bodySmall!
+                                                    .height!) *
+                                            'Edit My Profile'.length),
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.edit,
+                                              size: 20.0,
+                                              color:
+                                                  theme.colorScheme.onPrimary,
+                                            ),
+                                            const SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              'Edit My Profile',
+                                              style: TextStyle(
+                                                  color: theme
+                                                      .colorScheme.onPrimary,
+                                                  fontStyle: theme.textTheme
+                                                      .bodySmall!.fontStyle,
+                                                  fontSize: theme.textTheme
+                                                      .bodySmall!.fontSize),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 )
                               ],
                             ),
@@ -138,10 +224,10 @@ class ProfilePage extends StatelessWidget {
                             title: 'My Interests',
                             count: user.listInterest!.length.toString(),
                           ),
-                        ]),
+                       ]),
                       ),
-                    ],
-                  ),
+                     ],
+                   ),
                 ),
               )
             : const Center(child: Text('Fetching user data...')),

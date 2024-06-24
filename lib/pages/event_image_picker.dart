@@ -17,7 +17,7 @@ class UserImagePicker extends FormField<XFile?> {
           onSaved: onSave,
           initialValue: null,
           builder: (FormFieldState<XFile?> state) {
-            void _pickImage() async {
+            void pickImage() async {
               try {
                 final pickedImage = await ImagePicker().pickImage(
                   source: ImageSource.gallery,
@@ -28,7 +28,6 @@ class UserImagePicker extends FormField<XFile?> {
                 if (pickedImage != null) {
                   state.didChange(pickedImage);
                 }
-
               } catch (error) {
                 debugPrint('Error picking image: $error');
               }
@@ -83,13 +82,15 @@ class UserImagePicker extends FormField<XFile?> {
                                   Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-                                      onTap: _pickImage,
+                                      onTap: pickImage,
                                       borderRadius: BorderRadius.circular(40),
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Icon(
                                           Icons.upload,
-                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                         ),
                                       ),
                                     ),
@@ -97,12 +98,14 @@ class UserImagePicker extends FormField<XFile?> {
                                   Material(
                                     color: Colors.transparent,
                                     child: InkWell(
-                                      onTap: _pickImage,
+                                      onTap: pickImage,
                                       borderRadius: BorderRadius.circular(40),
                                       child: Text(
                                         'Upload Image',
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                         ),
                                       ),
                                     ),
@@ -121,7 +124,9 @@ class UserImagePicker extends FormField<XFile?> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: Icon(
                                           Icons.auto_awesome,
-                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                         ),
                                       ),
                                     ),
@@ -134,7 +139,9 @@ class UserImagePicker extends FormField<XFile?> {
                                       child: Text(
                                         'Generate Image',
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                         ),
                                       ),
                                     ),

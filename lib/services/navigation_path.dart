@@ -1,5 +1,7 @@
+import 'package:bfriends_app/pages/edit_profile_page.dart';
 import 'package:bfriends_app/pages/email_verification_page.dart';
 import 'package:bfriends_app/pages/forget_password_page.dart';
+import 'package:bfriends_app/pages/meta_feature_page.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:go_router/go_router.dart';
@@ -37,4 +39,15 @@ List<RouteBase> signUpRoute = [
       return ProfileSetupScreen(userInfo: userInfo ?? {});
     },
   ),
+];
+
+List<RouteBase> profileRoute = [
+  GoRoute(
+    path: 'meta',
+    builder: (context, state) => const MetaFeatPage(),
+  ),
+  GoRoute(
+    path: 'edit_profile',
+    builder: (context, state) => const ProfileEditScreen(),
+  )
 ];

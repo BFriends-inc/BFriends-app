@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class UserModel {
   UserModel({
+    required this.firebaseUser,
     required this.id,
     required this.email,
     required this.joinDate,
@@ -7,13 +10,18 @@ class UserModel {
     required this.avatarURL,
     required this.listLanguage,
     required this.listInterest,
+    required this.status,
+    required this.aboutMe
   });
 
+  User? firebaseUser;
   String? id;
   String? email;
   Object? joinDate;
-  final String? username;
-  final String? avatarURL;
+  String? username;
+  String? avatarURL;
   final List<dynamic>? listLanguage;
   final List<dynamic>? listInterest;
+  String? status;
+  String? aboutMe;
 }
