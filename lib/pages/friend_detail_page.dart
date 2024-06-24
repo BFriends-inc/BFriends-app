@@ -292,8 +292,6 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                   setState(() {
                     isPressedChat = !isPressedChat;
                   });
-
-                  // Navigate to ChatPage when the button is pressed
                   Navigator.push(
                     context,
                     MaterialPageRoute(

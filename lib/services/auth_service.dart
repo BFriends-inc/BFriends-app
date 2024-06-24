@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,6 +18,8 @@ class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  final Uuid uuid = const Uuid();
 
   UserModel? get user => _user;
 
@@ -140,6 +143,27 @@ class AuthService extends ChangeNotifier {
       'requesting': friendRequesting,
       'friends': friendFriends,
     });
+
+    // Create a unique relationship ID
+    String relationshipId = uuid.v4();
+
+    // Create a new relationship document
+    Map<String, dynamic> relationshipData = {
+      'relationshipId': relationshipId,
+      'participants': [currentUserId, friendUserId],
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+    await _firestore.collection('relationships').doc(relationshipId).set(relationshipData);
+
+    // Add relationshipId to each user's document
+    await _firestore.collection('users').doc(currentUserId).update({
+      'relationshipIds': FieldValue.arrayUnion([relationshipId]),
+    });
+
+    await _firestore.collection('users').doc(friendUserId).update({
+      'relationshipIds': FieldValue.arrayUnion([relationshipId]),
+    });
+
     await fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
   }
 
