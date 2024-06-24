@@ -145,6 +145,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'requesting': [],
       'favorite': [],
       'blocked': [],
+      'status': '',
+      'aboutMe': '',
     });
     final nav = Provider.of<NavigationService>(context, listen: false);
     nav.goHome(tab: NavigationTabs.home);

@@ -63,6 +63,8 @@ class AuthService extends ChangeNotifier {
           requesting: doc['requesting'],
           favorite: doc['favorite'],
           block: doc['block'],
+          status: doc['status'],
+          aboutMe: doc['aboutMe'],
         );
       }
     } catch (e) {

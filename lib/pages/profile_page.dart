@@ -17,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -50,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Align(
         alignment: Alignment.topCenter,
         //user's profiles displayed here.
-        child: user != null
+        child: user != null 
             ? Container(
                 width: width,
                 alignment: Alignment.topCenter,
@@ -83,14 +84,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user.username!,
+                                    user.username ?? '',
                                     style: theme.textTheme.headlineSmall,
                                   ),
                                   const SizedBox(
                                     height: 10.0,
                                   ),
                                   Text(
-                                    'Anything.',
+                                    user.status ?? '',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],
@@ -119,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: theme.textTheme.bodyMedium,
                                 ),
                                 Text(
-                                  'About me mvlajkljdklajd',
+                                  user.aboutMe ?? '',
                                   style: theme.textTheme.bodySmall,
                                 ),
                                 const SizedBox(
@@ -230,10 +231,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             title: 'My Interests',
                             count: user.listInterest!.length.toString(),
                           ),
-                        ]),
+                       ]),
                       ),
-                    ],
-                  ),
+                     ],
+                   ),
                 ),
               )
             : const Center(child: Text('Fetching user data...')),

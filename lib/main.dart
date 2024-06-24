@@ -1,4 +1,5 @@
 import 'package:bfriends_app/services/auth_service.dart';
+import 'package:bfriends_app/services/marker_service.dart';
 import 'package:bfriends_app/services/chat_service.dart';
 import 'package:bfriends_app/services/push_messaging.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,17 @@ void main() async {
         ChangeNotifierProvider<MapControllerService>(
           create: (_) => MapControllerService(),
         ),
+        ChangeNotifierProxyProvider<MapControllerService, MarkerProvider>(
+            create: (_) => MarkerProvider(
+                Provider.of<MapControllerService>(_, listen: false)),
+            update: (_, mapController, markerProvider) {
+              if (markerProvider == null) {
+                return MarkerProvider(mapController);
+              } else {
+                markerProvider.fetchMarkers();
+                return markerProvider;
+              }
+            }),
       ],
       child: const App(),
     ),
