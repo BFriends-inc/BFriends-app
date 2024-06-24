@@ -61,9 +61,6 @@ class _MetaFeatPageState extends State<MetaFeatPage> {
                 const Placeholder(
                   fallbackHeight: 200.0,
                 ),
-                const Placeholder(
-                  fallbackHeight: 200.0,
-                ),
                 const Divider(),
                 SizedBox(
                   height: 40.0,

@@ -428,39 +428,43 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Future<List<Widget>> _buildParticipantsList(
       Map<String, dynamic> participantsList, AuthService authService) async {
     List<Widget> participantsWidgets = [];
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.user;
 
     String hostId = widget.event['ownerId'];
 
-    if (participantsList.keys.contains(hostId)) {
-      UserModel? hostDetails = await authService.fetchUserData(hostId);
-      String hostName = hostDetails?.username ?? "Host";
-      String hostImageUrl = hostDetails?.avatarURL ?? "";
-      participantsWidgets.add(_buildParticipantRow(
-        hostName,
-        true,
-        true,
-        hostImageUrl,
-        () {},
-        () {},
-      ));
-    }
-    for (var entry in participantsList.entries) {
-      if (entry.key != hostId) {
-        String uid = entry.key;
-        var participant = entry.value;
-        UserModel? userDetails = await authService.fetchUserData(uid);
-        debugPrint(userDetails.toString());
-        String name = userDetails?.username ?? "Unknown";
-        bool isHost = widget.event['ownerId'] == uid;
-        String imageUrl = userDetails?.avatarURL ?? "";
+    if(user != null && user.firebaseUser != null) {
+      if (participantsList.keys.contains(hostId)) {
+        UserModel? hostDetails = await authService.fetchUserData(hostId, user.firebaseUser!);
+        String hostName = hostDetails?.username ?? "Host";
+        String hostImageUrl = hostDetails?.avatarURL ?? "";
         participantsWidgets.add(_buildParticipantRow(
-          name,
-          isHost,
-          participant['isConfirmed'] ?? false,
-          imageUrl,
-          () => _removeParticipant(uid),
-          () => _checkParticipant(uid, participant['isConfirmed']),
+          hostName,
+          true,
+          true,
+          hostImageUrl,
+          () {},
+          () {},
         ));
+      }
+      for (var entry in participantsList.entries) {
+        if (entry.key != hostId) {
+          String uid = entry.key;
+          var participant = entry.value;
+          UserModel? userDetails = await authService.fetchUserData(uid, user.firebaseUser!);
+          debugPrint(userDetails.toString());
+          String name = userDetails?.username ?? "Unknown";
+          bool isHost = widget.event['ownerId'] == uid;
+          String imageUrl = userDetails?.avatarURL ?? "";
+          participantsWidgets.add(_buildParticipantRow(
+            name,
+            isHost,
+            participant['isConfirmed'] ?? false,
+            imageUrl,
+            () => _removeParticipant(uid),
+            () => _checkParticipant(uid, participant['isConfirmed']),
+          ));
+        }
       }
     }
 
