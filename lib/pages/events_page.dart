@@ -662,6 +662,7 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
             itemCount: filteredEvents.length,
             itemBuilder: (context, index) {
               final event = filteredEvents[index];
+              final delay = Duration(milliseconds: 200 * index);
               if (event['ownerId'] != user?.uid &&
                   !event['participationList'].keys.contains(user?.uid)) {
                 return const SizedBox.shrink();
@@ -673,6 +674,7 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
                     int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
+                delay: delay,
               );
             },
           );
@@ -698,6 +700,7 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
             itemCount: filteredEvents.length,
             itemBuilder: (context, index) {
               final event = filteredEvents[index];
+              final delay = Duration(milliseconds: 200 * index);
               return EventCard(
                 event: event,
                 userId: user?.uid ?? "No user id",
@@ -705,6 +708,7 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
                     int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
+                delay: delay,
               );
             },
           );
