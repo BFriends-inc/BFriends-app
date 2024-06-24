@@ -6,15 +6,19 @@
 //import 'dart:js';
 
 import 'package:bfriends_app/pages/homepage.dart';
+import 'package:bfriends_app/pages/meta_feature_page.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
 import 'package:bfriends_app/pages/signup_page.dart';
 import 'package:bfriends_app/pages/welcome_page.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 //DO: setup routes
 final routerConfig = GoRouter(
@@ -62,15 +66,23 @@ final routerConfig = GoRouter(
                 child: HomePage(selectedTabs: NavigationTabs.events),
               )),
       GoRoute(
-          path: '/profile_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.profile),
-              ))
+        path: '/profile_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+          child: HomePage(selectedTabs: NavigationTabs.profile),
+        ),
+        routes: [
+          GoRoute(
+            path: 'meta',
+            builder: (context, state) => const MetaFeatPage(),
+          ),
+        ],
+      )
     ],
     initialLocation: '/welcome_page',
     debugLogDiagnostics: true,
     redirect: (context, state) {
       final currentPath = state.uri.path;
+
       if (currentPath == '/') {
         return '/welcome_page';
       } else if (currentPath == '/home') {
@@ -102,16 +114,21 @@ class NavigationService {
     return GoRouterState.of(context).uri.path;
   }
 
+  /// navigate bottom bar
   void goHome({required NavigationTabs tab}) {
-    /// navigate bottom bar ///
     _router.go('/${tab.name}');
   }
 
+  /// absolute return to welcome page
+  void goWelcome() {
+    _router.go('/welcome_page');
+  }
+
+  /// push account authentication process pages
   void pushAuthOnPage(
       {required BuildContext context,
       required String destination,
       Object? extra}) {
-    /// push account authentication process pages ///
     var path = _currentPath(context);
     try {
       _router.go('$path/$destination', extra: extra);
@@ -121,8 +138,8 @@ class NavigationService {
     }
   }
 
+  /// pop authentication process stack
   void popAuthOnPage({required BuildContext context}) {
-    /// pop authentication process stack ///
     var path = _currentPath(context);
     switch (path) {
       case '/welcome_page/signin/recov_email/verify_email/reset_pass':
@@ -138,6 +155,7 @@ class NavigationService {
     throw Exception('Failed to pop stack from path: $path');
   }
 
+  /// go to notifications page
   void goNotification({required BuildContext context}) {
     var path = _currentPath(context);
     switch (path) {
@@ -147,4 +165,17 @@ class NavigationService {
     }
     throw Exception('Cannot push notification on the path: $path');
   }
+
+  /// Show meta functions in profile page
+  void goMeta({required BuildContext context}) {
+    var path = _currentPath(context);
+    switch (path) {
+      case '/profile_page':
+        _router.go('/profile_page/meta');
+        return;
+    }
+    throw Exception('Cannot push meta on the path: $path');
+  }
+
+  void getPage(String s) {}
 }

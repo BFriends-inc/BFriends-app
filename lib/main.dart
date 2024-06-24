@@ -1,3 +1,4 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bfriends_app/services/navigation.dart';
@@ -5,6 +6,7 @@ import 'package:bfriends_app/theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +18,7 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<NavigationService>(create: (_) => NavigationService()),
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
         ChangeNotifierProvider<ThemeProvider>(
           create: (context) => ThemeProvider(),
         ),

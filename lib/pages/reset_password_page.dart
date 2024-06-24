@@ -1,10 +1,15 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:provider/provider.dart';
 
+import 'package:bfriends_app/services/auth_service.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+  final String email;
+
+  const ResetPasswordScreen({super.key, required this.email});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -19,6 +24,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return CustomScaffold(
       child: Column(
@@ -48,14 +54,29 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20.0),
-                      Text(
-                        'Reset Password',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                      AnimatedTextKit(
+                        repeatForever: false,
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            '   Reset Password',
+                            textStyle: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.primary,
+                            ),
+                            speed: const Duration(milliseconds: 80),
+                          ),
+                        ],
                       ),
+                      // Text(
+                      //   'Reset Password',
+                      //   style: TextStyle(
+                      //     fontSize: 30.0,
+                      //     fontWeight: FontWeight.w900,
+                      //     color: theme.colorScheme.primary,
+                      //   ),
+                      // ),
                       const SizedBox(height: 20.0),
                       TextFormField(
                         controller: _newPassword,
@@ -134,30 +155,59 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formResetPasswordkey.currentState!
                                 .validate()) {
                               if (_newPassword.text != _confirmPassword.text) {
-                                // Show snackbar if email is empty
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Passwords do not match.'),
                                   ),
                                 );
                               } else {
-                                // Navigate to EmailVerificationScreen
-                                nav.popAuthOnPage(context: context);
+                                int statusCode =
+                                    await authService.resetPassword(
+                                        _newPassword.text, widget.email);
+                                if (statusCode == 200) {
+                                  nav.popAuthOnPage(context: context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Failed to reset password'),
+                                    ),
+                                  );
+                                }
                               }
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40),
+                          style: ButtonStyle(
+                            padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(15.0)),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                              ),
                             ),
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors
+                                    .blue; // Background color when pressed
+                              }
+                              return theme.colorScheme
+                                  .primary; // Default background color
+                            }),
+                            foregroundColor:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return Colors.white; // Text color when pressed
+                              }
+                              return theme
+                                  .colorScheme.onPrimary; // Default text color
+                            }),
                           ),
                           child: const Text(
-                            'Recover Password',
+                            'Reset Password',
                             style: TextStyle(
                               fontSize: 15.0,
                               fontWeight: FontWeight.w200,

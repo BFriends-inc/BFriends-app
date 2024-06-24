@@ -1,9 +1,14 @@
+import 'dart:math';
+
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:bfriends_app/services/auth_service.dart';
+import 'package:bfriends_app/services/image_picker.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   final Map<String, String> userInfo;
@@ -16,12 +21,13 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formProfileSetupKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   TextEditingController usernameController = TextEditingController();
   String? _selectedGender;
   DateTime? _selectedDate;
   List<String> _selectedItems = [];
   List<String> _selectedHobbies = [];
+
+  XFile? _selectedImage;
 
   void _presentDatePicker() async {
     final now = DateTime.now();
@@ -116,6 +122,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           const SnackBar(content: Text('Please select at least one hobby')),
         );
       } else {
+        _formProfileSetupKey.currentState!.save();
         // Proceed with form submission logic here
         _registerUser();
       }
@@ -123,25 +130,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    User? user = await _authService.signUp(
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
+    User? user = await authService.signUp(
         widget.userInfo['email']!, widget.userInfo['password']!);
-    if (user != null) {
-      await _authService.storeAdditionalUserData(user, {
-        'username': usernameController.text,
-        'dateOfBirth': _selectedDate?.toIso8601String(),
-        'gender': _selectedGender,
-        'languages': _selectedItems,
-        'hobbies': _selectedHobbies
-      });
-
-      final nav = Provider.of<NavigationService>(context, listen: false);
-      nav.goHome(tab: NavigationTabs.home);
-    }
+    await authService.storeAdditionalUserData(user, {
+      'username': usernameController.text,
+      'dateOfBirth': _selectedDate?.toIso8601String(),
+      'gender': _selectedGender,
+      'languages': _selectedItems,
+      'hobbies': _selectedHobbies,
+      'userImage': _selectedImage,
+    });
+    final nav = Provider.of<NavigationService>(context, listen: false);
+    nav.goHome(tab: NavigationTabs.home);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authService = Provider.of<AuthService>(context,
+        listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -166,8 +175,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20.0),
-                const CircleAvatar(
-                  radius: 80,
+                UserImagePicker(
+                  context: context,
+                  validator: (pickedImage) {
+                    if (pickedImage == null) {
+                      return 'Please select an image';
+                    }
+                    return null;
+                  },
+                  onSave: (pickedImage) {
+                    _selectedImage = pickedImage;
+                  },
                 ),
                 const SizedBox(height: 33.0),
                 TextFormField(
