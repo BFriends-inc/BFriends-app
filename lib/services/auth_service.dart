@@ -93,6 +93,7 @@ class AuthService extends ChangeNotifier {
     await _firestore.collection('users').doc(friendUserId).update({
       'requests': friendRequests,
     });
+    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
   }
 
   Future<User?> signIn(String email, String password) async {

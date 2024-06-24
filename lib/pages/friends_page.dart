@@ -1,3 +1,4 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
@@ -62,28 +63,44 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context);
+    final user = Provider.of<AuthService>(context).user;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'Friend Lists',
-          style: TextStyle(
-            fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-            fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-            color: theme.colorScheme.onPrimary,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(40.0),
+        child: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          title: Text(
+            'Friend Lists',
+            style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+              color: theme.colorScheme.onPrimary,
+            ),
           ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                nav.pushPageOnPage(
+                    context: context, destination: 'accept_friend');
+              },
+              icon: Icon(
+                (user!.requests!.isEmpty)
+                    ? Icons.mail_outline_rounded
+                    : Icons.mail,
+                color: theme.colorScheme.onPrimary,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_add_alt_outlined),
+              onPressed: () {
+                nav.pushPageOnPage(context: context, destination: 'add_friend');
+              },
+              color: Colors.white,
+            ),
+          ],
         ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add_alt_1),
-            onPressed: () {
-              nav.pushPageOnPage(context: context, destination: 'add_friend');
-            },
-            color: Colors.white,
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

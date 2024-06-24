@@ -2,7 +2,7 @@ import 'package:bfriends_app/services/map_controller_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:bfriends_app/models/notification.dart';
+import 'package:bfriends_app/widget/notification.dart';
 import 'package:bfriends_app/list/notification_list.dart';
 import 'package:bfriends_app/services/navigation.dart';
 
@@ -14,33 +14,32 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  final List<NotificationItem> _notifications = 
-  [
-    NotificationItem(type: 'join'), 
-    NotificationItem(type: 'req'), 
+  final List<NotificationItem> _notifications = [
+    NotificationItem(type: 'join'),
+    NotificationItem(type: 'req'),
     NotificationItem(type: 'create')
   ];
-  
+
   void _removeNotification(NotificationItem notif) {
     final notifIndex = _notifications.indexOf(notif);
     setState(() {
       _notifications.remove(notif);
     });
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 3),
-        content: (notif.type == 'req') ? const Text('You have a new friend!') : const Text('Notification removed.'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: (){
-            setState(() {
-              _notifications.insert(notifIndex, notif);
-            });
-          },
-        ),
-      )
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 3),
+      content: (notif.type == 'req')
+          ? const Text('You have a new friend!')
+          : const Text('Notification removed.'),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          setState(() {
+            _notifications.insert(notifIndex, notif);
+          });
+        },
+      ),
+    ));
   }
 
   @override
@@ -52,7 +51,7 @@ class _NotificationPageState extends State<NotificationPage> {
       child: Text('No new notifications!'),
     );
 
-    if(_notifications.isNotEmpty){
+    if (_notifications.isNotEmpty) {
       notifList = NotificationList(
         notifications: _notifications,
         onRemoveNotification: _removeNotification,
@@ -95,11 +94,11 @@ class _NotificationPageState extends State<NotificationPage> {
         //   ),
         // ],
       ),
-      body: Column(
-        children: [
-          Expanded(child: notifList,)
-        ]
-      ),
+      body: Column(children: [
+        Expanded(
+          child: notifList,
+        )
+      ]),
       backgroundColor: theme.colorScheme.background,
     );
   }
