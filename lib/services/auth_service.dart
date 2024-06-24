@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
     if (firebaseUser == null) {
       _user = null;
     } else {
-      _user = await _fetchUserData(firebaseUser.uid, firebaseUser);
+      _user = await fetchUserData(firebaseUser.uid, firebaseUser);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -38,7 +38,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<UserModel?> _fetchUserData(String uid, User firebaseUser) async {
+  Future<UserModel?> fetchUserData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
@@ -131,7 +131,7 @@ class AuthService extends ChangeNotifier {
       await _firestore.collection('users').doc(user.uid).update(
         additionalData
       );
-      _user = await _fetchUserData(user.uid, user);
+      _user = await fetchUserData(user.uid, user);
     }
   }
 

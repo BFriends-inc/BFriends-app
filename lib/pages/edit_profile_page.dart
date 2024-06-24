@@ -229,7 +229,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               child: Column(
               children: [
                 const SizedBox(height: 20,),
-                UserImagePicker(
+                EditImagePicker(
                   context: context,
                   validator: (pickedImage) {
                     if (pickedImage != null) {
