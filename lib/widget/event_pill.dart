@@ -94,6 +94,21 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
     _colorController.dispose();
     super.dispose();
   }
+  @override
+  //to make sure that eventhough we move from one to another the animation still work
+  void didUpdateWidget(covariant EventPill oldWidget) {
+    // Reset animation when widget properties change
+    //covariant is:
+    //If the parent widget rebuilds and requests that this location in the tree update to 
+    //display a new widget with the same [runtimeType] and [Widget.key], 
+    //the framework will update the [widget] property of this [State] object to refer to 
+    //the new widget and then call this method with the previous widget as an argument.
+    if (widget.eventId != oldWidget.eventId) {
+      _controller.reset();
+      _controller.forward();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
