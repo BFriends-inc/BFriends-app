@@ -15,7 +15,7 @@ import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 
 class EventsPage extends StatefulWidget {
-  const EventsPage({Key? key});
+  const EventsPage({super.key});
 
   @override
   _EventsPageState createState() => _EventsPageState();
@@ -318,7 +318,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter the event name';
+                return 'Please enter an event name';
               }
               return null;
             },
@@ -621,6 +621,7 @@ class _EventsPageState extends State<EventsPage> {
       debugPrint('Please fill all the fields');
     }
   }
+
 
   Future<void> _loadEvents() async {
     try {
