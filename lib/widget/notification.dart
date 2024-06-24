@@ -3,21 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-class NotificationItem{
-  NotificationItem({required this.username, required this.pfp, required this.id});
+class NotificationItem {
+  NotificationItem(
+      {required this.username, required this.pfp, required this.id});
 
   final String username;
   final String pfp;
   final String id;
-  
 }
 
 class Notifications extends StatelessWidget {
-  const Notifications(this.notifitem, this.onRemoveNotification, this.onAcceptNotification, {super.key});
+  const Notifications(
+      this.notifitem, this.onRemoveNotification, this.onAcceptNotification,
+      {super.key});
 
   final NotificationItem notifitem;
-  final void Function(NotificationItem notif, AuthService authService) onRemoveNotification;
-  final void Function(NotificationItem notif, AuthService authService) onAcceptNotification;
+  final void Function(NotificationItem notif, AuthService authService)
+      onRemoveNotification;
+  final void Function(NotificationItem notif, AuthService authService)
+      onAcceptNotification;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,7 @@ class Notifications extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 20,
+          horizontal: 10,
           vertical: 16,
         ),
         child: Row(
@@ -37,7 +41,7 @@ class Notifications extends StatelessWidget {
               margin: const EdgeInsets.all(5.0),
               height: 100.0,
               width: 100.0,
-             child: ClipOval(
+              child: ClipOval(
                 clipBehavior: Clip.antiAlias,
                 child: Image.network(
                   notifitem.pfp,
@@ -45,34 +49,42 @@ class Notifications extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10,),
-            Expanded(child: 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                          Text('You have a new friend request from ${notifitem.username}',
-                            style: theme.textTheme.bodyMedium),
-                          const SizedBox(height: 10,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.add),
-                                label: const Text('Accept'),
-                                onPressed: (){onAcceptNotification(notifitem, authService);},
-                              ),
-                              const SizedBox(width: 30,),
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.cancel_outlined),
-                                label: const Text('Reject'),
-                                onPressed: (){onRemoveNotification(notifitem, authService);},
-                              ),
-                            ]
-                          )
-                        ],
-                      )
-                    ),
-                ],),
-      ),);
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('You have a new friend request from ${notifitem.username}',
+                    style: theme.textTheme.bodyMedium),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Accept'),
+                    onPressed: () {
+                      onAcceptNotification(notifitem, authService);
+                    },
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.cancel_outlined),
+                    label: const Text('Reject'),
+                    onPressed: () {
+                      onRemoveNotification(notifitem, authService);
+                    },
+                  ),
+                ])
+              ],
+            )),
+          ],
+        ),
+      ),
+    );
   }
 }

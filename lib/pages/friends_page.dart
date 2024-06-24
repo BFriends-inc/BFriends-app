@@ -6,6 +6,7 @@ import 'package:bfriends_app/pages/chat_page.dart';
 import 'package:bfriends_app/pages/friend_detail_page.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:bfriends_app/model/user.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -17,20 +18,14 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   List<Friend> friends = [
-    // Friend('Kenji', 'assets/images/sports_marker.png', ['English'],
-    //     ['Trading Cards', 'Football'], false, false),
-    // Friend('Ball', 'assets/images/whitelogo.png', ['English', 'ไทย'],
-    //     ['Trading Cards'], false, false),
-    // Friend('Poom', 'assets/images/whitelogo.png', ['English', '中文'],
-    //     ['Trading Cards', 'Football'], false, false),
-    // Friend('Jianna', 'assets/images/sports_marker.png', ['한국어', 'English'],
-    //     ['Reading', 'Trading Cards'], false, false),
-    // Friend('Steph', 'assets/images/sports_marker.png', ['한국어', 'English'],
-    //     ['Reading', 'Trading Cards'], false, false),
-    // Friend('Michael1', 'assets/images/sports_marker.png', ['한국어', 'English'],
-    //     ['Reading', 'Trading Cards'], false, false),
-    // Friend('Michael2', 'assets/images/sports_marker.png', ['한국어', 'English'],
-    //     ['Reading', 'Trading Cards'], false, false),
+    // Friend(
+    //     id: 'Kenji',
+    //     username: 'Kenji',
+    //     imagePath: 'assets/images/sports_marker.png',
+    //     languages: ['English'],
+    //     interests: ['Trading Cards', 'Football'],
+    //     favorite: false,
+    //     block: false),
   ];
 
   String selectedCategory = 'Friends';
@@ -59,12 +54,26 @@ class _FriendsPageState extends State<FriendsPage> {
     return filteredFriends;
   }
 
+  Future<void> fetchAllFriends(UserModel user, AuthService authService) async {
+    var requests = user.friends;
+    debugPrint('request length: ${requests?.length.toString() ?? '0'}');
+    List<Future<Friend>> friendFutures = requests!.map((req) {
+      return authService.fetchFriend(req);
+    }).toList();
+
+    friends = await Future.wait(friendFutures);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context);
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = Provider.of<AuthService>(context).user;
+
+    Widget friendList = const Center(
+      child: Text('No friends!'),
+    );
 
     return Scaffold(
       appBar: PreferredSize(
@@ -174,21 +183,30 @@ class _FriendsPageState extends State<FriendsPage> {
               ],
             ),
             const SizedBox(height: 16.0),
-            Expanded(
-              child: ListView.builder(
-                key: ValueKey<String>(selectedCategory),
-                itemCount: selectedFriends.length,
-                itemBuilder: (context, index) {
-                  final friend = selectedFriends[index];
-                  // decide the delay time here
-                  final delay = Duration(milliseconds: 200 * index);
-                  return FriendTile(
-                    friend: friend,
-                    delay: delay,
+            FutureBuilder(
+                future: fetchAllFriends(user, authService),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return Expanded(
+                    child: ListView.builder(
+                      key: ValueKey<String>(selectedCategory),
+                      itemCount: selectedFriends.length,
+                      itemBuilder: (context, index) {
+                        final friend = selectedFriends[index];
+                        // decide the delay time here
+                        final delay = Duration(milliseconds: 200 * index);
+                        return FriendTile(
+                          friend: friend,
+                          delay: delay,
+                        );
+                      },
+                    ),
                   );
-                },
-              ),
-            ),
+                })
           ],
         ),
       ),
@@ -272,7 +290,7 @@ class _FriendTileState extends State<FriendTile>
             );
           },
           leading: ClipOval(
-            child: Image.asset(
+            child: Image.network(
               widget.friend.imagePath,
               fit: BoxFit.cover,
               width: 40.0,
