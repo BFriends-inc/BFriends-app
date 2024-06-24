@@ -25,6 +25,8 @@ class _EventsPageState extends State<EventsPage> {
   final _formProfileSetupKey = GlobalKey<FormState>();
   late StateSetter _setState;
 
+  String searchQuery = '';
+
   DateTime? _selectedDate;
   TimeOfDay? _selectedStartTime;
   TimeOfDay? _selectedEndTime;
@@ -634,46 +636,67 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
-  Widget MyEventsPage() {
-    return _events.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            itemCount: _events.length,
-            itemBuilder: (context, index) {
-              final event = _events[index];
-              if (event['ownerId'] != user?.uid &&
-                  !event['participationList'].keys.contains(user?.uid)) {
-                return const SizedBox.shrink();
-              }
-              return EventCard(
-                event: event,
-                userId: user?.uid ?? "No user id",
-                isFull: event['participationList'].length >=
-                    int.parse(event['participants']),
-                isHosted: event['ownerId'] == user?.uid,
-                isJoined: event['participationList'].keys.contains(user?.uid),
-              );
-            },
-          );
+Widget MyEventsPage() {
+  List<Map<String, dynamic>> filteredEvents = _events;
+
+  if (searchQuery.isNotEmpty) {
+    filteredEvents = _events
+        .where((event) =>
+            event['eventName'].toString().toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
   }
 
+  return filteredEvents.isEmpty ?
+      // ? const Center(child: CircularProgressIndicator())
+      const Center(child: Text('No events found'))
+      : ListView.builder(
+          itemCount: filteredEvents.length,
+          itemBuilder: (context, index) {
+            final event = filteredEvents[index];
+            if (event['ownerId'] != user?.uid &&
+                !event['participationList'].keys.contains(user?.uid)) {
+              return const SizedBox.shrink();
+            }
+            return EventCard(
+              event: event,
+              userId: user?.uid ?? "No user id",
+              isFull: event['participationList'].length >=
+                  int.parse(event['participants']),
+              isHosted: event['ownerId'] == user?.uid,
+              isJoined: event['participationList'].keys.contains(user?.uid),
+            );
+          },
+        );
+}
+
+
   Widget AllEventsPage() {
-    return _events.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            itemCount: _events.length,
-            itemBuilder: (context, index) {
-              final event = _events[index];
-              return EventCard(
-                event: event,
-                userId: user?.uid ?? "No user id",
-                isFull: event['participationList'].length >=
-                    int.parse(event['participants']),
-                isHosted: event['ownerId'] == user?.uid,
-                isJoined: event['participationList'].keys.contains(user?.uid),
-              );
-            },
-          );
+    List<Map<String, dynamic>> filteredEvents = _events;
+
+  if (searchQuery.isNotEmpty) {
+    filteredEvents = _events
+        .where((event) =>
+            event['eventName'].toString().toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
+
+  return filteredEvents.isEmpty ?
+      // ? const Center(child: CircularProgressIndicator())
+      const Center(child: Text('No events found'))
+      : ListView.builder(
+          itemCount: filteredEvents.length,
+          itemBuilder: (context, index) {
+            final event = filteredEvents[index];
+            return EventCard(
+              event: event,
+              userId: user?.uid ?? "No user id",
+              isFull: event['participationList'].length >=
+                  int.parse(event['participants']),
+              isHosted: event['ownerId'] == user?.uid,
+              isJoined: event['participationList'].keys.contains(user?.uid),
+            );
+          },
+        );
   }
 
   @override
@@ -681,18 +704,43 @@ class _EventsPageState extends State<EventsPage> {
     final theme = Theme.of(context);
 
     return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: theme.colorScheme.primary,
-          title: Text(
-            'BFriends',
-            style: TextStyle(
-              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-              color: theme.colorScheme.onPrimary,
+    length: 2,
+    child: Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: Row(
+          children: [
+            Text(
+              'BFriends',
+              style: TextStyle(
+                fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+                fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+                color: theme.colorScheme.onPrimary,
+              ),
             ),
-          ),
+            SizedBox(width: 16), // Add some space between the title and the search bar
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
           actions: <Widget>[
             IconButton(
               icon: Icon(
