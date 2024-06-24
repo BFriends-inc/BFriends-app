@@ -63,6 +63,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
     final user = Provider.of<AuthService>(context).user;
 
     return Scaffold(
@@ -82,6 +83,7 @@ class _FriendsPageState extends State<FriendsPage> {
           actions: [
             IconButton(
               onPressed: () {
+                authService.fetchUserData(user.id!, user.firebaseUser!);
                 nav.pushPageOnPage(
                     context: context, destination: 'accept_friend');
               },

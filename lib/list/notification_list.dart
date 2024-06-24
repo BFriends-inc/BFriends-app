@@ -1,4 +1,6 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:bfriends_app/widget/notification.dart';
 
@@ -10,13 +12,14 @@ class NotificationList extends StatelessWidget {
       required this.onAcceptNotification});
 
   final List<NotificationItem> notifications;
-  final void Function(NotificationItem notif) onRemoveNotification;
-  final void Function(NotificationItem notif) onAcceptNotification;
+  final void Function(NotificationItem notif, AuthService authService) onRemoveNotification;
+  final void Function(NotificationItem notif, AuthService authService) onAcceptNotification;
 
   @override
   Widget build(BuildContext context) {
     final cardMargin = Theme.of(context).cardTheme.margin ??
         const EdgeInsets.symmetric(horizontal: 16.0);
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return ListView.builder(
         itemCount: notifications.length,
@@ -28,7 +31,7 @@ class NotificationList extends StatelessWidget {
                   horizontal: cardMargin.horizontal,
                 )),
             onDismissed: (direction) {
-              onRemoveNotification(notifications[index]);
+              onRemoveNotification(notifications[index], authService);
             },
             child: Notifications(notifications[index], onRemoveNotification, onAcceptNotification)));
   }

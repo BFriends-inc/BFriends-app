@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:bfriends_app/widget/notification.dart';
 import 'package:bfriends_app/list/notification_list.dart';
+import 'package:bfriends_app/model/friend.dart';
 
 class AcceptFriendPage extends StatefulWidget {
   const AcceptFriendPage({super.key});
@@ -16,14 +17,11 @@ class AcceptFriendPage extends StatefulWidget {
 }
 
 class _AcceptFriendPageState extends State<AcceptFriendPage> {
-  final List<NotificationItem> _notifications = [
-    NotificationItem(username: 'John', pfp: "https://firebasestorage.googleapis.com/v0/b/bfriend-dev.appspot.com/o/userImages%2FXJT3JXokfaexdO0fhpygsyf89Kw2.jpg?alt=media&token=215b9585-0f32-41c1-b791-eb453810dc59"),
-    NotificationItem(username: 'Johnny', pfp: "https://firebasestorage.googleapis.com/v0/b/bfriend-dev.appspot.com/o/userImages%2FYpEQPLJCqKPMNX6LJfvSBvAyMss2.jpg?alt=media&token=b2a4bd49-fed7-4a54-a884-bcd138ae9af9"),
-    NotificationItem(username: 'Sins', pfp: "https://firebasestorage.googleapis.com/v0/b/bfriend-dev.appspot.com/o/userImages%2F3V0wITDgN1ZGO80FhxaG5O9kZxm1.jpg?alt=media&token=6e97d87c-a062-4b5c-a77f-1abd810a34dd")
-  ];
+  final List<NotificationItem> _notifications = [];
 
-  void _removeNotification(NotificationItem notif) {
+  void _removeNotification(NotificationItem notif, AuthService authService) async {
     final notifIndex = _notifications.indexOf(notif);
+    await authService.removeFriendRequest(authService.user?.id ?? '', notif.id);
     setState(() {
       _notifications.remove(notif);
     });
@@ -31,52 +29,51 @@ class _AcceptFriendPageState extends State<AcceptFriendPage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 3),
       content: Text('Friend request from ${notif.username} removed'),
-      action: SnackBarAction(
-        label: 'Undo',
-        onPressed: () {
-          setState(() {
-            _notifications.insert(notifIndex, notif);
-          });
-        },
-      ),
     ));
   }
 
-  void _acceptNotification(NotificationItem notif) {
+  void _acceptNotification(NotificationItem notif, AuthService authService) async {
+    debugPrint('accept notif function');
     final notifIndex = _notifications.indexOf(notif);
+    await authService.acceptFriend(authService.user?.id ?? '', notif.id);
     setState(() {
+      debugPrint('Accept Friend');
       _notifications.remove(notif);
     });
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 3),
       content: Text('You are now friends with ${notif.username}'),
-      action: SnackBarAction(
-        label: 'Undo',
-        onPressed: () {
-          setState(() {
-            _notifications.insert(notifIndex, notif);
-          });
-        },
-      ),
     ));
   }
+
+  Future<void> fetchAllFriends(UserModel user, AuthService authService) async {
+      var requests = user.requests;
+      debugPrint('request length: ${requests?.length.toString() ?? '0'}');
+      List<Future<Friend>> friendFutures = requests!.map((req) {
+        return authService.fetchFriend(req);
+      }).toList();
+
+      List<Friend> frd = await Future.wait(friendFutures);
+      debugPrint(frd.length.toString());
+      for(Friend friend in frd){
+        debugPrint('LOOP: ${friend.username}');
+        NotificationItem notif = NotificationItem(username: friend.username, pfp: friend.imagePath, id: friend.id);
+        _notifications.add(notif);
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.user;
+
+    debugPrint('notif length ${_notifications.length.toString()}');
 
     Widget notifList = const Center(
       child: Text('No new notifications!'),
     );
-
-    if (_notifications.isNotEmpty) {
-      notifList = NotificationList(
-        notifications: _notifications,
-        onRemoveNotification: _removeNotification,
-        onAcceptNotification: _acceptNotification,
-      );
-    }
 
     return Scaffold(
       appBar: PreferredSize(
@@ -103,10 +100,28 @@ class _AcceptFriendPageState extends State<AcceptFriendPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(child: notifList),
-      ],),
-    );
+      body: FutureBuilder(
+        future: fetchAllFriends(user!, authService),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            if (_notifications.isNotEmpty) {
+              debugPrint('_notifications not empty');
+              notifList = NotificationList(
+                notifications: _notifications,
+                onRemoveNotification: _removeNotification,
+                onAcceptNotification: _acceptNotification,
+              );
+            }
+          }
+          return Column(
+              children: [
+                Expanded(child: notifList),
+            ],);
+        }
+    ),);
   }
 }

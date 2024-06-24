@@ -1,12 +1,14 @@
+import 'package:bfriends_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class NotificationItem{
-  NotificationItem({required this.username, required this.pfp});
+  NotificationItem({required this.username, required this.pfp, required this.id});
 
   final String username;
   final String pfp;
+  final String id;
   
 }
 
@@ -14,12 +16,13 @@ class Notifications extends StatelessWidget {
   const Notifications(this.notifitem, this.onRemoveNotification, this.onAcceptNotification, {super.key});
 
   final NotificationItem notifitem;
-  final void Function(NotificationItem notif) onRemoveNotification;
-  final void Function(NotificationItem notif) onAcceptNotification;
+  final void Function(NotificationItem notif, AuthService authService) onRemoveNotification;
+  final void Function(NotificationItem notif, AuthService authService) onAcceptNotification;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return Card(
       child: Padding(
@@ -56,13 +59,13 @@ class Notifications extends StatelessWidget {
                               ElevatedButton.icon(
                                 icon: const Icon(Icons.add),
                                 label: const Text('Accept'),
-                                onPressed: (){onAcceptNotification(notifitem);},
+                                onPressed: (){onAcceptNotification(notifitem, authService);},
                               ),
                               const SizedBox(width: 30,),
                               ElevatedButton.icon(
                                 icon: const Icon(Icons.cancel_outlined),
                                 label: const Text('Reject'),
-                                onPressed: (){onRemoveNotification(notifitem);},
+                                onPressed: (){onRemoveNotification(notifitem, authService);},
                               ),
                             ]
                           )

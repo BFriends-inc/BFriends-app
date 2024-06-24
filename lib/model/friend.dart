@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 //class for storing the data
 class Friend {
+  String id;
   String username;
   String imagePath;
   List<dynamic>? languages;
@@ -9,7 +10,9 @@ class Friend {
   bool favorite;
   bool block;
   Friend(
-      {required this.username,
+      {
+      required this.id,
+      required this.username,
       required this.imagePath,
       this.languages,
       this.interests,

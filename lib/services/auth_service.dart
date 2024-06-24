@@ -30,7 +30,7 @@ class AuthService extends ChangeNotifier {
     if (firebaseUser == null) {
       _user = null;
     } else {
-      await _fetchUserData(firebaseUser.uid, firebaseUser);
+      await fetchUserData(firebaseUser.uid, firebaseUser);
       _user == null
           ? debugPrint('_user is null')
           : debugPrint(
@@ -39,7 +39,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserData(String uid, User firebaseUser) async {
+  Future<void> fetchUserData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
@@ -94,7 +94,7 @@ class AuthService extends ChangeNotifier {
     await _firestore.collection('users').doc(friendUserId).update({
       'requests': friendRequests,
     });
-    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+    fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
   }
 
   Future<void> removeFriendRequest(
@@ -113,10 +113,10 @@ class AuthService extends ChangeNotifier {
     await _firestore.collection('users').doc(friendUserId).update({
       'requesting': friendRequesting,
     });
-    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+    await fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
   }
 
-  Future<void> newFriend(String currentUserId, String friendUserId) async {
+  Future<void> acceptFriend(String currentUserId, String friendUserId) async {
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(currentUserId).get();
     DocumentSnapshot friendDoc =
@@ -137,7 +137,7 @@ class AuthService extends ChangeNotifier {
       'requesting': friendRequesting,
       'friends': friendFriends,
     });
-    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+    await fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
   }
 
   Future<Friend> fetchFriend(String friendUserId) async {
@@ -145,6 +145,7 @@ class AuthService extends ChangeNotifier {
         await _firestore.collection('users').doc(friendUserId).get();
     // if(friendDoc == null) return null;
     return Friend(
+        id: friendUserId,
         username: friendDoc['username'],
         imagePath: friendDoc['avatarURL'].toString(),
         languages: friendDoc['languages'],
@@ -216,7 +217,7 @@ class AuthService extends ChangeNotifier {
       }
       await _firestore.collection('users').doc(user.uid).update(additionalData);
       //await _firestore.collection('users').doc(user.uid).update(additionalData);
-      await _fetchUserData(user.uid, user);
+      await fetchUserData(user.uid, user);
     }
   }
 
