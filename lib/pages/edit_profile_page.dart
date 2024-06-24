@@ -4,11 +4,8 @@ import 'package:bfriends_app/services/navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:bfriends_app/services/image_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/widget/profileStats_card.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -23,43 +20,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool changed = false;
   List<String> _selectedItems = [];
   List<String> _selectedHobbies = [];
-  final _formProfileSetupKey = GlobalKey<FormState>();
-  XFile? _selectedImage;
-
-  late TextEditingController usernameController;
-  late TextEditingController statusController;
-  late TextEditingController aboutMeController;
-
-  @override
-  void initState() {
-    super.initState();
-    usernameController = TextEditingController();
-    statusController = TextEditingController();
-    aboutMeController = TextEditingController();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final user = Provider.of<AuthService>(context, listen: false).user;
-    if (usernameController.text.isEmpty) {
-      usernameController.text = user?.username ?? '';
-    }
-    if (statusController.text.isEmpty) {
-      statusController.text = user?.status ?? '';
-    }
-    if (aboutMeController.text.isEmpty) {
-      aboutMeController.text = user?.aboutMe ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    usernameController.dispose();
-    statusController.dispose();
-    aboutMeController.dispose();
-    super.dispose();
-  }
+  final TextEditingController fullNameController = TextEditingController();
 
   void _languageSelect() async {
     final List<String>? results = await showDialog(
@@ -121,24 +82,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  void _editProfile(String newFullname, String newStatus, String newAboutMe) async {
+  void _editProfile(String newfullname) async {
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.user!.firebaseUser;
     await authService.storeAdditionalUserData(user, {
-      'username': newFullname,
+      'username': newfullname,
       'languages': _selectedItems,
-      'hobbies': _selectedHobbies,
-      'userImage': _selectedImage,
-      'status': newStatus,
-      'aboutMe': newAboutMe,
+      'hobbies': _selectedHobbies
     });
-  }
-
-  bool checkChanged(UserModel user, String newFullname, String? newStatus, String? newAboutMe) {
-    if(user.username != newFullname) return true;
-    if(user.status != newStatus) return true;
-    if(user.aboutMe != newAboutMe) return true;
-    return changed;
   }
 
   @override
@@ -172,8 +123,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           leading: IconButton(
             onPressed: () {
               //pop
-              checkChanged(user!, usernameController.text, statusController.text
-                                            , aboutMeController.text)
+              changed
                   ? showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -225,62 +175,43 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: Form(key: _formProfileSetupKey,
-              child: Column(
+            child: Column(
               children: [
-                const SizedBox(height: 20,),
-                EditImagePicker(
-                  context: context,
-                  validator: (pickedImage) {
-                    if (pickedImage != null) {
-                      changed = true;
-                    }
-                    return null;
-                  },
-                  onSave: (pickedImage) {
-                    debugPrint('SAVED IMAGE');
-                    _selectedImage = pickedImage;
-                  },
+                Container(
+                  margin: const EdgeInsets.all(20.0),
+                  height: 150.0,
+                  width: 150.0,
+                  child: ClipOval(
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/images/BFriends_logo_full.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 20,),
-                // Container(
-                //   margin: const EdgeInsets.all(20.0),
-                //   height: 150.0,
-                //   width: 150.0,
-                //   child: ClipOval(
-                //     clipBehavior: Clip.antiAlias,
-                //     child: Image.asset(
-                //       'assets/images/BFriends_logo_full.png',
-                //       fit: BoxFit.cover,
-                //     ),
-                //   ),
-                // ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10.0, 5.0, 5.0, 5.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextFormField(
-                        // controller: fullNameController,
-                        // onChanged: (value) {
-                        //   if (value != user?.username) {
-                        //     changed = true;
-                        //   }
-                        // },
-                        controller: usernameController,
-                        onChanged: (value) {},
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            debugPrint('null or empty');
-                            return 'Please enter your username';
+                      TextField(
+                        controller: fullNameController,
+                        onChanged: (value) {
+                          if (value != user?.username) {
+                            changed = true;
                           }
-                          debugPrint('checking validity username');
-                          return authService.usernameChecker(value);
                         },
+                        // validator: (value) {
+                        //   if(value == null || value.isEmpty) {
+                        //     return 'Please enter your new full name';
+                        //   }
+                        //   else if(value != user?.username) {changed = true;}
+                        //   return null;
+                        // },
                         decoration: InputDecoration(
-                            labelText: 'Username',
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            //helperText: 'Username',
+                            labelText: user?.username,
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            helperText: 'Full Name',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color:
@@ -293,21 +224,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                 borderRadius: BorderRadius.circular(10))),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       TextField(
-                        controller: statusController,
                         onChanged: (value) {
-                          // debugPrint(value);
-                          // if (value != user?.status) {
-                          //   debugPrint('changed');
-                          //   changed = true;
-                          // }
+                          debugPrint(value);
+                          if (value != 'Anything') {
+                            debugPrint('changed');
+                            changed = true;
+                          }
                         },
                         decoration: InputDecoration(
-                            labelText: 'Status',
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            //helperText: 'Status',
+                            labelText: 'Anything.',
+                            floatingLabelBehavior: FloatingLabelBehavior.never,
+                            helperText: 'Status',
                             border: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color:
@@ -321,7 +251,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                     ],
                   ),
-                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                   child: Column(children: [
@@ -342,16 +272,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             style: theme.textTheme.bodyLarge,
                           ),
                           TextField(
-                            controller: aboutMeController,
                             onChanged: (value) {
-                              // if (value != user?.aboutMe) {
-                              //   changed = true;
-                              // }
+                              if (value != 'Anything') {
+                                changed = true;
+                              }
                             },
                             maxLines: null,
                             maxLength: 200,
                             decoration: InputDecoration(
-                                //labelText: user?.aboutMe,
+                                labelText: 'Anything.',
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.never,
                                 border: OutlineInputBorder(
@@ -520,9 +449,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        if(_formProfileSetupKey.currentState!.validate()){
-                        checkChanged(user!, usernameController.text, statusController.text
-                                            , aboutMeController.text)
+                        changed
                             ? showDialog(
                                 context: context,
                                 barrierDismissible: false,
@@ -541,19 +468,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     actions: <Widget>[
                                       TextButton(
                                           onPressed: () {
-                                            debugPrint(usernameController.text);
-                                            debugPrint(statusController.text);
-                                            debugPrint(aboutMeController.text);
-                                             _formProfileSetupKey.currentState!.save();
-                                            _editProfile(usernameController.text, statusController.text
-                                            , aboutMeController.text
-                                            // _editProfile((usernameController.text.isEmpty)
-                                            //     ? user?.username ?? '' : usernameController.text,
-                                            //     (statusController.text.isEmpty) 
-                                            //     ? user?.status ?? '' : statusController.text,
-                                            //     (aboutMeController.text.isEmpty)
-                                            //     ? user?.aboutMe ?? '' : aboutMeController.text
-                                                );
+                                            _editProfile((fullNameController
+                                                    .text.isEmpty)
+                                                ? user?.username ?? ''
+                                                : fullNameController.text);
                                             Navigator.of(context).pop();
                                             Navigator.pop(context);
                                           },
@@ -567,7 +485,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   );
                                 })
                             : context.pop();
-                        }
                       },
                       child: const Text('Save changes'),
                     ),
@@ -577,7 +494,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
           ),
         ),
-      ), 
       ),
       backgroundColor: theme.colorScheme.background,
     );

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
@@ -11,7 +12,6 @@ import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-
 
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
@@ -29,6 +29,7 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _authStateChanged(User? firebaseUser) async {
     debugPrint(firebaseUser.toString());
+
     /// Handle changes during Sign-in / Sign-out ///
     if (firebaseUser == null) {
       _user = null;
@@ -46,6 +47,37 @@ class AuthService extends ChangeNotifier {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
+
+      debugPrint('Fetching user data for $uid');
+      debugPrint('Data: ${doc.data()}');
+      if (doc['email'] != null) {
+        //can only fetch data if email is not empty.
+        _user = UserModel(
+          firebaseUser: firebaseUser,
+          id: uid,
+          email: doc['email'],
+          joinDate: doc['created_at'].toDate().toString().split(' ')[0],
+          username: doc['username'],
+          avatarURL: doc['avatarURL'],
+          listLanguage: doc['languages'],
+          listInterest: doc['hobbies'],
+          friends: doc['friends'],
+          requests: doc['requests'],
+          requesting: doc['requesting'],
+          favorite: doc['favorite'],
+          block: doc['block'],
+        );
+      }
+    } catch (e) {
+      debugPrint("Error fetching user data: $e");
+    }
+  }
+
+    Future<UserModel?> fetchUserModelData(String uid, User firebaseUser) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(uid).get();
+
       debugPrint('Fetching user data for $uid');
       debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
@@ -276,7 +308,7 @@ class AuthService extends ChangeNotifier {
     debugPrint("signing out from ${_user!.email}");
     await _auth.signOut();
     _user = null;
-    notifyListeners();
+    //notifyListeners();
   }
 
   Future<int> sendVerificationCode(String email) async {
@@ -362,16 +394,6 @@ class AuthService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error resetting password: $e');
       return 500;
-    }
-  }
-
-  Future<void> updateUserFcmToken(String userId, String token) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'fcmToken': token,
-      });
-    } catch (e) {
-      debugPrint('Error updating FCM token: $e');
     }
   }
 }
