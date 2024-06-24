@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
@@ -22,8 +23,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _signInUser(BuildContext context) async {
     final authService = Provider.of<AuthService>(context,
-        listen: false); //authentication provider
-
+        listen: false);
     User? user = await authService.signIn(
         _usernameController.text.trim(), _passwordController.text);
     if (user != null) {
@@ -70,13 +70,20 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Welcome back!',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                      AnimatedTextKit(
+                        repeatForever: false,
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            '   Welcome back!',
+                            textStyle: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.primary,
+                            ),
+                            speed: const Duration(milliseconds: 80),
+                          ),
+                        ],
                       ),
                       const SizedBox(
                         height: 40.0,
@@ -97,15 +104,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: theme.colorScheme
-                                  .tertiaryContainer, // Default border color
+                              color: theme.colorScheme.tertiaryContainer,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: theme.colorScheme
-                                  .tertiaryContainer, // Default border color
+                              color: theme.colorScheme.tertiaryContainer,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -133,15 +138,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: theme.colorScheme
-                                  .tertiaryContainer, // Default border color
+                              color: theme.colorScheme.tertiaryContainer,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: theme.colorScheme
-                                  .tertiaryContainer, // Default border color
+                              color: theme.colorScheme.tertiaryContainer,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -206,6 +209,20 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
                             }
                           },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith((states) {
+                              if (states.contains(MaterialState.pressed)) {
+                                return theme
+                                    .colorScheme.tertiary; // Pressed color
+                              } else if (states
+                                  .contains(MaterialState.hovered)) {
+                                return theme
+                                    .colorScheme.secondary; // Hover color
+                              }
+                              return theme.colorScheme.primary; // Default color
+                            }),
+                          ),
                           child: const Text('Sign in'),
                         ),
                       ),
@@ -249,8 +266,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // Logo(Logos.facebook_f),
-                          // Logo(Logos.twitter),
                           Logo(Logos.google),
                           Logo(Logos.apple),
                         ],
@@ -258,7 +273,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       const SizedBox(
                         height: 25.0,
                       ),
-                      // don't have an account
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -271,12 +285,6 @@ class _SignInScreenState extends State<SignInScreen> {
                           GestureDetector(
                             onTap: () {
                               nav.popAuthOnPage(context: context);
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (e) => const SignUpScreen(),
-                              //   ),
-                              // );
                             },
                             child: Text(
                               'Sign up',

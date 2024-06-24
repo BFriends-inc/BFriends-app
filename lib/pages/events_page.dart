@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bfriends_app/pages/event_card.dart';
 import 'package:bfriends_app/pages/event_image_picker.dart';
 import 'package:bfriends_app/services/event_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +26,8 @@ class _EventsPageState extends State<EventsPage> {
   late StateSetter _setState;
 
   DateTime? _selectedDate;
+  TimeOfDay? _selectedStartTime;
+  TimeOfDay? _selectedEndTime;
 
   int? _selectedIndex;
   final _locationSearchController = TextEditingController();
@@ -44,11 +49,35 @@ class _EventsPageState extends State<EventsPage> {
   final User? user = FirebaseAuth.instance.currentUser;
   final eventService = EventService();
 
+  List<Map<String, dynamic>> _events = [];
+
+  StreamSubscription? _eventsSubscription;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
+  }
+
+  void _listenToEvents() {
+    _eventsSubscription =
+        FirebaseFirestore.instance.collection('events').snapshots().listen(
+      (snapshot) {
+        setState(() {
+          _events = snapshot.docs.map((doc) => doc.data()).toList();
+        });
+      },
+      onError: (error) => debugPrint("Listen failed: $error"),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _locationSearchController.addListener(_onChanged);
     _getCurrentLocation();
+    _loadEvents();
+    _listenToEvents();
   }
 
   @override
@@ -56,6 +85,8 @@ class _EventsPageState extends State<EventsPage> {
     _locationSearchController.removeListener(_onChanged);
     _locationSearchController.dispose();
     _pageController.dispose();
+    _isDateValid.dispose();
+    _eventsSubscription?.cancel();
     super.dispose();
   }
 
@@ -182,6 +213,26 @@ class _EventsPageState extends State<EventsPage> {
     if (pickedDate != null) {
       _setState(() {
         _selectedDate = pickedDate;
+        _presentTimePicker(context, 'Start Time', (pickedTime) {
+          _selectedStartTime = pickedTime;
+          _presentTimePicker(context, 'End Time', (pickedTime) {
+            _selectedEndTime = pickedTime;
+          });
+        });
+      });
+    }
+  }
+
+  void _presentTimePicker(BuildContext context, String title,
+      void Function(TimeOfDay time) onTimePicked) async {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      helpText: title,
+    );
+    if (pickedTime != null) {
+      _setState(() {
+        onTimePicked(pickedTime);
       });
     }
   }
@@ -201,6 +252,7 @@ class _EventsPageState extends State<EventsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   height: height - 200,
+                  width: double.infinity,
                   child: PageView(
                     physics: const NeverScrollableScrollPhysics(),
                     controller: _pageController,
@@ -227,6 +279,8 @@ class _EventsPageState extends State<EventsPage> {
       participantsController.clear();
       _placeList = [];
       _isDateValid.value = true;
+      _selectedStartTime = null;
+      _selectedEndTime = null;
     });
   }
 
@@ -256,6 +310,7 @@ class _EventsPageState extends State<EventsPage> {
             onSave: (pickedImage) {
               _selectedImage = pickedImage;
             },
+            eventNameController: eventNameController,
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -300,7 +355,7 @@ class _EventsPageState extends State<EventsPage> {
             onChanged: (value) {},
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter number of participants';
+                return 'Please enter the number of participants';
               }
               return null;
             },
@@ -335,8 +390,8 @@ class _EventsPageState extends State<EventsPage> {
             readOnly: true,
             controller: TextEditingController(
                 text: _selectedDate == null
-                    ? 'Event Date'
-                    : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}'),
+                    ? 'Event Date and Time'
+                    : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}   ${_selectedStartTime?.format(context) ?? ''} - ${_selectedEndTime?.format(context) ?? ''}'),
             style: TextStyle(
               fontSize: 14,
               color: _isDateValid.value
@@ -366,11 +421,14 @@ class _EventsPageState extends State<EventsPage> {
             ),
             onTap: _presentDatePicker,
             validator: (value) {
-              if (value == null || value == 'Event Date') {
+              if (value == null ||
+                  value == 'Event Date and Time' ||
+                  _selectedStartTime == null ||
+                  _selectedEndTime == null) {
                 _setState(() {
                   _isDateValid.value = false;
                 });
-                return 'Please select the event date';
+                return 'Please select the event date and time';
               }
               _setState(() {
                 _isDateValid.value = true;
@@ -481,10 +539,23 @@ class _EventsPageState extends State<EventsPage> {
             shrinkWrap: true,
             itemCount: _placeList.length,
             itemBuilder: (context, index) {
+              bool isSelected = index == _selectedIndex;
               return GestureDetector(
                 onTap: () => _handlePlaceSelection(index),
-                child: ListTile(
-                  title: Text(_placeList[index]["description"]),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.black : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  child: ListTile(
+                    title: Text(
+                      _placeList[index]["description"],
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -508,6 +579,8 @@ class _EventsPageState extends State<EventsPage> {
       final participants = participantsController.text;
       final eventDate =
           _selectedDate!.toLocal().toIso8601String().substring(0, 10);
+      final eventStartTime = _selectedStartTime!.format(context);
+      final eventEndTime = _selectedEndTime!.format(context);
       final placeName = selectedPlace['placeName'] ?? 'No place selected';
       final placeAddress =
           selectedPlace['placeAddress'] ?? 'No address available';
@@ -518,6 +591,8 @@ class _EventsPageState extends State<EventsPage> {
       debugPrint('Event Name: $eventName');
       debugPrint('Participants: $participants');
       debugPrint('Event Date: $eventDate');
+      debugPrint('Event Start Time: $eventStartTime');
+      debugPrint('Event End Time: $eventEndTime');
       debugPrint('Place Name: $placeName');
       debugPrint('Place Address: $placeAddress');
       debugPrint('Latitude: $latitude');
@@ -530,6 +605,8 @@ class _EventsPageState extends State<EventsPage> {
           participants: participants,
           selectedImage: _selectedImage!,
           eventDate: eventDate,
+          eventStartTime: eventStartTime,
+          eventEndTime: eventEndTime,
           placeName: placeName,
           placeAddress: placeAddress,
           latitude: latitude,
@@ -545,30 +622,114 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
+
+  Future<void> _loadEvents() async {
+    try {
+      List<Map<String, dynamic>> events = await eventService.getEvents();
+        setState(() {
+          _events = events;
+      });
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+    }
+  }
+
+  Widget MyEventsPage() {
+    return _events.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: _events.length,
+            itemBuilder: (context, index) {
+              final event = _events[index];
+              if (event['ownerId'] != user?.uid &&
+                  !event['participationList'].keys.contains(user?.uid)) {
+                return const SizedBox.shrink();
+              }
+              return EventCard(
+                event: event,
+                userId: user?.uid ?? "No user id",
+                isFull: event['participationList'].length >=
+                    int.parse(event['participants']),
+                isHosted: event['ownerId'] == user?.uid,
+                isJoined: event['participationList'].keys.contains(user?.uid),
+              );
+            },
+          );
+  }
+
+  Widget AllEventsPage() {
+    return _events.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemCount: _events.length,
+            itemBuilder: (context, index) {
+              final event = _events[index];
+              return EventCard(
+                event: event,
+                userId: user?.uid ?? "No user id",
+                isFull: event['participationList'].length >=
+                    int.parse(event['participants']),
+                isHosted: event['ownerId'] == user?.uid,
+                isJoined: event['participationList'].keys.contains(user?.uid),
+              );
+            },
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: Text(
-          'BFriends',
-          style: TextStyle(
-            fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-            fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-            color: theme.colorScheme.onPrimary,
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          title: Text(
+            'BFriends',
+            style: TextStyle(
+              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+              color: theme.colorScheme.onPrimary,
+            ),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: theme.colorScheme.onPrimary,
+                semanticLabel: 'Add a New Event',
+              ),
+              onPressed: _showDialog,
+            ),
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(
+                child: Text(
+                  'My Events',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  'All Events',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            ],
           ),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.add,
-              color: theme.colorScheme.onPrimary,
-              semanticLabel: 'Add a New Event',
-            ),
-            onPressed: _showDialog,
-          ),
-        ],
+        body: TabBarView(
+          children: [
+            MyEventsPage(),
+            AllEventsPage(),
+          ],
+        ),
       ),
     );
   }

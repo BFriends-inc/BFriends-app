@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
@@ -50,18 +51,25 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Forgot Your Password?',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                      AnimatedTextKit(
+                        repeatForever: false,
+                        isRepeatingAnimation: false,
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            '   Forgot Your Password?',
+                            textStyle: TextStyle(
+                              fontSize: 23.0,
+                              fontWeight: FontWeight.w900,
+                              color: theme.colorScheme.primary,
+                            ),
+                            speed: const Duration(milliseconds: 80),
+                          )
+                        ],
                       ),
                       Text(
                         'Enter the email associated with your account',
                         style: TextStyle(
-                          fontSize: 15.0,
+                          fontSize: 13.0,
                           fontWeight: FontWeight.w900,
                           color: theme.colorScheme.onTertiaryContainer,
                         ),
@@ -142,10 +150,32 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               }
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(40),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.hovered)) {
+                                  return theme.colorScheme.secondary;
+                                } else if (states
+                                    .contains(MaterialState.pressed)) {
+                                  return theme.colorScheme.tertiary;
+                                }
+                                return theme.colorScheme.primary;
+                              },
+                            ),
+                            textStyle: MaterialStateProperty.all(
+                              TextStyle(
+                                fontSize: 15.0,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                            ),
+                            padding: MaterialStateProperty.all(
+                              const EdgeInsets.all(15.0),
                             ),
                           ),
                           child: const Text(
