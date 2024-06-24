@@ -8,11 +8,11 @@ class ChatService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   Future<void> init() async {
-    bool _isRequestingPermission = false;
+    bool isRequestingPermission = false;
     debugPrint('Initializing ChatService...');
 
-    if (!_isRequestingPermission) {
-      _isRequestingPermission = true;
+    if (!isRequestingPermission) {
+      isRequestingPermission = true;
 
       try {
         NotificationSettings settings = await _firebaseMessaging.requestPermission();
@@ -31,12 +31,12 @@ class ChatService {
       } catch (e) {
         debugPrint('Error requesting permission or getting token: $e');
       } finally {
-        _isRequestingPermission = false;
+        isRequestingPermission = false;
       }
     }
   }
 
-  Future<void> sendMessage(String chatId, String userId, String message) async {
+  Future<void> sendMessage(String chatId, String userId, String groupName, String message) async {
     DocumentSnapshot<Object?> user = await getUserData(userId);
     await _firestore
         .collection('chats')
@@ -44,6 +44,7 @@ class ChatService {
         .collection('messages')
         .add({
       'userId': userId,
+      'groupName': groupName,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
       'avatarURL': user['avatarURL'] ?? "",

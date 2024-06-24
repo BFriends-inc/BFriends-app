@@ -129,6 +129,7 @@ exports.sendNotificationOnNewMessage = functions.firestore
     const messageData = snapshot.data();
     const messageText = messageData.message;
     const senderId = messageData.userId;
+    const groupName = messageData.groupName;
     const senderSnapshot = await admin.firestore().collection('users').doc(senderId).get();
     const senderUsername = senderSnapshot.data().username;
     const senderAvatarURL = senderSnapshot.data().avatarURL;
@@ -145,7 +146,7 @@ exports.sendNotificationOnNewMessage = functions.firestore
             const response = await admin.messaging().send({
                 token: recipientToken,
                 notification: {
-                    title: `${senderUsername}`,
+                    title: groupName == "" ? `${senderUsername}` : `${groupName} | ${senderUsername}`,
                     body: `${messageText}`,
                     imageUrl: senderAvatarURL,
                 },
