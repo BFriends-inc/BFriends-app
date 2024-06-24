@@ -5,14 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends FormField<XFile?> {
-  final TextEditingController eventNameController;
-
   UserImagePicker({
     super.key,
     required void Function(XFile? pickedImage) onSave,
     required String? Function(XFile? pickedImage) super.validator,
     required BuildContext context,
-    required this.eventNameController,
   }) : super(
           onSaved: onSave,
           initialValue: null,
@@ -39,9 +36,7 @@ class UserImagePicker extends FormField<XFile?> {
                     ImageGenerationService();
                 final generatedImage = await imageGenerationService
                     .generateImage("Dog riding a rocket!");
-                final eventName = eventNameController.text;
-                ImageGenerationService imageGenerationService = ImageGenerationService();
-                final generatedImage = await imageGenerationService.generateImage(eventName);
+
                 if (generatedImage != null) {
                   state.didChange(generatedImage);
                 }
@@ -182,8 +177,6 @@ class UserImagePicker extends FormField<XFile?> {
     }
 
     String path = state.value!.path;
-    
-    debugPrint('Loading image from path: $path');
 
     if (path.startsWith('http') || path.startsWith('https')) {
       return NetworkImage(path);

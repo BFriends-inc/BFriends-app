@@ -6,11 +6,6 @@ import 'package:flutter/material.dart';
 class UserModel {
   UserModel({
     this.firebaseUser,
-import 'package:firebase_auth/firebase_auth.dart';
-
-class UserModel {
-  UserModel({
-    required this.firebaseUser,
     required this.id,
     required this.email,
     required this.joinDate,
@@ -23,8 +18,6 @@ class UserModel {
     required this.requests,
     required this.favorite,
     required this.block,
-    required this.status,
-    required this.aboutMe
   });
 
   User? firebaseUser;

@@ -12,7 +12,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -45,6 +44,7 @@ class AuthService extends ChangeNotifier {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
+
       debugPrint('Fetching user data for $uid');
       debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
@@ -63,14 +63,11 @@ class AuthService extends ChangeNotifier {
           requesting: doc['requesting'],
           favorite: doc['favorite'],
           block: doc['block'],
-          status: doc['status'],
-          aboutMe: doc['aboutMe'],
         );
       }
     } catch (e) {
       debugPrint("Error fetching user data: $e");
     }
-    return null;
   }
 
   Future<List<UserModel>> searchUsers(String query, String? username) async {
@@ -256,7 +253,7 @@ class AuthService extends ChangeNotifier {
     debugPrint("signing out from ${_user!.email}");
     await _auth.signOut();
     _user = null;
-    notifyListeners();
+    //notifyListeners();
   }
 
   Future<int> sendVerificationCode(String email) async {
@@ -342,16 +339,6 @@ class AuthService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error resetting password: $e');
       return 500;
-    }
-  }
-
-  Future<void> updateUserFcmToken(String userId, String token) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'fcmToken': token,
-      });
-    } catch (e) {
-      debugPrint('Error updating FCM token: $e');
     }
   }
 }

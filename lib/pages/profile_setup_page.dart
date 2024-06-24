@@ -145,8 +145,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'requesting': [],
       'favorite': [],
       'blocked': [],
-      'status': '',
-      'aboutMe': '',
     });
     final nav = Provider.of<NavigationService>(context, listen: false);
     nav.goHome(tab: NavigationTabs.home);
@@ -156,8 +154,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
 
     return Scaffold(
       appBar: AppBar(
