@@ -218,7 +218,7 @@ class EventService {
       debugPrint("Event updated successfully");
     } catch (e) {
       debugPrint("Error updating event: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -246,3 +246,4 @@ class EventService {
     }
   }
 }
+

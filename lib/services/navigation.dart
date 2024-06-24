@@ -5,6 +5,9 @@
 ////////////////////////////////////////
 //import 'dart:js';
 
+import 'dart:isolate';
+
+import 'package:bfriends_app/pages/accept_friend.dart';
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:bfriends_app/pages/meta_feature_page.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
@@ -14,7 +17,6 @@ import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation_path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:bfriends_app/pages/notification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -51,15 +53,17 @@ final routerConfig = GoRouter(
         routes: [
           GoRoute(
             path: 'notification',
-            builder: (context, state) => const NotificationPage(),
+            builder: (context, state) => const AcceptFriendPage(),
           ),
         ],
       ),
       GoRoute(
-          path: '/friends_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.friends),
-              )),
+        path: '/friends_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+          child: HomePage(selectedTabs: NavigationTabs.friends),
+        ),
+        routes: friendRoute,
+      ),
       GoRoute(
           path: '/events_page',
           pageBuilder: (context, state) => const NoTransitionPage<void>(
@@ -163,6 +167,19 @@ class NavigationService {
 
   /// Show meta functions in profile page
   void pushPageOnProfile({
+    required BuildContext context,
+    required String destination,
+  }) {
+    var path = _currentPath(context);
+    try {
+      _router.go('$path/$destination');
+    } on Exception catch (e) {
+      debugPrint('Cannot push $destination on the path: $path');
+      debugPrint(e.toString());
+    }
+  }
+
+  void pushPageOnPage({
     required BuildContext context,
     required String destination,
   }) {

@@ -9,6 +9,8 @@ import 'package:bfriends_app/theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:bfriends_app/services/map_controller_service.dart';
+import 'package:bfriends_app/pages/friends_page.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

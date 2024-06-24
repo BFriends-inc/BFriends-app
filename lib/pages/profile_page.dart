@@ -17,7 +17,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,6 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final nav = Provider.of<NavigationService>(context, listen: false);
     final user = authService.user;
     double width = MediaQuery.of(context).size.width;
+    debugPrint(user?.username ?? 'NULL');
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -50,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: Align(
         alignment: Alignment.topCenter,
         //user's profiles displayed here.
-        child: user != null 
+        child: user != null
             ? Container(
                 width: width,
                 alignment: Alignment.topCenter,
@@ -83,14 +83,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    user.username ?? '',
+                                    user.username!,
                                     style: theme.textTheme.headlineSmall,
                                   ),
                                   const SizedBox(
                                     height: 10.0,
                                   ),
                                   Text(
-                                    user.status ?? '',
+                                    'Anything.',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],
@@ -119,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: theme.textTheme.bodyMedium,
                                 ),
                                 Text(
-                                  user.aboutMe ?? '',
+                                  'About me mvlajkljdklajd',
                                   style: theme.textTheme.bodySmall,
                                 ),
                                 const SizedBox(
@@ -148,16 +148,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                     //   text: 'Edit My Profile',
                                     //   tapDestination: 'edit_profile',
                                     // )
-                                     GestureDetector(
+                                    GestureDetector(
                                       onTap: () {
                                         debugPrint("Bar button pressed.");
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const ProfileEditScreen()),
                                         ).then((_) {
-                                          Future.delayed(Duration(seconds: 1), () {
-                                          setState(() {
-                                            debugPrint("State updated with new message after delay");
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            setState(() {
+                                              debugPrint(
+                                                  "State updated with new message after delay");
+                                            });
                                           });
-                                        });
                                         });
                                         // final nav =
                                         //     Provider.of<NavigationService>(
@@ -224,10 +230,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             title: 'My Interests',
                             count: user.listInterest!.length.toString(),
                           ),
-                       ]),
+                        ]),
                       ),
-                     ],
-                   ),
+                    ],
+                  ),
                 ),
               )
             : const Center(child: Text('Fetching user data...')),
