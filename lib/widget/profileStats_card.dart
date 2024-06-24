@@ -1,7 +1,9 @@
-import 'package:bfriends_app/services/auth_service.dart';
+import 'package:bfriends_app/pages/profile_setup_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:bfriends_app/pages/edit_profile_page.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:bfriends_app/services/auth_service.dart';
 
 class StatsCard extends StatefulWidget {
   const StatsCard({
@@ -19,12 +21,12 @@ class StatsCard extends StatefulWidget {
 }
 
 class _StatsCardState extends State<StatsCard> {
-  void _openCardOverlay(String info, String mode) {
+  void _openCardOverlay(String info, String mode){
     showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (ctx) =>
-            (mode == 'show') ? ShowInfo(info: info) : EditInfo(info: info));
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => (mode == 'show') ? ShowInfo(info: info) : EditInfo(info: info)
+    );
   }
 
   @override
@@ -32,15 +34,12 @@ class _StatsCardState extends State<StatsCard> {
     final theme = Theme.of(context);
     return GestureDetector(
       onTap: () {
-        if (widget.title == 'My Preferred Languages') {
-          _openCardOverlay('language', 'show');
-        } else if (widget.title == 'My Interests') {
-          _openCardOverlay('interest', 'show');
-        } else if (widget.title == 'Edit My Interests') {
-          _openCardOverlay('interest', 'edit');
-        } else if (widget.title == 'Edit My Preferred Languages') {
-          _openCardOverlay('language', 'edit');
+        if(widget.title == 'My Preferred Languages'){
+            _openCardOverlay('language', 'show');
         }
+        else if(widget.title == 'My Interests') {_openCardOverlay('interest', 'show');}
+        else if(widget.title == 'Edit My Interests') {_openCardOverlay('interest', 'edit');}
+        else if(widget.title == 'Edit My Preferred Languages') {_openCardOverlay('language', 'edit');}
         debugPrint('card pressed');
       },
       child: Container(
@@ -90,7 +89,7 @@ class _StatsCardState extends State<StatsCard> {
   }
 }
 
-class ShowInfo extends StatefulWidget {
+class ShowInfo extends StatefulWidget{
   const ShowInfo({super.key, required this.info});
 
   final String info;
@@ -99,81 +98,48 @@ class ShowInfo extends StatefulWidget {
   State<ShowInfo> createState() => _ShowInfoState();
 }
 
-class _ShowInfoState extends State<ShowInfo> {
-  bool _isPressed = false;
-
-  void _onDonePressed() {
-    setState(() {
-      _isPressed = true;
-    });
-    Future.delayed(const Duration(milliseconds: 200), () {
-      context.pop();
-    });
-  }
-
+class _ShowInfoState extends State<ShowInfo>{
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final theme = Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.user;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, 48, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            (widget.info == 'language')
-                ? 'Your Preferred Languages:'
-                : 'Your Interests',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            (widget.info == 'language') ? 'Your Preferred Languages:' : 'Your Interests',
+            style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20,),
           Expanded(
-            child: SizedBox(
-              height: 200,
-              child: ListView.builder(
-                  itemCount: (widget.info == 'language')
-                      ? user?.listLanguage?.length ?? 0
-                      : user?.listInterest?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Icon(
-                        Icons.check,
-                        color: theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        (widget.info == 'language')
-                            ? user?.listLanguage![index].toString() ?? ''
-                            : user?.listInterest![index].toString() ?? '',
-                        style: theme.textTheme.headlineSmall,
-                      ),
-                    );
-                  }),
-            ),
+            child: SizedBox(height: 200,
+            child: ListView.builder(
+              itemCount: (widget.info == 'language') ? user?.listLanguage?.length ?? 0 : user?.listInterest?.length ?? 0,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    (widget.info == 'language') ? user?.listLanguage![index].toString() ?? '' : user?.listInterest![index].toString() ?? '',
+                    style: theme.textTheme.headlineLarge,
+                  ),
+                );
+              }
+            ),),
           ),
           const Spacer(),
           Align(
             alignment: Alignment.bottomRight,
             child: SizedBox(
               width: double.infinity,
-              child: AnimatedScale(
-                scale: _isPressed ? 0.9 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: ElevatedButton(
-                  onPressed: _onDonePressed,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  child: const Text('Done'),
-                ),
+              child: ElevatedButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text('Done'),
               ),
             ),
           )
@@ -183,7 +149,7 @@ class _ShowInfoState extends State<ShowInfo> {
   }
 }
 
-class EditInfo extends StatefulWidget {
+class EditInfo extends StatefulWidget{
   const EditInfo({super.key, required this.info});
 
   final String info;
@@ -192,81 +158,49 @@ class EditInfo extends StatefulWidget {
   State<EditInfo> createState() => _EditInfoState();
 }
 
-class _EditInfoState extends State<EditInfo> {
-  bool _isPressed = false;
-
-  void _onDonePressed() {
-    setState(() {
-      _isPressed = true;
-    });
-    Future.delayed(const Duration(milliseconds: 200), () {
-      context.pop();
-    });
-  }
+class _EditInfoState extends State<EditInfo>{
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final theme = Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
     final user = authService.user;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, 48, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            (widget.info == 'language')
-                ? 'Your Preferred Languages:'
-                : 'Your Interests',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            (widget.info == 'language') ? 'Your Preferred Languages:' : 'Your Interests',
+            style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20,),
           Expanded(
-            child: SizedBox(
-              height: 200,
-              child: ListView.builder(
-                  itemCount: (widget.info == 'language')
-                      ? user?.listLanguage?.length ?? 0
-                      : user?.listInterest?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Icon(
-                        Icons.edit,
-                        color: theme.colorScheme.primary,
-                      ),
-                      title: Text(
-                        (widget.info == 'language')
-                            ? user?.listLanguage![index].toString() ?? ''
-                            : user?.listInterest![index].toString() ?? '',
-                        style: theme.textTheme.headlineSmall,
-                      ),
-                    );
-                  }),
-            ),
+            child: SizedBox(height: 200,
+            child: ListView.builder(
+              itemCount: (widget.info == 'language') ? user?.listLanguage?.length ?? 0 : user?.listInterest?.length ?? 0,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    (widget.info == 'language') ? user?.listLanguage![index].toString() ?? '' : user?.listInterest![index].toString() ?? '',
+                    style: theme.textTheme.headlineLarge,
+                  ),
+                );
+              }
+            ),),
           ),
           const Spacer(),
           Align(
             alignment: Alignment.bottomRight,
             child: SizedBox(
               width: double.infinity,
-              child: AnimatedScale(
-                scale: _isPressed ? 0.9 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: ElevatedButton(
-                  onPressed: _onDonePressed,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  child: const Text('Done'),
-                ),
+              child: ElevatedButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text('Done'),
               ),
             ),
           )
