@@ -10,6 +10,8 @@ class UserModel {
     required this.avatarURL,
     required this.listLanguage,
     required this.listInterest,
+    required this.status,
+    required this.aboutMe
   });
 
   User? firebaseUser;

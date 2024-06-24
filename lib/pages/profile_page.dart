@@ -90,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     height: 10.0,
                                   ),
                                   Text(
-                                    user.status.toString(),
+                                    user.status ?? '',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],

@@ -56,6 +56,8 @@ class AuthService extends ChangeNotifier {
           avatarURL: doc['avatarURL'],
           listLanguage: doc['languages'],
           listInterest: doc['hobbies'],
+          status: doc['status'],
+          aboutMe: doc['aboutMe'],
         );
       }
     } catch (e) {
