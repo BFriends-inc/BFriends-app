@@ -143,8 +143,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'friends': [], //new user do not have any friends yet
       'requests': [],
       'requesting': [],
-      'favorite': [],
-      'blocked': [],
     });
     final nav = Provider.of<NavigationService>(context, listen: false);
     nav.goHome(tab: NavigationTabs.home);

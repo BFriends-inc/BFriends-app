@@ -10,7 +10,8 @@ class Friend {
   bool favorite;
   bool block;
   Friend(
-      {required this.id,
+      {
+      required this.id,
       required this.username,
       required this.imagePath,
       this.languages,

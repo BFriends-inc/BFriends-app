@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';
 
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
@@ -61,8 +60,6 @@ class AuthService extends ChangeNotifier {
           friends: doc['friends'],
           requests: doc['requests'],
           requesting: doc['requesting'],
-          favorite: doc['favorite'],
-          block: doc['block'],
         );
       }
     } catch (e) {
@@ -153,8 +150,8 @@ class AuthService extends ChangeNotifier {
         imagePath: friendDoc['avatarURL'].toString(),
         languages: friendDoc['languages'],
         interests: friendDoc['hobbies'],
-        favorite: _user!.favorite!.contains(friendUserId),
-        block: _user!.block!.contains(friendUserId));
+        favorite: false,
+        block: false);
   }
 
   Future<User?> signIn(String email, String password) async {

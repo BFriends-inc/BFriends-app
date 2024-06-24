@@ -126,7 +126,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                 height: MediaQuery.of(context).size.height / 1.9,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(widget.friend.imagePath),
+                    image: AssetImage(widget.friend.imagePath),
                     fit: BoxFit.cover,
                   ),
                 ),
