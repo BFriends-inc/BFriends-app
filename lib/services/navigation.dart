@@ -21,87 +21,171 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 //DO: setup routes
-final routerConfig = GoRouter(
-    routes: [
-      GoRoute(
-        path: '/welcome_page',
-        pageBuilder: (context, state) => const NoTransitionPage<void>(
-          child: WelcomeScreen(),
-        ),
-        routes: [
-          GoRoute(
-            path: 'signin',
-            builder: (context, state) => const SignInScreen(),
-            routes: signInRoute,
-          ),
-          GoRoute(
-            path: 'signup',
-            builder: (context, state) => const SignUpScreen(),
-            routes: signUpRoute,
-          )
-        ],
-      ),
-      GoRoute(
-        path: '/home_page',
-        pageBuilder: (context, state) => const NoTransitionPage<void>(
-          child: HomePage(
-            selectedTabs: NavigationTabs.home,
-          ),
-        ),
-        routes: [
-          GoRoute(
-            path: 'notification',
-            builder: (context, state) => const NotificationPage(),
-          ),
-        ],
-      ),
-      GoRoute(
-          path: '/friends_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.friends),
-              )),
-      GoRoute(
-          path: '/events_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.events),
-              )),
-      GoRoute(
-        path: '/profile_page',
-        pageBuilder: (context, state) => const NoTransitionPage<void>(
-          child: HomePage(selectedTabs: NavigationTabs.profile),
-        ),
-        routes: [
-          GoRoute(
-            path: 'meta',
-            builder: (context, state) => const MetaFeatPage(),
-          ),
-        ],
-      )
-    ],
-    initialLocation: '/welcome_page',
-    debugLogDiagnostics: true,
-    redirect: (context, state) {
-      final currentPath = state.uri.path;
+// final routerConfig = GoRouter(
+//     routes: [
+//       GoRoute(
+//         path: '/welcome_page',
+//         pageBuilder: (context, state) => const NoTransitionPage<void>(
+//           child: WelcomeScreen(),
+//         ),
+//         routes: [
+//           GoRoute(
+//             path: 'signin',
+//             builder: (context, state) => const SignInScreen(),
+//             routes: signInRoute,
+//           ),
+//           GoRoute(
+//             path: 'signup',
+//             builder: (context, state) => const SignUpScreen(),
+//             routes: signUpRoute,
+//           )
+//         ],
+//       ),
+//       GoRoute(
+//         path: '/home_page',
+//         pageBuilder: (context, state) => const NoTransitionPage<void>(
+//           child: HomePage(
+//             selectedTabs: NavigationTabs.home,
+//           ),
+//         ),
+//         routes: [
+//           GoRoute(
+//             path: 'notification',
+//             builder: (context, state) => const NotificationPage(),
+//           ),
+//         ],
+//       ),
+//       GoRoute(
+//           path: '/friends_page',
+//           pageBuilder: (context, state) => const NoTransitionPage<void>(
+//                 child: HomePage(selectedTabs: NavigationTabs.friends),
+//               )),
+//       GoRoute(
+//           path: '/events_page',
+//           pageBuilder: (context, state) => const NoTransitionPage<void>(
+//                 child: HomePage(selectedTabs: NavigationTabs.events),
+//               )),
+//       GoRoute(
+//         path: '/profile_page',
+//         pageBuilder: (context, state) => const NoTransitionPage<void>(
+//           child: HomePage(selectedTabs: NavigationTabs.profile),
+//         ),
+//         routes: [
+//           GoRoute(
+//             path: 'meta',
+//             builder: (context, state) => const MetaFeatPage(),
+//           ),
+//         ],
+//       )
+//     ],
+//     initialLocation: '/welcome_page',
+//     debugLogDiagnostics: true,
+//     redirect: (context, state) {
+//       final currentPath = state.uri.path;
 
-      if (currentPath == '/') {
-        return '/welcome_page';
-      } else if (currentPath == '/home') {
-        return '/home_page';
-      } else if (currentPath == '/friends') {
-        return '/friends_page';
-      } else if (currentPath == '/events') {
-        return '/events_page';
-      } else if (currentPath == '/profile') {
-        return '/profile_page';
-      }
-      // No redirection needed for other routes
-      return null;
-    },
-    errorBuilder: (context, state) => Scaffold(
-          body: Center(
-            child: Text('Page not found: ${state.uri.path}'),
-          ),
-        ));
+//       if (currentPath == '/') {
+//         return '/welcome_page';
+//       } else if (currentPath == '/home') {
+//         return '/home_page';
+//       } else if (currentPath == '/friends') {
+//         return '/friends_page';
+//       } else if (currentPath == '/events') {
+//         return '/events_page';
+//       } else if (currentPath == '/profile') {
+//         return '/profile_page';
+//       }
+//       // No redirection needed for other routes
+//       return null;
+//     },
+//     errorBuilder: (context, state) => Scaffold(
+//           body: Center(
+//             child: Text('Page not found: ${state.uri.path}'),
+//           ),
+//         ));
+final routerConfig = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/welcome_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: WelcomeScreen(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'signin',
+          builder: (context, state) => const SignInScreen(),
+          routes: signInRoute,
+        ),
+        GoRoute(
+          path: 'signup',
+          builder: (context, state) => const SignUpScreen(),
+          routes: signUpRoute,
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/home_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: HomePage(
+          selectedTabs: NavigationTabs.home,
+        ),
+      ),
+      routes: [
+        GoRoute(
+          path: 'notification',
+          builder: (context, state) => const NotificationPage(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/friends_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: HomePage(selectedTabs: NavigationTabs.friends),
+      ),
+    ),
+    GoRoute(
+      path: '/events_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: HomePage(selectedTabs: NavigationTabs.events),
+      ),
+    ),
+    GoRoute(
+      path: '/profile_page',
+      pageBuilder: (context, state) => const NoTransitionPage<void>(
+        child: HomePage(selectedTabs: NavigationTabs.profile),
+      ),
+      routes: [
+        GoRoute(
+          path: 'meta',
+          builder: (context, state) => const MetaFeatPage(),
+        ),
+      ],
+    ),
+  ],
+  initialLocation: '/welcome_page',
+  debugLogDiagnostics: true,
+  redirect: (context, state) {
+    final currentPath = state.uri.path;
+
+    if (currentPath == '/') {
+      return '/welcome_page';
+    } else if (currentPath == '/home') {
+      return '/home_page';
+    } else if (currentPath == '/friends') {
+      return '/friends_page';
+    } else if (currentPath == '/events') {
+      return '/events_page';
+    } else if (currentPath == '/profile') {
+      return '/profile_page';
+    }
+    // No redirection needed for other routes
+    return null;
+  },
+  errorBuilder: (context, state) => Scaffold(
+    body: Center(
+      child: Text('Page not found: ${state.uri.path}'),
+    ),
+  ),
+);
 
 class NavigationService {
   late final GoRouter _router;

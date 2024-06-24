@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:bfriends_app/services/google_auth.dart'; 
+import 'package:bfriends_app/services/google_auth.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -16,11 +16,35 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen>
+    with SingleTickerProviderStateMixin {
   final _formSignInKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool rememberPassword = true;
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 1.0, end: 0.9).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _signInUser(BuildContext context) async {
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -31,7 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
       final nav = Provider.of<NavigationService>(context, listen: false);
       nav.goHome(tab: NavigationTabs.home);
     } else {
-      //error message...
+      // Error message...
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Wrong email or password.')),
@@ -267,9 +291,23 @@ class _SignInScreenState extends State<SignInScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           GestureDetector(
-                            onTap: () => GoogleAuth()
-                                .signInWithGoogle(), // Wrap with GestureDetector and add onTap
-                            child: Logo(Logos.google),
+                            onTapDown: (_) {
+                              _controller.forward();
+                            },
+                            onTapUp: (_) {
+                              _controller.reverse();
+                              GoogleAuth().signInWithGoogle(context);
+                            },
+                            child: AnimatedBuilder(
+                              animation: _controller,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _animation.value,
+                                  child: child,
+                                );
+                              },
+                              child: Logo(Logos.google),
+                            ),
                           ),
                           Logo(Logos.apple),
                         ],

@@ -83,14 +83,15 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   const Expanded(
                     child: SizedBox(
-                      height: 40, // height
+                      height: 50, // height
                       child: WelcomeButton(
                         buttonText: 'Sign in',
                         tapDestination: 'signin',
                         color: Colors.transparent,
                         textColor: Colors.white,
                         // hoverColor: Colors.transparent,
-                        // pressedColor: Colors.grey, // Color when pressed
+                        pressedColor: Color.fromARGB(
+                            255, 255, 255, 255), // Color when pressed
                       ),
                     ),
                   ),
@@ -104,7 +105,8 @@ class WelcomeScreen extends StatelessWidget {
                         color: Colors.white,
                         textColor: theme.colorScheme.primary,
                         hoverColor: const Color.fromARGB(255, 198, 194, 199),
-                        pressedColor: Colors.grey, // Color when pressed
+                        pressedColor: const Color.fromARGB(
+                            255, 198, 194, 199), // Color when pressed
                       ),
                     ),
                   ),
