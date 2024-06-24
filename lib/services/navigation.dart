@@ -5,6 +5,8 @@
 ////////////////////////////////////////
 //import 'dart:js';
 
+import 'dart:isolate';
+
 import 'package:bfriends_app/pages/homepage.dart';
 import 'package:bfriends_app/pages/meta_feature_page.dart';
 import 'package:bfriends_app/pages/signin_page.dart';
@@ -56,10 +58,12 @@ final routerConfig = GoRouter(
         ],
       ),
       GoRoute(
-          path: '/friends_page',
-          pageBuilder: (context, state) => const NoTransitionPage<void>(
-                child: HomePage(selectedTabs: NavigationTabs.friends),
-              )),
+        path: '/friends_page',
+        pageBuilder: (context, state) => const NoTransitionPage<void>(
+          child: HomePage(selectedTabs: NavigationTabs.friends),
+        ),
+        routes: friendRoute,
+      ),
       GoRoute(
           path: '/events_page',
           pageBuilder: (context, state) => const NoTransitionPage<void>(
@@ -163,6 +167,19 @@ class NavigationService {
 
   /// Show meta functions in profile page
   void pushPageOnProfile({
+    required BuildContext context,
+    required String destination,
+  }) {
+    var path = _currentPath(context);
+    try {
+      _router.go('$path/$destination');
+    } on Exception catch (e) {
+      debugPrint('Cannot push $destination on the path: $path');
+      debugPrint(e.toString());
+    }
+  }
+
+  void pushPageOnPage({
     required BuildContext context,
     required String destination,
   }) {

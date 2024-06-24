@@ -1,8 +1,10 @@
+import 'package:bfriends_app/services/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/pages/chat_page.dart';
 import 'package:bfriends_app/pages/friend_detail_page.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -59,6 +61,7 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final nav = Provider.of<NavigationService>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,7 +78,9 @@ class _FriendsPageState extends State<FriendsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_alt_1),
-            onPressed: () {},
+            onPressed: () {
+              nav.pushPageOnPage(context: context, destination: 'add_friend');
+            },
             color: Colors.white,
           ),
         ],
@@ -235,8 +240,8 @@ class _FriendTileState extends State<FriendTile>
       },
       child: Card(
         color: (widget.friend.block == true)
-            ? Color.fromARGB(255, 212, 208, 215)
-            : Color.fromARGB(255, 222, 219, 224),
+            ? const Color.fromARGB(255, 212, 208, 215)
+            : const Color.fromARGB(255, 222, 219, 224),
         margin: const EdgeInsets.symmetric(vertical: 10.0),
         child: ListTile(
           onTap: () {

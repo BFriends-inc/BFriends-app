@@ -68,8 +68,8 @@ class _ProfilePageState extends State<ProfilePage> {
                             width: 100.0,
                             child: ClipOval(
                               clipBehavior: Clip.antiAlias,
-                              child: Image.asset(
-                                'assets/images/BFriends_logo_full.png',
+                              child: Image.network(
+                                user.avatarURL.toString(),
                                 fit: BoxFit.cover,
                               ),
                             ),

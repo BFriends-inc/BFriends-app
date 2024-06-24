@@ -1,3 +1,4 @@
+import 'package:bfriends_app/pages/add_friend.dart';
 import 'package:bfriends_app/pages/edit_profile_page.dart';
 import 'package:bfriends_app/pages/email_verification_page.dart';
 import 'package:bfriends_app/pages/forget_password_page.dart';
@@ -49,5 +50,12 @@ List<RouteBase> profileRoute = [
   GoRoute(
     path: 'edit_profile',
     builder: (context, state) => const ProfileEditScreen(),
+  )
+];
+
+List<RouteBase> friendRoute = [
+  GoRoute(
+    path: 'add_friend',
+    builder: (context, state) => const AddFriendPage(),
   )
 ];

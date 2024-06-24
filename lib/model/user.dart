@@ -10,6 +10,9 @@ class UserModel {
     required this.avatarURL,
     required this.listLanguage,
     required this.listInterest,
+    required this.friends,
+    required this.requesting,
+    required this.requests,
   });
 
   User? firebaseUser;
@@ -18,6 +21,6 @@ class UserModel {
   Object? joinDate;
   String? username;
   final String? avatarURL;
-  final List<dynamic>? listLanguage;
-  final List<dynamic>? listInterest;
+  final List<dynamic>? listLanguage, listInterest;
+  final List<dynamic>? friends, requests, requesting;
 }

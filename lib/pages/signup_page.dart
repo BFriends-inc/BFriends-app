@@ -19,12 +19,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
     //get screen width + height
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
@@ -160,8 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Password';
                           }
-                          return authService
-                              .passwordChecker(passwordController.text);
+                          return authService.passwordChecker(value);
                         },
                         decoration: InputDecoration(
                           label: const Text('Password'),
@@ -200,7 +196,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               value != passwordController.text) {
                             return 'Password does not match. Please try again.';
                           }
-                          return _authService
+                          return authService
                               .passwordChecker(passwordController.text);
                         },
                         decoration: InputDecoration(
