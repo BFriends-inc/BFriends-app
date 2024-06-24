@@ -251,4 +251,14 @@ class AuthService extends ChangeNotifier {
       return 500;
     }
   }
+
+  Future<void> updateUserFcmToken(String userId, String token) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'fcmToken': token,
+      });
+    } catch (e) {
+      debugPrint('Error updating FCM token: $e');
+    }
+  }
 }

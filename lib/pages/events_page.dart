@@ -647,6 +647,7 @@ class _EventsPageState extends State<EventsPage> {
               }
               return EventCard(
                 event: event,
+                currUser: user,
                 userId: user?.uid ?? "No user id",
                 isFull: event['participationList'].length >=
                     int.parse(event['participants']),
@@ -666,6 +667,7 @@ class _EventsPageState extends State<EventsPage> {
               final event = _events[index];
               return EventCard(
                 event: event,
+                currUser: user,
                 userId: user?.uid ?? "No user id",
                 isFull: event['participationList'].length >=
                     int.parse(event['participants']),
