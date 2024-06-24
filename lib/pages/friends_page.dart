@@ -17,20 +17,20 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   List<Friend> friends = [
-    Friend('Kenji', 'assets/images/sports_marker.png', ['English'],
-        ['Trading Cards', 'Football'], false, false),
-    Friend('Ball', 'assets/images/whitelogo.png', ['English', 'ไทย'],
-        ['Trading Cards'], false, false),
-    Friend('Poom', 'assets/images/whitelogo.png', ['English', '中文'],
-        ['Trading Cards', 'Football'], false, false),
-    Friend('Jianna', 'assets/images/sports_marker.png', ['한국어', 'English'],
-        ['Reading', 'Trading Cards'], false, false),
-    Friend('Steph', 'assets/images/sports_marker.png', ['한국어', 'English'],
-        ['Reading', 'Trading Cards'], false, false),
-    Friend('Michael1', 'assets/images/sports_marker.png', ['한국어', 'English'],
-        ['Reading', 'Trading Cards'], false, false),
-    Friend('Michael2', 'assets/images/sports_marker.png', ['한국어', 'English'],
-        ['Reading', 'Trading Cards'], false, false),
+    // Friend('Kenji', 'assets/images/sports_marker.png', ['English'],
+    //     ['Trading Cards', 'Football'], false, false),
+    // Friend('Ball', 'assets/images/whitelogo.png', ['English', 'ไทย'],
+    //     ['Trading Cards'], false, false),
+    // Friend('Poom', 'assets/images/whitelogo.png', ['English', '中文'],
+    //     ['Trading Cards', 'Football'], false, false),
+    // Friend('Jianna', 'assets/images/sports_marker.png', ['한국어', 'English'],
+    //     ['Reading', 'Trading Cards'], false, false),
+    // Friend('Steph', 'assets/images/sports_marker.png', ['한국어', 'English'],
+    //     ['Reading', 'Trading Cards'], false, false),
+    // Friend('Michael1', 'assets/images/sports_marker.png', ['한국어', 'English'],
+    //     ['Reading', 'Trading Cards'], false, false),
+    // Friend('Michael2', 'assets/images/sports_marker.png', ['한국어', 'English'],
+    //     ['Reading', 'Trading Cards'], false, false),
   ];
 
   String selectedCategory = 'Friends';
@@ -52,7 +52,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (searchQuery.isNotEmpty) {
       filteredFriends = filteredFriends
           .where((friend) =>
-              friend.name.toLowerCase().contains(searchQuery.toLowerCase()))
+              friend.username.toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     }
 
@@ -278,7 +278,7 @@ class _FriendTileState extends State<FriendTile>
             ),
           ),
           title: Text(
-            widget.friend.name,
+            widget.friend.username,
             style: const TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -287,9 +287,9 @@ class _FriendTileState extends State<FriendTile>
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.friend.languages.join(', '),
+              Text(widget.friend.languages!.join(', '),
                   style: const TextStyle(fontSize: 13.0)),
-              Text(widget.friend.hobbies.join(', '),
+              Text(widget.friend.interests!.join(', '),
                   style: const TextStyle(fontSize: 13.0)),
             ],
           ),

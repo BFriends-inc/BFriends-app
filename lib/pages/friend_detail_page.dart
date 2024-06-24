@@ -27,8 +27,8 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
           children: [
             Text(
               widget.friend.block
-                  ? 'Unblock ${widget.friend.name}?'
-                  : 'Block ${widget.friend.name}?',
+                  ? 'Unblock ${widget.friend.username}?'
+                  : 'Block ${widget.friend.username}?',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             GestureDetector(
@@ -69,7 +69,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
             ],
             if (widget.friend.block) ...[
               Text(
-                'Are you sure you want to unblock ${widget.friend.name}?',
+                'Are you sure you want to unblock ${widget.friend.username}?',
                 style: const TextStyle(fontSize: 16),
               ),
             ],
@@ -166,7 +166,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                       children: [
                         Text(
                           widget.friend.block
-                              ? '${widget.friend.name} is blocked'
+                              ? '${widget.friend.username} is blocked'
                               : 'NAME',
                           style: const TextStyle(
                               color: Colors.black,
@@ -177,7 +177,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                         Text(
                           widget.friend.block
                               ? 'To view this account\'s information, you\'ll have to unblock first.'
-                              : widget.friend.name,
+                              : widget.friend.username,
                           style: const TextStyle(
                               color: Colors.black, fontSize: 15.0),
                         ),
@@ -193,7 +193,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                         Text(
                           widget.friend.block
                               ? ''
-                              : widget.friend.languages.join(' / '),
+                              : widget.friend.languages!.join(' / '),
                           style: const TextStyle(
                               color: Colors.black, fontSize: 15.0),
                         ),
@@ -209,7 +209,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                         Text(
                           widget.friend.block
                               ? ''
-                              : widget.friend.hobbies.join(' / '),
+                              : widget.friend.interests!.join(' / '),
                           style: const TextStyle(
                               color: Colors.black, fontSize: 15.0),
                         ),

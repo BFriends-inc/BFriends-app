@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/pages/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -94,6 +95,62 @@ class AuthService extends ChangeNotifier {
       'requests': friendRequests,
     });
     _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+  }
+
+  Future<void> removeFriendRequest(
+      String currentUserId, String friendUserId) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(currentUserId).get();
+    DocumentSnapshot friendDoc =
+        await _firestore.collection('users').doc(friendUserId).get();
+    List<dynamic>? userRequests = userDoc['requests'];
+    List<dynamic>? friendRequesting = friendDoc['requesting'];
+    if (userRequests!.isNotEmpty) userRequests.remove(friendUserId);
+    if (friendRequesting!.isNotEmpty) friendRequesting.remove(currentUserId);
+    await _firestore.collection('users').doc(currentUserId).update({
+      'requests': userRequests,
+    });
+    await _firestore.collection('users').doc(friendUserId).update({
+      'requesting': friendRequesting,
+    });
+    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+  }
+
+  Future<void> newFriend(String currentUserId, String friendUserId) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(currentUserId).get();
+    DocumentSnapshot friendDoc =
+        await _firestore.collection('users').doc(friendUserId).get();
+    List<dynamic>? userRequests = userDoc['requests'];
+    List<dynamic>? userFriends = userDoc['friends'];
+    List<dynamic>? friendRequesting = friendDoc['requesting'];
+    List<dynamic>? friendFriends = friendDoc['friends'];
+    if (userRequests!.isNotEmpty) userRequests.remove(friendUserId);
+    userFriends?.add(friendUserId);
+    if (friendRequesting!.isNotEmpty) friendRequesting.remove(currentUserId);
+    friendFriends?.add(currentUserId);
+    await _firestore.collection('users').doc(currentUserId).update({
+      'requests': userRequests,
+      'friends': userFriends,
+    });
+    await _firestore.collection('users').doc(friendUserId).update({
+      'requesting': friendRequesting,
+      'friends': friendFriends,
+    });
+    _fetchUserData(_user!.id.toString(), _user!.firebaseUser!);
+  }
+
+  Future<Friend> fetchFriend(String friendUserId) async {
+    DocumentSnapshot friendDoc =
+        await _firestore.collection('users').doc(friendUserId).get();
+    // if(friendDoc == null) return null;
+    return Friend(
+        username: friendDoc['username'],
+        imagePath: friendDoc['avatarURL'].toString(),
+        languages: friendDoc['languages'],
+        interests: friendDoc['hobbies'],
+        favorite: false,
+        block: false);
   }
 
   Future<User?> signIn(String email, String password) async {

@@ -5,7 +5,7 @@ import 'chat_storage.dart'; // Import your ChatStorage class
 class ChatPage extends StatefulWidget {
   final Friend friend;
 
-  const ChatPage({required this.friend, Key? key}) : super(key: key);
+  const ChatPage({required this.friend, super.key});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -24,7 +24,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _loadMessages() {
     setState(() {
-      _messages.addAll(ChatStorage.getMessages(widget.friend.name));
+      _messages.addAll(ChatStorage.getMessages(widget.friend.username));
     });
   }
 
@@ -32,8 +32,8 @@ class _ChatPageState extends State<ChatPage> {
     if (_controller.text.isNotEmpty) {
       setState(() {
         _messages.add(_controller.text);
-        ChatStorage.addMessage(
-            widget.friend.name, _controller.text); // Save message to storage
+        ChatStorage.addMessage(widget.friend.username,
+            _controller.text); // Save message to storage
         _controller.clear();
       });
       _scrollToBottom();
@@ -116,7 +116,7 @@ class _ChatPageState extends State<ChatPage> {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: widget.friend.name,
+                    text: widget.friend.username,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
