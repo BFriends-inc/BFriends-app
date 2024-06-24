@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 class AuthService extends ChangeNotifier {
   UserModel? _user; //user information shall be stored here...
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,6 +24,7 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _authStateChanged(User? firebaseUser) async {
     debugPrint(firebaseUser.toString());
+
     /// Handle changes during Sign-in / Sign-out ///
     if (firebaseUser == null) {
       _user = null;
@@ -42,7 +42,7 @@ class AuthService extends ChangeNotifier {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
-      
+
       debugPrint('Fetching user data for $uid');
       debugPrint('Data: ${doc.data()}');
       if (doc['email'] != null) {
@@ -112,14 +112,13 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> storeAdditionalUserData(
-    User? user,
-    Map<String, dynamic> additionalData
-    ) async {
+      User? user, Map<String, dynamic> additionalData) async {
     String? avatarURL;
 
     if (user != null) {
       if (additionalData['userImage'] != null) {
-        final storageRef = _storage.ref().child('userImages').child('${user.uid}.jpg');
+        final storageRef =
+            _storage.ref().child('userImages').child('${user.uid}.jpg');
         await storageRef.putFile(File(additionalData['userImage'].path));
         avatarURL = await storageRef.getDownloadURL();
       }

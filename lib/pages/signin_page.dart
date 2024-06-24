@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:bfriends_app/services/google_auth.dart'; 
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key}); // fix super key
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -22,8 +23,7 @@ class _SignInScreenState extends State<SignInScreen> {
   bool rememberPassword = true;
 
   void _signInUser(BuildContext context) async {
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     User? user = await authService.signIn(
         _usernameController.text.trim(), _passwordController.text);
     if (user != null) {
@@ -266,7 +266,11 @@ class _SignInScreenState extends State<SignInScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Logo(Logos.google),
+                          GestureDetector(
+                            onTap: () => GoogleAuth()
+                                .signInWithGoogle(), // Wrap with GestureDetector and add onTap
+                            child: Logo(Logos.google),
+                          ),
                           Logo(Logos.apple),
                         ],
                       ),

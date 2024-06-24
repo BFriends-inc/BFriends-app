@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:bfriends_app/widget/custom_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:bfriends_app/services/google_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,8 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     final theme = Theme.of(context);
     final nav = Provider.of<NavigationService>(context, listen: false);
     //get screen width + height
@@ -355,7 +355,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Logo(Logos.google),
+                          GestureDetector(
+                            onTap: () => GoogleAuth()
+                                .signInWithGoogle(), // Wrap with GestureDetector and add onTap
+                            child: Logo(Logos.google),
+                          ),
                           Logo(Logos.apple),
                         ],
                       ),
