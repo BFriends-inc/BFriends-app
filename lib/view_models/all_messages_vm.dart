@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:bfriends_app/models/message.dart';
+import 'package:bfriends_app/model/message.dart';
 import 'package:bfriends_app/repositories/message_repo.dart';
 
 class AllMessagesViewModel with ChangeNotifier {

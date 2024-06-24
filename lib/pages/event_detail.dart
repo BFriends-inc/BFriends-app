@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:bfriends_app/model/user.dart';
+import 'package:bfriends_app/pages/chat_screen.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -14,9 +16,11 @@ import 'package:http/http.dart' as http;
 
 class EventDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> event;
+  final User? currUser;
 
   EventDetailsScreen({
     required this.event,
+    required this.currUser,
   });
 
   @override
@@ -361,17 +365,31 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     children: [
                       _buildActionButton(
                           context, 'Cancel Event', Colors.grey, _cancelEvent),
-                      _buildActionButton(context, 'Chat', Colors.blue, () {}),
+                      _buildActionButton(context, 'Chat', Colors.blue, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GroupChatScreen(event: widget.event, currUser: widget.currUser),
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 )
-              else
+              else if (participantsList.keys.contains(user?.uid))
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildActionButton(context, 'Chat', Colors.blue, () {}),
+                      _buildActionButton(context, 'Chat', Colors.blue, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GroupChatScreen(event: widget.event, currUser: widget.currUser,),
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -533,7 +551,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 Checkbox(
                   value: isConfirmed,
                   onChanged: (isChecked) {
-                    if (widget.event['ownerId'] == FirebaseAuth.instance.currentUser?.uid) {
+                    if (widget.event['ownerId'] ==
+                        widget.currUser?.uid) {
                       onChecked();
                     }
                   },

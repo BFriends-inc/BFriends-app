@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:bfriends_app/models/message.dart';
+import 'package:bfriends_app/model/message.dart';
 
 class MessageRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

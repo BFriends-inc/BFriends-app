@@ -1,11 +1,13 @@
 import 'package:bfriends_app/pages/event_detail.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class EventCard extends StatelessWidget {
   final Map<String, dynamic> event;
+  final User? currUser;
   final bool isFull;
   final String userId;
   final bool isHosted;
@@ -13,6 +15,7 @@ class EventCard extends StatelessWidget {
 
   EventCard({
     required this.event,
+    required this.currUser,
     required this.userId,
     required this.isFull,
     required this.isHosted,
@@ -32,6 +35,7 @@ class EventCard extends StatelessWidget {
     final Map<String, dynamic> participantsList = event['participationList'];
     final participants = event['participationList'].length.toString();
     final maxParticipants = event['participants'] ?? "No limit specified";
+    final currentUser = currUser;
     
     return GestureDetector(
       onTap: () {
@@ -40,6 +44,7 @@ class EventCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => EventDetailsScreen(
               event: event,
+              currUser: currUser,
             ),
           ),
         );
