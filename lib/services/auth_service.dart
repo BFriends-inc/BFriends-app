@@ -66,6 +66,35 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<List<UserModel>> searchUsers(String query, String? username) async {
+    final snapshot = await _firestore
+        .collection('users')
+        .where('username', isGreaterThanOrEqualTo: query)
+        .where('username', isLessThanOrEqualTo: '$query\uf8ff')
+        .where('username', isNotEqualTo: username)
+        .get();
+
+    return snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
+  }
+
+  Future<void> sendFriendRequest(
+      String currentUserId, String friendUserId) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(currentUserId).get();
+    DocumentSnapshot friendDoc =
+        await _firestore.collection('users').doc(friendUserId).get();
+    List<dynamic>? userRequesting = userDoc['requesting'];
+    List<dynamic>? friendRequests = friendDoc['requests'];
+    userRequesting?.add(friendUserId);
+    friendRequests?.add(currentUserId);
+    await _firestore.collection('users').doc(currentUserId).update({
+      'requesting': userRequesting,
+    });
+    await _firestore.collection('users').doc(friendUserId).update({
+      'requests': friendRequests,
+    });
+  }
+
   Future<User?> signIn(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
