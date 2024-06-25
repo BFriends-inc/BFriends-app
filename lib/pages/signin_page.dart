@@ -22,8 +22,7 @@ class _SignInScreenState extends State<SignInScreen> {
   bool rememberPassword = true;
 
   void _signInUser(BuildContext context) async {
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     User? user = await authService.signIn(
         _usernameController.text.trim(), _passwordController.text);
     if (user != null) {
@@ -229,47 +228,47 @@ class _SignInScreenState extends State<SignInScreen> {
                       const SizedBox(
                         height: 25.0,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              thickness: 0.7,
-                              color: theme.colorScheme.outlineVariant
-                                  .withOpacity(0.5),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 0,
-                              horizontal: 10,
-                            ),
-                            child: Text(
-                              'Sign in with',
-                              style: TextStyle(
-                                color: Colors.black45,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              thickness: 0.7,
-                              color: theme.colorScheme.outlineVariant
-                                  .withOpacity(0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 25.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Logo(Logos.google),
-                          Logo(Logos.apple),
-                        ],
-                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: [
+                      //     Expanded(
+                      //       child: Divider(
+                      //         thickness: 0.7,
+                      //         color: theme.colorScheme.outlineVariant
+                      //             .withOpacity(0.5),
+                      //       ),
+                      //     ),
+                      //     const Padding(
+                      //       padding: EdgeInsets.symmetric(
+                      //         vertical: 0,
+                      //         horizontal: 10,
+                      //       ),
+                      //       child: Text(
+                      //         'Sign in with',
+                      //         style: TextStyle(
+                      //           color: Colors.black45,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: Divider(
+                      //         thickness: 0.7,
+                      //         color: theme.colorScheme.outlineVariant
+                      //             .withOpacity(0.5),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // const SizedBox(
+                      //   height: 25.0,
+                      // ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //   children: [
+                      //     Logo(Logos.google),
+                      //     Logo(Logos.apple),
+                      //   ],
+                      // ),
                       const SizedBox(
                         height: 25.0,
                       ),

@@ -250,7 +250,9 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                       child: Text(
                         widget.friend.block
                             ? 'Currently blocked'
-                            : widget.friend.aboutMe ?? 'This friend hasn\'t written anything yet', 
+                            : widget.friend.aboutMe == null
+                                ? 'This friend hasn\'t written anything yet'
+                                : widget.friend.aboutMe!,
                         style: const TextStyle(
                             color: Colors.black, fontSize: 20.0),
                       ),

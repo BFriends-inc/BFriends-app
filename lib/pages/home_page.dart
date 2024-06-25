@@ -33,28 +33,28 @@ class MapPageState extends State<MapPage>
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(40.0),
-        child: AppBar(
-          backgroundColor: theme.colorScheme.primary,
-          centerTitle: true,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.notifications_outlined,
-                color: theme.colorScheme.onPrimary,
-                semanticLabel: 'Notifications',
-              ),
-              onPressed: () {
-                //context.pop();
-                final nav =
-                    Provider.of<NavigationService>(context, listen: false);
-                nav.goNotification(context: context);
-              },
-            ),
-          ],
-        ),
-      ),
+      // appBar: PreferredSize(
+      //   preferredSize: const Size.fromHeight(40.0),
+      //   child: AppBar(
+      //     backgroundColor: theme.colorScheme.primary,
+      //     centerTitle: true,
+      //     // actions: <Widget>[
+      //     //   // IconButton(
+      //     //   //   icon: Icon(
+      //     //   //     Icons.notifications_outlined,
+      //     //   //     color: theme.colorScheme.onPrimary,
+      //     //   //     semanticLabel: 'Notifications',
+      //     //   //   ),
+      //     //   //   onPressed: () {
+      //     //   //     //context.pop();
+      //     //   //     final nav =
+      //     //   //         Provider.of<NavigationService>(context, listen: false);
+      //     //   //     nav.goNotification(context: context);
+      //     //   //   },
+      //     //   // ),
+      //     // ],
+      //   ),
+      // ),
       body: mapControllerService.currentPosition == null
           ? const Center(child: Text('Fetching map...'))
           : Stack(

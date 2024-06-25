@@ -75,7 +75,7 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-    Future<UserModel?> fetchUserModelData(String uid, User firebaseUser) async {
+  Future<UserModel?> fetchUserModelData(String uid, User firebaseUser) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('users').doc(uid).get();
@@ -188,7 +188,10 @@ class AuthService extends ChangeNotifier {
       'participants': [currentUserId, friendUserId],
       'createdAt': FieldValue.serverTimestamp(),
     };
-    await _firestore.collection('relationships').doc(relationshipId).set(relationshipData);
+    await _firestore
+        .collection('relationships')
+        .doc(relationshipId)
+        .set(relationshipData);
 
     // Add relationshipId to each user's document
     await _firestore.collection('users').doc(currentUserId).update({
