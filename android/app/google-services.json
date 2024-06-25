@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997487712381",
+    "project_id": "bfriend-dev",
+    "storage_bucket": "bfriend-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997487712381:android:92fe6c4d5bd38609daf914",
+        "android_client_info": {
+          "package_name": "com.example.bfriends_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiYYYNJ8zYfeFpxJ3FasypDMvcZa4JJzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

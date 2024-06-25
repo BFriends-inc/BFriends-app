@@ -1,5 +1,8 @@
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -64,4 +67,4 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0'}
