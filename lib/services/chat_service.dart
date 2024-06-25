@@ -8,14 +8,15 @@ class ChatService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   Future<void> init() async {
-    bool isRequestingPermission = false;
+    bool _isRequestingPermission = false;
     debugPrint('Initializing ChatService...');
 
-    if (!isRequestingPermission) {
-      isRequestingPermission = true;
+    if (!_isRequestingPermission) {
+      _isRequestingPermission = true;
 
       try {
-        NotificationSettings settings = await _firebaseMessaging.requestPermission();
+        NotificationSettings settings =
+            await _firebaseMessaging.requestPermission();
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           debugPrint('User granted permission');
 
@@ -31,15 +32,16 @@ class ChatService {
       } catch (e) {
         debugPrint('Error requesting permission or getting token: $e');
       } finally {
-        isRequestingPermission = false;
+        _isRequestingPermission = false;
       }
     }
   }
 
-  Future<void> sendMessage(String chatId, String userId, String groupName, String message) async {
+  Future<void> sendGroupMessage(
+      String chatId, String userId, String groupName, String message) async {
     DocumentSnapshot<Object?> user = await getUserData(userId);
     await _firestore
-        .collection('chats')
+        .collection('groupChats')
         .doc(chatId)
         .collection('messages')
         .add({
@@ -52,9 +54,34 @@ class ChatService {
     });
   }
 
-  Stream<QuerySnapshot> getMessages(String chatId) {
+  Future<void> sendPrivateMessage(
+      String chatId, String userId, String message) async {
+    DocumentSnapshot<Object?> user = await getUserData(userId);
+    await _firestore
+        .collection('privateChats')
+        .doc(chatId)
+        .collection('messages')
+        .add({
+      'userId': userId,
+      'message': message,
+      'timestamp': FieldValue.serverTimestamp(),
+      'avatarURL': user['avatarURL'] ?? "",
+      'username': user['username'] ?? "",
+    });
+  }
+
+  Stream<QuerySnapshot> getGroupMessages(String chatId) {
     return _firestore
-        .collection('chats')
+        .collection('groupChats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+  Stream<QuerySnapshot> getPrivateMessages(String chatId) {
+    return _firestore
+        .collection('privateChats')
         .doc(chatId)
         .collection('messages')
         .orderBy('timestamp', descending: true)
@@ -81,5 +108,20 @@ class ChatService {
       debugPrint('Error saving FCM token to Firestore: $e');
       rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> getRelationshipData(
+      String relationshipId) async {
+    final doc =
+        await _firestore.collection('relationships').doc(relationshipId).get();
+    return doc.data()!;
+  }
+
+  Stream<List<Map<String, dynamic>>> getUserRelationships(String userId) {
+    return _firestore
+        .collection('relationships')
+        .where('participants', arrayContains: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 }

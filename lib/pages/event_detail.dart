@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:bfriends_app/model/user.dart';
-import 'package:bfriends_app/pages/chat_screen.dart';
+import 'package:bfriends_app/pages/group_chat_screen.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -435,7 +435,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     if(user != null && user.firebaseUser != null) {
       if (participantsList.keys.contains(hostId)) {
-        UserModel? hostDetails = await authService.fetchUserData(hostId, user.firebaseUser!);
+        UserModel? hostDetails = await authService.fetchUserModelData(hostId, user.firebaseUser!);
         String hostName = hostDetails?.username ?? "Host";
         String hostImageUrl = hostDetails?.avatarURL ?? "";
         participantsWidgets.add(_buildParticipantRow(
@@ -451,7 +451,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         if (entry.key != hostId) {
           String uid = entry.key;
           var participant = entry.value;
-          UserModel? userDetails = await authService.fetchUserData(uid, user.firebaseUser!);
+          UserModel? userDetails = await authService.fetchUserModelData(uid, user.firebaseUser!);
           debugPrint(userDetails.toString());
           String name = userDetails?.username ?? "Unknown";
           bool isHost = widget.event['ownerId'] == uid;

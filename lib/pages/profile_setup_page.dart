@@ -130,8 +130,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   void _registerUser() async {
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
     User? user = await authService.signUp(
         widget.userInfo['email']!, widget.userInfo['password']!);
     await authService.storeAdditionalUserData(user, {
@@ -141,8 +140,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       'languages': _selectedItems,
       'hobbies': _selectedHobbies,
       'userImage': _selectedImage,
-      'status': '',
-      'aboutMe': '',
+      'friends': [], //new user do not have any friends yet
+      'requests': [],
+      'requesting': [],
+      'favorite': [],
+      'block': [],
     });
     final nav = Provider.of<NavigationService>(context, listen: false);
     nav.goHome(tab: NavigationTabs.home);
@@ -151,8 +153,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authService = Provider.of<AuthService>(context,
-        listen: false);
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(

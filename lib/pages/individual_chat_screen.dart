@@ -1,3 +1,4 @@
+import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/services/chat_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,18 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-class GroupChatScreen extends StatefulWidget {
+class IndividualChatScreen extends StatefulWidget {
   final Map<String, dynamic> event;
   final User? currUser;
+  final Friend? friend;
 
-  const GroupChatScreen({Key? key, required this.event, required this.currUser})
+  const IndividualChatScreen({Key? key, required this.event, required this.currUser, required this.friend})
       : super(key: key);
 
   @override
-  _GroupChatScreenState createState() => _GroupChatScreenState();
+  _IndividualChatScreenState createState() => _IndividualChatScreenState();
 }
 
-class _GroupChatScreenState extends State<GroupChatScreen> {
+class _IndividualChatScreenState extends State<IndividualChatScreen> {
   final ChatService _chatService = ChatService();
   final TextEditingController _messageController = TextEditingController();
   late String chatId;
@@ -24,7 +26,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   @override
   void initState() {
     super.initState();
-    chatId = widget.event['eventId'];
+    chatId = widget.event['relationshipId'];
   }
 
   @override
@@ -32,15 +34,15 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     debugPrint(widget.event.toString());
     return Scaffold(
       appBar: AppBar(
-        title: widget.event['eventName'] != null
-            ? Text(widget.event['eventName'])
-            : const Text('Group Chat'),
+        title: widget.friend?.username != null
+            ? Text(widget.friend!.username)
+            : const Text('Individual Chat'),
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _chatService.getMessages(chatId),
+              stream: _chatService.getPrivateMessages(chatId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -84,10 +86,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   onPressed: () {
                     if (widget.currUser != null &&
                         _messageController.text.isNotEmpty) {
-                      _chatService.sendMessage(
-                          chatId,
-                          widget.currUser!.uid,
-                          widget.event['eventName'] ?? "",
+                      _chatService.sendPrivateMessage(chatId, widget.currUser!.uid,
                           _messageController.text);
                       _messageController.clear();
                     } else {

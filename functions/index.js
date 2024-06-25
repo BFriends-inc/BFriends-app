@@ -119,8 +119,8 @@ async function checkIfEmailExists(email) {
     }
 }
 
-exports.sendNotificationOnNewMessage = functions.firestore
-  .document('chats/{eventId}/messages/{messageId}')
+exports.sendNotificationOnNewGroupMessage = functions.region('asia-east1').firestore
+  .document('groupChats/{eventId}/messages/{messageId}')
   .onCreate(async (snapshot, context) => {
     const eventId = context.params.eventId;
     const eventData = (await admin.firestore().collection('events').doc(eventId).get()).data();
@@ -159,6 +159,48 @@ exports.sendNotificationOnNewMessage = functions.firestore
 
     return null;
   });
+
+exports.sendNotificationOnNewPrivateMessage = functions.region('asia-east1').firestore
+  .document('privateChats/{relationshipId}/messages/{messageId}')
+  .onCreate(async (snapshot, context) => {
+    const relationshipId = context.params.relationshipId;
+    const eventData = (await admin.firestore().collection('relationships').doc(relationshipId).get()).data();
+    const participants = eventData.participants;
+
+    const messageData = snapshot.data();
+    const messageText = messageData.message;
+    const senderId = messageData.userId;
+    const senderSnapshot = await admin.firestore().collection('users').doc(senderId).get();
+    const senderUsername = senderSnapshot.data().username;
+    const senderAvatarURL = senderSnapshot.data().avatarURL;
+
+    functions.logger.info('New message from:', senderId , 'in relationship:', relationshipId);
+
+    const notifications = await Promise.all(participants
+      .filter(participantId => participantId !== senderId)
+      .map(async participantId => {
+        const tokenDoc = await admin.firestore().collection('users').doc(participantId).get();
+        const recipientToken = tokenDoc.data()['fcmToken'];
+        functions.logger.info('Sending notification to:', participantId, recipientToken);
+        try {
+            const response = await admin.messaging().send({
+                token: recipientToken,
+                notification: {
+                    title: `${senderUsername}`,
+                    body: `${messageText}`,
+                    imageUrl: senderAvatarURL,
+                },
+            });
+            console.log('Notification sent:', response);
+        } catch (error) {
+            console.error('Error sending notification:', error);
+        }
+    }));
+
+    return null;
+  });
+
+  
 
 
 
