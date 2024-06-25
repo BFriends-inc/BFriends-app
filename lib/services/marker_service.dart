@@ -51,6 +51,7 @@ class MarkerProvider with ChangeNotifier {
           await _firestore.collection('events').doc(eventId).get();
       debugPrint("Event name is: $eventId");
       markerDetail = {
+        'eventId': eventId,
         'name': doc['eventName'],
         'imgURL': doc['imageUrl'],
         'date': doc['date'].toDate(),

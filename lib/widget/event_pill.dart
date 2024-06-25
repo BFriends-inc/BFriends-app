@@ -1,5 +1,8 @@
+import 'package:bfriends_app/pages/event_detail.dart';
+import 'package:bfriends_app/services/event_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EventPill extends StatefulWidget {
   const EventPill({
@@ -27,27 +30,30 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
   final pillSizeH = 120.0; //how large the pill is vertically
   final pillPosH = 50.0; //how high the pill is positioned
   final imgH = 110.0, imgW = 110.0; //how large the image is
+  final User? user = FirebaseAuth.instance.currentUser;
 
   late AnimationController _controller;
   late AnimationController _colorController;
   late Animation<double> _fadeInAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
-  //add color 
+  //add color
   late Animation<Color?> _colorAnimation;
+
+  EventService eventService = EventService();
 
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-
+    
     _colorController = AnimationController(
       duration: const Duration(seconds: 2),
-      vsync: this, //helps to optimize the animation by preventing offscreen animations from consuming unnecessary resources.
+      vsync:
+          this, //helps to optimize the animation by preventing offscreen animations from consuming unnecessary resources.
     )..repeat(reverse: true);
 
     _fadeInAnimation = CurvedAnimation(
@@ -68,7 +74,8 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut, //elasticOut curve, which starts quickly, overshoots, and then settles back.
+      curve: Curves
+          .elasticOut, //elasticOut curve, which starts quickly, overshoots, and then settles back.
     ));
 
     _colorAnimation = ColorTween(
@@ -88,11 +95,27 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
     _colorController.dispose();
     super.dispose();
   }
+  @override
+  //to make sure that eventhough we move from one to another the animation still work
+  void didUpdateWidget(covariant EventPill oldWidget) {
+    // Reset animation when widget properties change
+    //covariant is:
+    //If the parent widget rebuilds and requests that this location in the tree update to 
+    //display a new widget with the same [runtimeType] and [Widget.key], 
+    //the framework will update the [widget] property of this [State] object to refer to 
+    //the new widget and then call this method with the previous widget as an argument.
+    super.didUpdateWidget(oldWidget);
+    if (widget.eventId != oldWidget.eventId) {
+      _controller.reset();
+      _controller.forward();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     bool showGradient = (widget.ppl / widget.maxPpl) > 0.8;
+
     //debug
     //showGradient = true;
     return AnimatedPositioned(
@@ -102,8 +125,24 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
       child: GestureDetector(
-        onTap: () {
-          // navigate to event details
+        onTap: () async {
+          Map<String, dynamic>? eventData =
+              await eventService.getEventById(widget.eventId);
+              debugPrint(eventData.toString());
+          if (eventData != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EventDetailsScreen(
+                  event: eventData,
+                  currUser: user,
+                ),
+              ),
+            );
+          } else {
+            // Handle case where event data is null
+            _controller.reset();
+          }
         },
         child: Align(
           alignment: Alignment.bottomCenter,
@@ -112,7 +151,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
               _controller.forward();
             },
             onExit: (event) {
-              _controller.reverse();
+              _controller.reset();
             },
             child: AnimatedBuilder(
               animation: _colorController,
@@ -131,7 +170,8 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
                                 end: Alignment.bottomRight,
                               )
                             : null,
-                        color: showGradient ? null : theme.colorScheme.background,
+                        color:
+                            showGradient ? null : theme.colorScheme.background,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: <BoxShadow>[
                           BoxShadow(
@@ -159,7 +199,8 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
                           ),
                           Expanded(
                             child: Container(
-                              margin: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
+                              margin: const EdgeInsets.fromLTRB(
+                                  10.0, 5.0, 10.0, 10.0),
                               child: SlideTransition(
                                 position: _slideAnimation,
                                 child: Column(
@@ -169,8 +210,10 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
                                     Text(
                                       widget.title,
                                       style: TextStyle(
-                                        fontStyle: theme.textTheme.titleSmall!.fontStyle,
-                                        fontSize: theme.textTheme.titleSmall!.fontSize,
+                                        fontStyle: theme
+                                            .textTheme.titleSmall!.fontStyle,
+                                        fontSize: theme
+                                            .textTheme.titleSmall!.fontSize,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       overflow: TextOverflow.ellipsis,
@@ -180,18 +223,28 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
                                       'Date: ${widget.date.toString().split(' ')[0]}   ${widget.startTime}',
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0.0, 5.0, 0.0, 0.0),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: theme.colorScheme.tertiaryContainer,
-                                          borderRadius: BorderRadius.circular(10.0),
+                                          color: theme
+                                              .colorScheme.tertiaryContainer,
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
                                         ),
-                                        padding: const EdgeInsets.fromLTRB(5.0, 3.0, 5.0, 3.0),
-                                        child: showGradient ? Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children : [Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
-                                          const Icon(Icons.whatshot, color: Colors.red),]): 
-                                          Text('Joined: ${widget.ppl}/${widget.maxPpl}'),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            5.0, 3.0, 5.0, 3.0),
+                                        child: showGradient
+                                            ? Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                    Text(
+                                                        'Joined: ${widget.ppl}/${widget.maxPpl}'),
+                                                    const Icon(Icons.whatshot,
+                                                        color: Colors.red),
+                                                  ])
+                                            : Text(
+                                                'Joined: ${widget.ppl}/${widget.maxPpl}'),
                                       ),
                                     ),
                                   ],
