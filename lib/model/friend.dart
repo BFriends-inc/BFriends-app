@@ -10,6 +10,8 @@ class Friend {
   List<dynamic>? interests;
   bool favorite;
   bool block;
+  String? aboutMe;
+  String? status;
   Friend(
       {required this.id,
       required this.username,
@@ -17,7 +19,9 @@ class Friend {
       this.languages,
       this.interests,
       required this.favorite,
-      required this.block});
+      required this.block,
+      this.aboutMe,
+      this.status});
 
   factory Friend.fromDocument(DocumentSnapshot doc) {
     return Friend(
@@ -28,6 +32,8 @@ class Friend {
       interests: List<String>.from(doc['interests']),
       favorite: doc['favorite'],
       block: doc['block'],
+      status: doc['status'],
+      aboutMe: doc['aboutMe'],
     );
   }
 }

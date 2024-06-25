@@ -103,9 +103,11 @@ class _AddFriendPageState extends State<AddFriendPage> {
                     ),
                     title: Text(userFiltered.username.toString()),
                     trailing: IconButton(
-                      icon: const Icon(Icons.person_add_alt_outlined),
-                      onPressed: () =>
-                          _sendFriendRequest(userFiltered.id.toString()),
+                      icon: (user!.friends!.contains(userFiltered.id)) ? const Icon(Icons.check) : (user.requesting!.contains(userFiltered.id)) ? const Icon(Icons.hourglass_bottom) : const Icon(Icons.person_add_alt_outlined),
+                      onPressed: () {
+                          (user.friends!.contains(userFiltered.id) || user.requesting!.contains(userFiltered.id)) ? {} :
+                              _sendFriendRequest(userFiltered.id.toString());
+                      }
                     ),
                   );
                 },

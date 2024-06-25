@@ -18,6 +18,8 @@ class UserModel {
     required this.requests,
     required this.favorite,
     required this.block,
+    required this.status,
+    required this.aboutMe,
   });
 
   User? firebaseUser;
@@ -25,9 +27,11 @@ class UserModel {
   String? email;
   Object? joinDate;
   String? username;
-  final String? avatarURL;
+  String? avatarURL;
   final List<dynamic>? listLanguage, listInterest;
   final List<dynamic>? friends, requests, requesting, favorite, block;
+  String? status;
+  String? aboutMe;
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map;
@@ -46,6 +50,8 @@ class UserModel {
       requesting: data['requesting'],
       favorite: data['favorite'],
       block: data['block'],
+      status: data['status'],
+      aboutMe: data['aboutMe'],
     );
   }
 }
