@@ -2,6 +2,7 @@ import 'package:bfriends_app/pages/event_detail.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EventPill extends StatefulWidget {
   const EventPill({
@@ -29,6 +30,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
   final pillSizeH = 120.0; //how large the pill is vertically
   final pillPosH = 50.0; //how high the pill is positioned
   final imgH = 110.0, imgW = 110.0; //how large the image is
+  final User? user = FirebaseAuth.instance.currentUser;
 
   late AnimationController _controller;
   late AnimationController _colorController;
@@ -43,12 +45,11 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-
+    
     _colorController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync:
@@ -103,11 +104,11 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
     //display a new widget with the same [runtimeType] and [Widget.key], 
     //the framework will update the [widget] property of this [State] object to refer to 
     //the new widget and then call this method with the previous widget as an argument.
+    super.didUpdateWidget(oldWidget);
     if (widget.eventId != oldWidget.eventId) {
       _controller.reset();
       _controller.forward();
     }
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -134,11 +135,13 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
               MaterialPageRoute(
                 builder: (context) => EventDetailsScreen(
                   event: eventData,
+                  currUser: user,
                 ),
               ),
             );
           } else {
             // Handle case where event data is null
+            _controller.reset();
           }
         },
         child: Align(
@@ -148,7 +151,7 @@ class _EventPillState extends State<EventPill> with TickerProviderStateMixin {
               _controller.forward();
             },
             onExit: (event) {
-              _controller.reverse();
+              _controller.reset();
             },
             child: AnimatedBuilder(
               animation: _colorController,

@@ -65,28 +65,31 @@ class _EventCardState extends State<EventCard> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final eventService = EventService();
-    final eventId = event['eventId'] ?? 'No id';
-    final image = NetworkImage(event['imageUrl']);
-    final eventName = event['eventName'] ?? 'No name';
-    final eventDate = event['date'] != null ? (event['date'] as Timestamp).toDate().toIso8601String() : 'No date';
-    final startTime = event['startTime'] ?? 'No time';
-    final endTime = event['endTime'] ?? 'No time';
-    final location = event['place']['placeName'] ?? 'No name';
-    final Map<String, dynamic> participantsList = event['participationList'];
-    final participants = event['participationList'].length.toString();
-    final maxParticipants = event['participants'] ?? "No limit specified";
-    final currentUser = currUser;
+    final eventId = widget.event['eventId'] ?? 'No id';
+    final image = NetworkImage(widget.event['imageUrl']);
+    final eventName = widget.event['eventName'] ?? 'No name';
+    final eventDate = widget.event['date'] != null ? (widget.event['date'] as Timestamp).toDate().toIso8601String() : 'No date';
+    final startTime = widget.event['startTime'] ?? 'No time';
+    final endTime = widget.event['endTime'] ?? 'No time';
+    final location = widget.event['place']['placeName'] ?? 'No name';
+    final Map<String, dynamic> participantsList = widget.event['participationList'];
+    final participants = widget.event['participationList'].length.toString();
+    final maxParticipants = widget.event['participants'] ?? "No limit specified";
+    final currentUser = widget.currUser;
     
-    return GestureDetector(
+    return SlideTransition(
+      position: _slideAnimation,
+      child: GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => EventDetailsScreen(
-              event: event,
-              currUser: currUser,
+              event: widget.event,
+              currUser: widget.currUser,
             ),
-          );
+          )
+        );
         },
         child: Card(
           shape: RoundedRectangleBorder(
@@ -190,7 +193,7 @@ class _EventCardState extends State<EventCard> with SingleTickerProviderStateMix
             ],
           ),
         ),
-      ),
+      )
     );
   }
 }
