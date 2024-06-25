@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:bfriends_app/model/user.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +23,8 @@ class AcceptFriendPage extends StatefulWidget {
 class _AcceptFriendPageState extends State<AcceptFriendPage> {
   final List<NotificationItem> _notifications = [];
 
-  void _removeNotification(NotificationItem notif, AuthService authService) async {
+  void _removeNotification(
+      NotificationItem notif, AuthService authService) async {
     final notifIndex = _notifications.indexOf(notif);
     await authService.removeFriendRequest(authService.user?.id ?? '', notif.id);
     setState(() {
@@ -32,7 +37,8 @@ class _AcceptFriendPageState extends State<AcceptFriendPage> {
     ));
   }
 
-  void _acceptNotification(NotificationItem notif, AuthService authService) async {
+  void _acceptNotification(
+      NotificationItem notif, AuthService authService) async {
     debugPrint('accept notif function');
     final notifIndex = _notifications.indexOf(notif);
     await authService.acceptFriend(authService.user?.id ?? '', notif.id);
@@ -47,27 +53,70 @@ class _AcceptFriendPageState extends State<AcceptFriendPage> {
     ));
   }
 
-  Future<void> fetchAllFriends(UserModel user, AuthService authService) async {
-      var requests = user.requests;
-      debugPrint('request length: ${requests?.length.toString() ?? '0'}');
-      List<Future<Friend>> friendFutures = requests!.map((req) {
-        return authService.fetchFriend(req);
-      }).toList();
+  Future<void> fetchAllFriends(String uid, AuthService authService) async {
+    var user = await authService.fetchUserModelData(
+        uid, FirebaseAuth.instance.currentUser!);
+    var requests = user?.requests;
+    debugPrint('request length: ${requests?.length.toString() ?? '0'}');
+    List<Future<Friend>> friendFutures = requests!.map((req) {
+      return authService.fetchFriend(req);
+    }).toList();
 
-      List<Friend> frd = await Future.wait(friendFutures);
-      debugPrint(frd.length.toString());
-      for(Friend friend in frd){
-        debugPrint('LOOP: ${friend.username}');
-        NotificationItem notif = NotificationItem(username: friend.username, pfp: friend.imagePath, id: friend.id);
+    List<Friend> frd = await Future.wait(friendFutures);
+    debugPrint(frd.length.toString());
+    for (Friend friend in frd) {
+      debugPrint('LOOP: ${friend.username}');
+      NotificationItem notif = NotificationItem(
+          username: friend.username, pfp: friend.imagePath, id: friend.id);
+      // Check for duplicates before adding
+      if (_notifications.isEmpty) {
+        _notifications.add(notif);
+      }
+      for (NotificationItem n in _notifications) {
+        if (n.id == notif.id) {
+          return;
+        }
         _notifications.add(notif);
       }
     }
+  }
+
+  StreamSubscription? _friendsSubscription;
+
+  void _listenToEvents(String uid, AuthService authService) {
+    _friendsSubscription =
+        FirebaseFirestore.instance.collection('users').snapshots().listen(
+      (snapshot) {
+        debugPrint(snapshot.docs.toString());
+        fetchAllFriends(uid, authService);
+      },
+      onError: (error) => debugPrint("Listen failed: $error"),
+    );
+  }
+
+  AuthService? authService;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint("INNIT");
+    // Fetch authService when initState is called
+    authService = Provider.of<AuthService>(context, listen: false);
+    fetchAllFriends(FirebaseAuth.instance.currentUser!.uid, authService!);
+    //_listenToEvents(FirebaseAuth.instance.currentUser!.uid, authService!);
+  }
+
+  @override
+  void dispose() {
+    //_friendsSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
-    final user = authService.user;
+    final user = Provider.of<AuthService>(context).user;
 
     debugPrint('notif length ${_notifications.length.toString()}');
 
@@ -101,27 +150,28 @@ class _AcceptFriendPageState extends State<AcceptFriendPage> {
         ),
       ),
       body: FutureBuilder(
-        future: fetchAllFriends(user!, authService),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            if (_notifications.isNotEmpty) {
-              debugPrint('_notifications not empty');
-              notifList = NotificationList(
-                notifications: _notifications,
-                onRemoveNotification: _removeNotification,
-                onAcceptNotification: _acceptNotification,
-              );
+          future: fetchAllFriends(user!.id!, authService),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              if (_notifications.isNotEmpty) {
+                debugPrint('_notifications not empty');
+                notifList = NotificationList(
+                  notifications: _notifications,
+                  onRemoveNotification: _removeNotification,
+                  onAcceptNotification: _acceptNotification,
+                );
+              }
             }
-          }
-          return Column(
+            return Column(
               children: [
                 Expanded(child: notifList),
-            ],);
-        }
-    ),);
+              ],
+            );
+          }),
+    );
   }
 }

@@ -59,7 +59,8 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> fetchAllFriends(String uid, AuthService authService) async {
-    var user = await authService.fetchUserModelData(uid, FirebaseAuth.instance.currentUser!);
+    var user = await authService.fetchUserModelData(
+        uid, FirebaseAuth.instance.currentUser!);
     var requests = user?.friends;
     debugPrint(requests.toString());
     debugPrint('request length: ${requests?.length.toString() ?? '0'}');
@@ -89,7 +90,6 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint("INNIT");
     // Fetch authService when initState is called
     authService = Provider.of<AuthService>(context, listen: false);
     user = authService!.user;
