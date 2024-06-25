@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/navigation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
 import 'package:bfriends_app/pages/chat_page.dart';
@@ -54,14 +58,49 @@ class _FriendsPageState extends State<FriendsPage> {
     return filteredFriends;
   }
 
-  Future<void> fetchAllFriends(UserModel user, AuthService authService) async {
-    var requests = user.friends;
+  Future<void> fetchAllFriends(String uid, AuthService authService) async {
+    var user = await authService.fetchUserModelData(uid, FirebaseAuth.instance.currentUser!);
+    var requests = user?.friends;
+    debugPrint(requests.toString());
     debugPrint('request length: ${requests?.length.toString() ?? '0'}');
     List<Future<Friend>> friendFutures = requests!.map((req) {
       return authService.fetchFriend(req);
     }).toList();
-
     friends = await Future.wait(friendFutures);
+    debugPrint(friends.length.toString());
+  }
+
+  StreamSubscription? _friendsSubscription;
+
+  void _listenToEvents(String uid, AuthService authService) {
+    _friendsSubscription =
+        FirebaseFirestore.instance.collection('users').snapshots().listen(
+      (snapshot) {
+        debugPrint(snapshot.docs.toString());
+        fetchAllFriends(uid, authService);
+      },
+      onError: (error) => debugPrint("Listen failed: $error"),
+    );
+  }
+
+  AuthService? authService;
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint("INNIT");
+    // Fetch authService when initState is called
+    authService = Provider.of<AuthService>(context, listen: false);
+    user = authService!.user;
+    fetchAllFriends(FirebaseAuth.instance.currentUser!.uid, authService!);
+    _listenToEvents(FirebaseAuth.instance.currentUser!.uid, authService!);
+  }
+
+  @override
+  void dispose() {
+    _friendsSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -184,7 +223,7 @@ class _FriendsPageState extends State<FriendsPage> {
             ),
             const SizedBox(height: 16.0),
             FutureBuilder(
-                future: fetchAllFriends(user, authService),
+                future: fetchAllFriends(user.id!, authService),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
