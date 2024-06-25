@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:bfriends_app/model/user.dart';
-import 'package:bfriends_app/pages/chat_screen.dart';
+import 'package:bfriends_app/pages/group_chat_screen.dart';
 import 'package:bfriends_app/services/auth_service.dart';
 import 'package:bfriends_app/services/event_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

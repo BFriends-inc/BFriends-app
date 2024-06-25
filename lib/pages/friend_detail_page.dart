@@ -1,7 +1,11 @@
+import 'package:bfriends_app/pages/individual_chat_screen.dart';
+import 'package:bfriends_app/services/auth_service.dart';
+import 'package:bfriends_app/services/chat_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:bfriends_app/model/friend.dart';
-import 'package:bfriends_app/pages/chat_page.dart';
 import 'package:like_button/like_button.dart';
+import 'package:provider/provider.dart';
 
 class FriendDetailPage extends StatefulWidget {
   final Friend friend;
@@ -15,6 +19,7 @@ class FriendDetailPage extends StatefulWidget {
 
 class _FriendDetailPageState extends State<FriendDetailPage> {
   bool isPressedChat = false;
+  final ChatService _chatService = ChatService();
 
   void showBlockConfirmationDialog() {
     showDialog(
@@ -114,9 +119,32 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
     return widget.friend.favorite;
   }
 
+  void _navigateToChat(User? user) {
+    _chatService.getUserRelationships(user!.uid).listen((relationships) {
+      for (var relationship in relationships) {
+        if (relationship['participants'].contains(widget.friend.id)) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IndividualChatScreen(
+                event: relationship,
+                currUser: user,
+                friend: widget.friend,
+              ),
+            ),
+          );
+          break;
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final User? user = FirebaseAuth.instance.currentUser;
+    final auth = Provider.of<AuthService>(context, listen: false);
     final theme = Theme.of(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -292,12 +320,7 @@ class _FriendDetailPageState extends State<FriendDetailPage> {
                   setState(() {
                     isPressedChat = !isPressedChat;
                   });
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatPage(friend: widget.friend),
-                    ),
-                  );
+                  _navigateToChat(user);
                 }
               },
             ),
