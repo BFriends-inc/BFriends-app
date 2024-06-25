@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter/animation.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -21,9 +22,12 @@ class EventsPage extends StatefulWidget {
   _EventsPageState createState() => _EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage> {
+class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
   final _formProfileSetupKey = GlobalKey<FormState>();
   late StateSetter _setState;
+  late AnimationController _animationController;
+
+  String searchQuery = '';
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedStartTime;
@@ -74,6 +78,10 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
     _locationSearchController.addListener(_onChanged);
     _getCurrentLocation();
     _loadEvents();
@@ -87,6 +95,7 @@ class _EventsPageState extends State<EventsPage> {
     _pageController.dispose();
     _isDateValid.dispose();
     _eventsSubscription?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -622,12 +631,11 @@ class _EventsPageState extends State<EventsPage> {
     }
   }
 
-
   Future<void> _loadEvents() async {
     try {
       List<Map<String, dynamic>> events = await eventService.getEvents();
-        setState(() {
-          _events = events;
+      setState(() {
+        _events = events;
       });
     } catch (e) {
       debugPrint('Error loading events: $e');
@@ -635,12 +643,26 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Widget MyEventsPage() {
-    return _events.isEmpty
-        ? const Center(child: CircularProgressIndicator())
+    List<Map<String, dynamic>> filteredEvents = _events;
+
+    if (searchQuery.isNotEmpty) {
+      filteredEvents = _events
+          .where((event) => event['eventName']
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase()))
+          .toList();
+    }
+
+    return filteredEvents.isEmpty
+        ?
+        // ? const Center(child: CircularProgressIndicator())
+        const Center(child: Text('No events found'))
         : ListView.builder(
-            itemCount: _events.length,
+            itemCount: filteredEvents.length,
             itemBuilder: (context, index) {
-              final event = _events[index];
+              final event = filteredEvents[index];
+              final delay = Duration(milliseconds: 200 * index);
               if (event['ownerId'] != user?.uid &&
                   !event['participationList'].keys.contains(user?.uid)) {
                 return const SizedBox.shrink();
@@ -653,18 +675,33 @@ class _EventsPageState extends State<EventsPage> {
                     int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
+                delay: delay,
               );
             },
           );
   }
 
   Widget AllEventsPage() {
-    return _events.isEmpty
-        ? const Center(child: CircularProgressIndicator())
+    List<Map<String, dynamic>> filteredEvents = _events;
+
+    if (searchQuery.isNotEmpty) {
+      filteredEvents = _events
+          .where((event) => event['eventName']
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase()))
+          .toList();
+    }
+
+    return filteredEvents.isEmpty
+        ?
+        // ? const Center(child: CircularProgressIndicator())
+        const Center(child: Text('No events found'))
         : ListView.builder(
-            itemCount: _events.length,
+            itemCount: filteredEvents.length,
             itemBuilder: (context, index) {
-              final event = _events[index];
+              final event = filteredEvents[index];
+              final delay = Duration(milliseconds: 200 * index);
               return EventCard(
                 event: event,
                 currUser: user,
@@ -673,6 +710,7 @@ class _EventsPageState extends State<EventsPage> {
                     int.parse(event['participants']),
                 isHosted: event['ownerId'] == user?.uid,
                 isJoined: event['participationList'].keys.contains(user?.uid),
+                delay: delay,
               );
             },
           );
@@ -687,22 +725,57 @@ class _EventsPageState extends State<EventsPage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: theme.colorScheme.primary,
-          title: Text(
-            'BFriends',
-            style: TextStyle(
-              fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
-              fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
-              color: theme.colorScheme.onPrimary,
-            ),
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.add,
-                color: theme.colorScheme.onPrimary,
-                semanticLabel: 'Add a New Event',
+          title: Row(
+            children: [
+              Text(
+                'BFriends',
+                style: TextStyle(
+                  fontSize: theme.primaryTextTheme.headlineMedium?.fontSize,
+                  fontWeight: theme.primaryTextTheme.headlineMedium?.fontWeight,
+                  color: theme.colorScheme.onPrimary,
+                ),
               ),
-              onPressed: _showDialog,
+              SizedBox(
+                  width:
+                      16), // Add some space between the title and the search bar
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: EdgeInsets.symmetric(vertical: 0),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            RotationTransition(
+              turns: _animationController,
+              child: IconButton(
+                icon: Icon(
+                  Icons.add,
+                  color: theme.colorScheme.onPrimary, // Original color
+                  //semanticLabel: 'Add a New Event',
+                ),
+                onPressed: () {
+                  _animationController.forward(from: 0).then((value) {
+                    _animationController.stop();
+                  });
+                  _showDialog();
+                },
+              ),
             ),
           ],
           bottom: const TabBar(

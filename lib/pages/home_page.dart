@@ -79,7 +79,7 @@ class MapPageState extends State<MapPage>
                 if (markerService.selectedMarker != null &&
                     markerService.markerDetail != null)
                   EventPill(
-                    eventId: markerService.selectedMarker.toString(),
+                    eventId: markerService.markerDetail?['eventId'],
                     pillPosition: 200,
                     title: markerService.markerDetail!['name'],
                     date: markerService.markerDetail!['date'],
