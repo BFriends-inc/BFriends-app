@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,7 +15,7 @@ class EventService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final Uuid uuid = const Uuid();
 
-  static const googleMapsApiKey = 'AIzaSyDyS54e5Iu_jFGV3YiKGv5yg3fiUJiH87A';
+  static var googleMapsApiKey = '${dotenv.env['MAPAPIKEY']}';
 
   Future<void> downloadImage(String url, String fileName) async {
     var response = await http.get(Uri.parse(url));
@@ -246,4 +247,3 @@ class EventService {
     }
   }
 }
-

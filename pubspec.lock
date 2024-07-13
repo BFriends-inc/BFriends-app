@@ -350,6 +350,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_dotenv:
+    dependency: "direct main"
+    description:
+      name: flutter_dotenv
+      sha256: "9357883bdd153ab78cbf9ffa07656e336b8bbb2b5a3ca596b0b27e119f7c7d77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -671,7 +679,7 @@ packages:
       sha256: a597f72a664dbd293f3bfc51f9ba69816f84dcd403cdac7066cb3f6003f3ab47
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.0.1"
   like_button:
     dependency: "direct main"
     description:
@@ -932,7 +940,7 @@ packages:
       sha256: "5c2f730018264d276c20e4f1503fd1308dfbbae39ec8ee63c5236311ac06954b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0"
+    version: "0.6.1"
   timezone:
     dependency: transitive
     description:

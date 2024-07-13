@@ -12,10 +12,13 @@ import 'package:bfriends_app/services/map_controller_service.dart';
 import 'package:bfriends_app/pages/friends_page.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
+  await dotenv.load(fileName: ".env"); //load env file
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
