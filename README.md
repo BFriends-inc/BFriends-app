@@ -39,4 +39,4 @@ You may then type:
 To run the application.
 
 ## License
-Our project is protected under the ![GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+Our project is protected under the [GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html)
