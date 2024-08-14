@@ -26,15 +26,15 @@ Our app is made for users who'd like to search for friends with common interests
 ## Deployment
 To deploy our app, you may fork the repository and clone the forked repository onto your local device. Before starting the app, you may type the following on your CLI to check if you've Flutter properly set up on your local device.
 
-  > `$ flutter --version`
+`$ flutter --version`
 
 If you're missing packages to successfully run the application you may try the following to install necessary packages.
 
-  > `$ flutter pub get`
+`$ flutter pub get`
 
 You may then type:
 
-  > `$ flutter run`
+`$ flutter run`
 
 To run the application.
 
